@@ -30,33 +30,34 @@ public abstract class Cache<T> {
     /** <NFC normalized path {@link String}, {@link List<Path>}> */
     protected Map<String, List<Path>> folderCache = new HashMap<>(); // TODO refresh
 
-    /** */
+    /** There is metadata or not. */
     public boolean containsFile(Path path) throws IOException {
         return entryCache.containsKey(toPathString(path));
     }
 
     /** */
     public T getFile(Path path) throws IOException {
-//System.err.println("CACHE: path: " + path + ", id: " + entryCache.get(path).getId());
         return entryCache.get(toPathString(path));
     }
 
     /** */
     public T putFile(Path path, T entry) throws IOException {
-//System.err.println("GOT: path: " + path + ", id: " + entry.getId());
         return entryCache.put(toPathString(path), entry);
     }
 
+    /** There are children's metadata or not. */
     public boolean containsFolder(Path path) throws IOException {
         return folderCache.containsKey(toPathString(path));
     }
 
-    /** */
+    /** Gets children path. */
     public List<Path> getFolder(Path path) throws IOException {
         return folderCache.get(toPathString(path));
     }
 
-    /** */
+    /**
+     * @return -1 if path does not exist
+     */
     public int getChildCount(Path path) throws IOException {
         return containsFolder(path) ? getFolder(path).size() : -1;
     }
@@ -68,9 +69,7 @@ public abstract class Cache<T> {
 
     /** */
     public void addEntry(Path path, T entry) throws IOException {
-//new Exception("*** ADD ***").printStackTrace();
         entryCache.put(toPathString(path), entry);
-//System.out.println("CACHE A1: " + path);
         Path parentPath = path.getParent();
         List<Path> paths = folderCache.get(toPathString(parentPath));
         if (paths == null) {
@@ -78,25 +77,15 @@ public abstract class Cache<T> {
             folderCache.put(toPathString(parentPath), paths);
         }
         paths.add(path);
-//paths.forEach(p -> System.out.println("CACHE A2: " + p));
     }
 
     /** */
     public void removeEntry(Path path) throws IOException {
-//new Exception("*** DELETE ***").printStackTrace();
         entryCache.remove(toPathString(path));
-//System.out.println("CACHE D1: " + path);
         List<Path> paths = folderCache.get(toPathString(path.getParent()));
         if (paths != null) {
             paths.remove(path);
-//paths.forEach(p -> System.out.println("CACHE D2: " + p));
         }
-    }
-
-    /** TODO for onedrive only check!!!!! */
-    public void removeCache(Path path) throws IOException {
-        entryCache.remove(toPathString(path));
-        folderCache.remove(toPathString(path));
     }
 
     /**
