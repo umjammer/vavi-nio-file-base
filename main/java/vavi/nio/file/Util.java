@@ -25,6 +25,7 @@ import java.text.Normalizer.Form;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import vavi.util.Debug;
 
@@ -59,7 +60,16 @@ public interface Util {
     }
 
     /** */
-    public static DirectoryStream<Path> newDirectoryStream(final List<Path> list) {
+    public static DirectoryStream<Path> newDirectoryStream(final List<Path> list,
+                                                           final DirectoryStream.Filter<? super Path> filter) {
+        List<Path> filtered = filter != null ? list.stream().filter(p -> {
+            try {
+                return filter.accept(p);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }).collect(Collectors.toList()) : list;
+
         return new DirectoryStream<Path>() {
             private final AtomicBoolean alreadyOpen = new AtomicBoolean(false);
 
@@ -69,7 +79,7 @@ public interface Util {
                 if (alreadyOpen.getAndSet(true)) {
                     throw new IllegalStateException("already open");
                 }
-                return list.iterator();
+                return filtered.iterator();
             }
 
             @Override
