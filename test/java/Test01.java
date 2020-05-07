@@ -7,7 +7,14 @@
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+
+import vavi.nio.file.Base;
+import vavi.nio.file.Util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -37,6 +44,23 @@ class Test01 {
 
         assertNull(p.subpath(0, 1).getParent());
         assertEquals("aaa", p.subpath(0, 2).getParent().toString());
+    }
+
+    @Test
+    void test01() throws Exception {
+        Path path = Paths.get("src/main/java/vavi/nio/file/Util.java");
+        assertEquals("Util.java", Util.toFilenameString(path));
+//
+//        path = Paths.get("src/test/resources/ハ゜ンダ.txt");
+//System.err.println(StringUtil.getDump(path.toString().getBytes(Charset.forName("utf-8"))));
+//        assertEquals("パンダ.txt", Util.toFilenameString(path));
+//System.err.println(StringUtil.getDump(Util.toFilenameString(path).getBytes(Charset.forName("utf-8"))));
+    }
+
+    @Test
+    @Disabled
+    void test02() throws Exception {
+        Base.testAll(Jimfs.newFileSystem(Configuration.unix()));
     }
 }
 

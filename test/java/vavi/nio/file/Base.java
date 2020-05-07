@@ -30,7 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public interface Base {
 
-    /** */
+    /**
+     * prepare src/test/resources/Hello.java
+     */
     static void testAll(FileSystem fileSystem) throws Exception {
 
         Path src = Paths.get("src/test/resources" , "Hello.java");
@@ -129,6 +131,11 @@ Thread.sleep(1000);
 System.out.println("$ [list]: " + dir2);
 Files.list(dir2).forEach(System.out::println);
         assertEquals(2, Files.list(dir2).count());
+
+        Path tmp = Paths.get("tmp");
+        if (!Files.exists(tmp)) {
+            Files.createDirectory(tmp);
+        }
 
         Path dst2 = Paths.get("tmp", "Hello.java");
         if (Files.exists(dst2)) {
