@@ -256,6 +256,22 @@ Debug.printf("Skip double close of stream %s", this);
 
         protected abstract void upload(InputStream in) throws IOException;
     }
+
+    /**
+     * TODO created channel from is, os will be closed. is this ok?
+     */
+    static void transfer(InputStream is, OutputStream os) throws IOException {
+        WritableByteChannel wbc = Channels.newChannel(os);
+        ReadableByteChannel rbc = Channels.newChannel(is);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(32 * 1024);
+        while (rbc.read(buffer) != -1 || buffer.position() > 0) {
+            buffer.flip();
+            wbc.write(buffer);
+            buffer.compact();
+        }
+        wbc.close();
+        rbc.close();
+    }
 }
 
 /* */

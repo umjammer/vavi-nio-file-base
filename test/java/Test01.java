@@ -4,6 +4,12 @@
  * Programmed by Naohide Sano
  */
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -18,6 +24,7 @@ import vavi.nio.file.Util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
@@ -61,6 +68,25 @@ class Test01 {
     @Disabled
     void test02() throws Exception {
         Base.testAll(Jimfs.newFileSystem(Configuration.unix()));
+    }
+
+    @Test
+    void test03() throws Exception {
+        Path tmp = Paths.get("tmp");
+        if (!Files.exists(tmp)) {
+            Files.createDirectory(tmp);
+        }
+        Path src = Paths.get("src/test/resources/Hello.java");
+        Path dst = Paths.get("tmp/Hello.java");
+        if (Files.exists(dst)) {
+            Files.delete(dst);
+        }
+        InputStream is = new FileInputStream(src.toFile());
+        OutputStream os = new FileOutputStream(dst.toFile());
+        Util.transfer(is, os);
+        assertThrows(IOException.class, () -> is.read());
+        assertThrows(IOException.class, () -> os.write(0));
+        assertEquals(Files.size(src), Files.size(dst));
     }
 }
 
