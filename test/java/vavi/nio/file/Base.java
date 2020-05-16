@@ -118,8 +118,7 @@ Files.list(dir).forEach(System.out::println);
         assertEquals(4, Files.list(dir).count());
 
 System.out.println("$ [move (internal)]:" + src4 + " " + dir2);
-        Path src5 = Files.move(src4, dir2); // SPEC: move returns target
-        src5 = src5.resolve(src4.getFileName());
+        Path src5 = Files.move(src4, dir2.resolve(src4.getFileName())); // SPEC: move returns target
 Thread.sleep(1000);
 System.out.println("$ [list]: " + dir2);
 Files.list(dir2).forEach(System.out::println);

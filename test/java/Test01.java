@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
@@ -65,7 +64,6 @@ class Test01 {
     }
 
     @Test
-    @Disabled
     void test02() throws Exception {
         Base.testAll(Jimfs.newFileSystem(Configuration.unix()));
     }
