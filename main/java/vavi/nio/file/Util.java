@@ -39,17 +39,17 @@ import vavi.util.Debug;
 public interface Util {
 
     /** */
-    public static String toPathString(Path path) throws IOException {
+    static String toPathString(Path path) throws IOException {
         return Normalizer.normalize(path.toRealPath().toString(), Form.NFC);
     }
 
     /** */
-    public static String toFilenameString(Path path) throws IOException {
+    static String toFilenameString(Path path) throws IOException {
         return Normalizer.normalize(path.toRealPath().getFileName().toString(), Form.NFC);
     }
 
     /** @see "ignoreAppleDouble" */
-    public static boolean isAppleDouble(Path path) throws IOException {
+    static boolean isAppleDouble(Path path) throws IOException {
 //System.err.println("path.toRealPath(): " + path.toRealPath());
 //System.err.println("path.getFileName(): " + path.getFileName());
         String filename = path.getFileName().toString();
@@ -60,8 +60,8 @@ public interface Util {
     }
 
     /** */
-    public static DirectoryStream<Path> newDirectoryStream(final List<Path> list,
-                                                           final DirectoryStream.Filter<? super Path> filter) {
+    static DirectoryStream<Path> newDirectoryStream(final List<Path> list,
+                                                    final DirectoryStream.Filter<? super Path> filter) {
         List<Path> filtered = filter != null ? list.stream().filter(p -> {
             try {
                 return filter.accept(p);
@@ -89,7 +89,7 @@ public interface Util {
     }
 
     /** */
-    public static abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
+    static abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
         protected long written;
         private WritableByteChannel wbc;
 
@@ -154,7 +154,7 @@ Debug.println("writable byte channel: close");
     }
 
     /** */
-    public static abstract class SeekableByteChannelForReading implements SeekableByteChannel {
+    static abstract class SeekableByteChannelForReading implements SeekableByteChannel {
         private long read = 0;
         private ReadableByteChannel rbc;
         private long size;
@@ -213,7 +213,7 @@ Debug.println("writable byte channel: close");
     }
 
     /** */
-    public static abstract class OutputStreamForUploading extends OutputStream {
+    static abstract class OutputStreamForUploading extends OutputStream {
         private final AtomicBoolean closed = new AtomicBoolean();
 
         private ByteArrayOutputStream baos = new ByteArrayOutputStream();
