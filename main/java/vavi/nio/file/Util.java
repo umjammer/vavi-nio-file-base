@@ -8,6 +8,8 @@ package vavi.nio.file;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -213,29 +215,50 @@ Debug.println("writable byte channel: close");
     }
 
     /** */
-    static abstract class OutputStreamForUploading extends OutputStream {
+    static abstract class InputStreamForDownloading extends FilterInputStream {
+
+        private boolean closeOnCloseInternal = true;
+
+        public InputStreamForDownloading(InputStream is) {
+            super(is);
+        }
+
+        public InputStreamForDownloading(InputStream is, boolean closeOnCloseInternal) {
+            super(is);
+            this.closeOnCloseInternal = closeOnCloseInternal;
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (closeOnCloseInternal) {
+                in.close();
+            }
+
+            onClosed();
+        }
+
+        protected abstract void onClosed() throws IOException;
+    }
+
+    /**
+     * TODO limited under 2GB
+     */
+    static abstract class OutputStreamForUploading extends FilterOutputStream {
         private final AtomicBoolean closed = new AtomicBoolean();
 
-        private ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        private boolean closeOnCloseInternal = true;
 
-        @Override
-        public void write(final int b) throws IOException {
-            baos.write(b);
+        public OutputStreamForUploading() {
+            super(new ByteArrayOutputStream());
         }
 
-        @Override
-        public void write(final byte[] b) throws IOException {
-            baos.write(b);
+        public OutputStreamForUploading(OutputStream os) {
+            super(os);
         }
 
-        @Override
-        public void write(final byte[] b, final int off, final int len) throws IOException {
-            baos.write(b, off, len);
-        }
-
-        @Override
-        public void flush() throws IOException {
-            baos.flush();
+        public OutputStreamForUploading(OutputStream os, boolean closeOnCloseInternal) {
+            super(os);
+            this.closeOnCloseInternal = closeOnCloseInternal;
         }
 
         @Override
@@ -246,15 +269,26 @@ Debug.printf("Skip double close of stream %s", this);
                     return;
                 }
 
-                baos.close();
+                if (closeOnCloseInternal) {
+                    out.close();
+                }
 
-                upload(new ByteArrayInputStream(baos.toByteArray())); // TODO engine
+                onClosed();
             } finally {
                 closed.set(true);
             }
         }
 
-        protected abstract void upload(InputStream in) throws IOException;
+        protected InputStream getInputStream() {
+            if (ByteArrayOutputStream.class.isInstance(out)) {
+                // TODO engine
+                return new ByteArrayInputStream(ByteArrayOutputStream.class.cast(out).toByteArray());
+            } else {
+                throw new IllegalStateException("out is not ByteArrayOutputStream: " + out.getClass().getName());
+            }
+        }
+
+        protected abstract void onClosed() throws IOException;
     }
 
     /**
