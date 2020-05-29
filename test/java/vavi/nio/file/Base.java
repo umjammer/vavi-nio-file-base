@@ -24,6 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Base.
+ * <p>
+ * if you want to write sub class test of this base test,
+ * you should include this dependency in your pom.xml
+ * <pre>
+ * &lt;dependency&gt;
+ *   &lt;groupId&gt;com.rainerhahnekamp&lt;/groupId&gt;
+ *   &lt;artifactId&gt;sneakythrow&lt;/artifactId&gt;
+ *   &lt;version&gt;1.2.0&lt;/version&gt;
+ *   &lt;scope&gt;test&lt;/scope&gt;
+ * &lt;/dependency&gt;
+ * </pre>
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2016/03/xx umjammer initial version <br>
