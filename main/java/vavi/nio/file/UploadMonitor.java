@@ -11,8 +11,6 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
-import static vavi.nio.file.Util.toPathString;
-
 
 /**
  * UploadMonitor.
@@ -22,22 +20,22 @@ import static vavi.nio.file.Util.toPathString;
  */
 public class UploadMonitor {
 
-    /** NFC normalized {@link String} */
-    private Set<String> uploadFlags = new HashSet<>();
+    /** */
+    private Set<Path> uploadFlags = new HashSet<>();
 
     /** */
     public void start(Path path) throws IOException {
-        uploadFlags.add(toPathString(path));
+        uploadFlags.add(path);
     }
 
     /** */
     public void finish(Path path) throws IOException {
-        uploadFlags.remove(toPathString(path));
+        uploadFlags.remove(path);
     }
 
     /** */
     public boolean isUploading(Path path) throws IOException {
-        return uploadFlags.contains(toPathString(path));
+        return uploadFlags.contains(path);
     }
 }
 
