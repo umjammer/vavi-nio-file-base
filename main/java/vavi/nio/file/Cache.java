@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static vavi.nio.file.Util.toPathString;
 
@@ -25,10 +25,10 @@ import static vavi.nio.file.Util.toPathString;
  */
 public abstract class Cache<T> {
     /** <NFC normalized path {@link String}, {@link T}> */
-    protected Map<String, T> entryCache = new HashMap<>(); // TODO refresh
+    protected Map<String, T> entryCache = new ConcurrentHashMap<>(); // TODO refresh
 
     /** <NFC normalized path {@link String}, {@link List<Path>}> */
-    protected Map<String, List<Path>> folderCache = new HashMap<>(); // TODO refresh
+    protected Map<String, List<Path>> folderCache = new ConcurrentHashMap<>(); // TODO refresh
 
     /** There is metadata or not. */
     public boolean containsFile(Path path) throws IOException {
