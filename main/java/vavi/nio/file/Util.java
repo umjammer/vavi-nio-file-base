@@ -21,11 +21,14 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.DirectoryStream;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -59,6 +62,17 @@ public interface Util {
                filename.equals(".DS_Store") ||
                filename.equals(".localized") ||
                filename.equals(".hidden");
+    }
+
+    /**
+     * @return nullable
+     */
+    static <T extends U, U> T getOneOfOptions(Class<T> clazz, Set<? extends U> options) {
+        if (options != null && options.stream().anyMatch(o -> clazz.isInstance(o))) {
+            return clazz.cast(options.stream().filter(o -> clazz.isInstance(o)).findFirst().get());
+        } else {
+            return null;
+        }
     }
 
     /** */
@@ -214,6 +228,22 @@ Debug.println("writable byte channel: close");
         }
     }
 
+    /**
+     * TODO
+     * <ul>
+     * <li> StandardOpenOption.WRITE
+     * <li> StandardOpenOption.CREATE_NEW
+     * <li> StandardOpenOption.CREATE
+     * <li> StandardOpenOption.APPEND
+     * </ul>
+     */
+    static boolean isWriting(Set<? extends OpenOption> options) {
+        return options.contains(StandardOpenOption.WRITE) ||
+                options.contains(StandardOpenOption.CREATE_NEW) ||
+                options.contains(StandardOpenOption.CREATE) ||
+                options.contains(StandardOpenOption.APPEND);
+    }
+
     /** */
     static abstract class InputStreamForDownloading extends FilterInputStream {
 
@@ -291,20 +321,29 @@ Debug.printf("Skip double close of stream %s", this);
         protected abstract void onClosed() throws IOException;
     }
 
-    /**
-     * TODO created channel from is, os will be closed. is this ok?
-     */
+    /** */
+    static final int BUFFER_SIZE = 4 * 1024 * 1024;
+
+    /** */
     static void transfer(InputStream is, OutputStream os) throws IOException {
         WritableByteChannel wbc = Channels.newChannel(os);
         ReadableByteChannel rbc = Channels.newChannel(is);
-        ByteBuffer buffer = ByteBuffer.allocateDirect(32 * 1024);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
         while (rbc.read(buffer) != -1 || buffer.position() > 0) {
             buffer.flip();
             wbc.write(buffer);
             buffer.compact();
         }
-        wbc.close();
-        rbc.close();
+    }
+
+    /** */
+    static void transfer(SeekableByteChannel in, SeekableByteChannel out) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        while (in.read(buffer) != -1 || buffer.position() > 0) {
+            buffer.flip();
+            out.write(buffer);
+            buffer.compact();
+        }
     }
 }
 
