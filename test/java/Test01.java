@@ -6,7 +6,6 @@
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -23,7 +22,6 @@ import vavi.nio.file.Util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
@@ -82,8 +80,6 @@ class Test01 {
         InputStream is = new FileInputStream(src.toFile());
         OutputStream os = new FileOutputStream(dst.toFile());
         Util.transfer(is, os);
-        assertThrows(IOException.class, () -> is.read());
-        assertThrows(IOException.class, () -> os.write(0));
         assertEquals(Files.size(src), Files.size(dst));
     }
 }
