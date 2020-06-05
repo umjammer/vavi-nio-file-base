@@ -67,6 +67,11 @@ class Test01 {
     }
 
     @Test
+    void test04() throws Exception {
+        Base.testLargeFile(Jimfs.newFileSystem(Configuration.unix()), null);
+    }
+
+    @Test
     void test03() throws Exception {
         Path tmp = Paths.get("tmp");
         if (!Files.exists(tmp)) {

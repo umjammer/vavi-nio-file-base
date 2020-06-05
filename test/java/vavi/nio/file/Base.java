@@ -7,15 +7,22 @@
 package vavi.nio.file;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+
+import vavix.util.Checksum;
 
 import static com.rainerhahnekamp.sneakythrow.Sneaky.sneaked;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -194,4 +201,85 @@ System.out.println("$ [list]: " + dir.getParent());
 Files.list(dir.getParent()).forEach(System.out::println);
         assertEquals(count - 1, Files.list(dir.getParent()).count());
     }
+
+    /** */
+    static void testLargeFile(FileSystem fs, Class<? extends OpenOption> optionClass) throws Exception {
+        Path tmpDir = Paths.get("tmp");
+        if (!Files.exists(tmpDir)) {
+            Files.createDirectories(tmpDir);
+        }
+        Path source = Files.createTempFile(tmpDir, "vavifuse-1-", ".tmp");
+        byte[] bytes = new byte[5 * 1024 * 1024];
+        Files.write(source, bytes);
+
+        Path dir = fs.getPath("/").resolve("VAVIFUSE_FS_TEST_L");
+        Path target = dir.resolve(source.getFileName().toString());
+        if (Files.exists(dir)) {
+            Files.list(dir).forEach(p -> {
+                try {
+System.out.println("rm " + p);
+                    Files.delete(p);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+System.out.println("rmdir " + dir);
+            Files.delete(dir);
+        }
+
+System.out.println("mkdir " + dir);
+        Files.createDirectory(dir);
+
+        OpenOption option = optionClass != null ? optionClass.getDeclaredConstructor(Path.class).newInstance(source) : null;
+
+//System.out.println("cp " + source + " " + target);
+//      Files.copy(source, target, option); // our option isn't accepted by jdk
+
+System.out.println("cp(2) " + source + " " + target);
+        InputStream in = Files.newInputStream(source, StandardOpenOption.READ);
+        OutputStream out;
+        out = option != null ? Files.newOutputStream(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW, option)
+                             : Files.newOutputStream(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+        Util.transfer(in, out);
+        in.close();
+        out.close();
+        assertTrue(Files.exists(target));
+        assertEquals(Files.size(source), Files.size(target));
+        assertEquals(Checksum.getChecksum(source), Checksum.getChecksum(target));
+
+        Path source2 = source.getParent().resolve(source.getFileName().toString().replace("vavifuse-1-", "vavifuse-2-"));
+
+System.out.println("cp(3) " + target + " " + source2);
+        SeekableByteChannel inChannel = Files.newByteChannel(target, StandardOpenOption.READ);
+        SeekableByteChannel outChannel = Files.newByteChannel(source2, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+        Util.transfer(inChannel, outChannel);
+        inChannel.close();
+        outChannel.close();
+        assertTrue(Files.exists(target));
+        assertEquals(Files.size(source2), Files.size(target));
+        assertEquals(Checksum.getChecksum(source2), Checksum.getChecksum(target));
+
+System.out.println("rm " + source2);
+        Files.delete(source2);
+System.out.println("rm " + target);
+        Files.delete(target);
+
+System.out.println("cp(3) " + source + " " + target);
+        inChannel = Files.newByteChannel(source, StandardOpenOption.READ);
+        outChannel = option != null ? Files.newByteChannel(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW, option)
+                                    : Files.newByteChannel(target, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+        Util.transfer(inChannel, outChannel);
+        inChannel.close();
+        outChannel.close();
+        assertTrue(Files.exists(target));
+        assertEquals(Files.size(source), Files.size(target));
+        assertEquals(Checksum.getChecksum(source), Checksum.getChecksum(target));
+
+System.out.println("rm " + target);
+        Files.delete(target);
+System.out.println("rmdir " + dir);
+        Files.delete(dir);
+    }
 }
+
+/* */
