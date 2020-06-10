@@ -279,6 +279,11 @@ System.out.println("rm " + target);
         Files.delete(target);
 System.out.println("rmdir " + dir);
         Files.delete(dir);
+
+        if (Files.exists(source)) {
+System.out.println("rm " + source);
+            Files.delete(source);
+        }
     }
 }
 
