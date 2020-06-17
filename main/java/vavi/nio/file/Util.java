@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import vavi.util.Debug;
@@ -123,11 +124,13 @@ public interface Util {
 
         @Override
         public long position() throws IOException {
+Debug.println(Level.FINE, "writable byte channel: get position: " + written);
             return written;
         }
 
         @Override
         public SeekableByteChannel position(long pos) throws IOException {
+Debug.println(Level.FINE, "writable byte channel: set position: " + pos);
             written = pos;
             return this;
         }
@@ -152,13 +155,14 @@ Debug.println("writable byte channel: truncate: " + size + ", " + written);
         @Override
         public int write(ByteBuffer src) throws IOException {
             int n = wbc.write(src);
-Debug.println("writable byte channel: write: " + n);
+Debug.println("writable byte channel: write: " + n + "/" + written + " -> " + (written + n));
             written += n;
             return n;
         }
 
         @Override
         public long size() throws IOException {
+Debug.println(Level.FINE, "writable byte channel: size: " + written);
             return written;
         }
 
@@ -189,11 +193,13 @@ Debug.println("writable byte channel: close");
 
         @Override
         public long position() throws IOException {
+Debug.println(Level.FINE, "readable byte channel: get position: " + read);
             return read;
         }
 
         @Override
         public SeekableByteChannel position(long pos) throws IOException {
+Debug.println(Level.FINE, "readable byte channel: set position: " + pos);
             read = pos;
             return this;
         }
@@ -202,6 +208,7 @@ Debug.println("writable byte channel: close");
         public int read(ByteBuffer dst) throws IOException {
             int n = rbc.read(dst);
             if (n > 0) {
+Debug.println("readable byte channel: read: " + n + "/" + read + " -> " + (read + n));
                 read += n;
             }
             return n;
@@ -301,14 +308,14 @@ Debug.printf("Skip double close of stream %s", this);
         public void close() throws IOException {
             if (closed.getAndSet(true)) {
 Debug.printf("Skip double close of stream %s", this);
-                    return;
-                }
+                return;
+            }
 
-                if (closeOnCloseInternal) {
-                    out.close();
-                }
+            if (closeOnCloseInternal) {
+                out.close();
+            }
 
-                onClosed();
+            onClosed();
         }
 
         protected InputStream getInputStream() {
