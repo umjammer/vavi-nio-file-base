@@ -6,8 +6,9 @@
 
 package vavi.nio.file;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -22,21 +23,26 @@ import java.util.Set;
 public class UploadMonitor<T> {
 
     /** */
-    private Set<T> uploadFlags = new HashSet<>();
+    private Map<Path, T> uploadFlags = new ConcurrentHashMap<>();
 
     /** */
-    public void start(T path) {
-        uploadFlags.add(path);
+    public void start(Path path, T entry) {
+        uploadFlags.put(path, entry);
     }
 
     /** */
-    public void finish(T path) {
+    public void finish(Path path) {
         uploadFlags.remove(path);
     }
 
     /** */
-    public boolean isUploading(T path) {
-        return uploadFlags.contains(path);
+    public boolean isUploading(Path path) {
+        return uploadFlags.containsKey(path);
+    }
+
+    /** */
+    public T entry(Path path) {
+        return uploadFlags.get(path);
     }
 }
 
