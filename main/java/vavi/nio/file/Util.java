@@ -246,6 +246,7 @@ Debug.println("writable byte channel: close");
 
     /** */
     static abstract class InputStreamForDownloading extends FilterInputStream {
+        private AtomicBoolean closed = new AtomicBoolean();
 
         private boolean closeOnCloseInternal = true;
 
@@ -260,6 +261,11 @@ Debug.println("writable byte channel: close");
 
         @Override
         public void close() throws IOException {
+            if (closed.getAndSet(true)) {
+Debug.printf("Skip double close of stream %s", this);
+                return;
+            }
+
             if (closeOnCloseInternal) {
                 in.close();
             }
@@ -274,7 +280,7 @@ Debug.println("writable byte channel: close");
      * TODO limited under 2GB
      */
     static abstract class OutputStreamForUploading extends FilterOutputStream {
-        private final AtomicBoolean closed = new AtomicBoolean();
+        private AtomicBoolean closed = new AtomicBoolean();
 
         private boolean closeOnCloseInternal = true;
 
@@ -293,8 +299,7 @@ Debug.println("writable byte channel: close");
 
         @Override
         public void close() throws IOException {
-            try {
-                if (closed.get()) {
+            if (closed.getAndSet(true)) {
 Debug.printf("Skip double close of stream %s", this);
                     return;
                 }
@@ -304,9 +309,6 @@ Debug.printf("Skip double close of stream %s", this);
                 }
 
                 onClosed();
-            } finally {
-                closed.set(true);
-            }
         }
 
         protected InputStream getInputStream() {
