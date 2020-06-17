@@ -21,6 +21,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import vavix.util.Checksum;
 
@@ -209,7 +210,9 @@ Files.list(dir.getParent()).forEach(System.out::println);
             Files.createDirectories(tmpDir);
         }
         Path source = Files.createTempFile(tmpDir, "vavifuse-1-", ".tmp");
-        byte[] bytes = new byte[5 * 1024 * 1024];
+        byte[] bytes = new byte[5 * 1024 * 1024 + 12345];
+        Random random = new Random(System.currentTimeMillis());
+        random.nextBytes(bytes);
         Files.write(source, bytes);
 
         Path dir = fs.getPath("/").resolve("VAVIFUSE_FS_TEST_L");
