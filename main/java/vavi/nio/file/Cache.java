@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /**
@@ -86,12 +87,23 @@ public abstract class Cache<T> {
         }
     }
 
-    /** */
+    /** for folder */
     public void moveEntry(Path source, Path target, T entry) {
         List<Path> children = getFolder(source);
+        if (children != null) {
+            folderCache.remove(source);
+        }
         removeEntry(source);
         addEntry(target, entry);
-        putFolder(target, children);
+        if (children != null) {
+            putFolder(target, changeParent(children, target));
+//getFolder(target).forEach(System.err::println);
+        }
+    }
+
+    /** */
+    private List<Path> changeParent(List<Path> children, Path parent) {
+        return children.stream().map(p -> parent.resolve(p.getFileName())).collect(Collectors.toList());
     }
 
     /**

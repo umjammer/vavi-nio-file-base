@@ -83,6 +83,11 @@ class Test01 {
     }
 
     @Test
+    void test05() throws Exception {
+        Base.testMoveFolder(Jimfs.newFileSystem(Configuration.unix()));
+    }
+
+    @Test
     void test03() throws Exception {
         Path tmp = Paths.get("tmp");
         if (!Files.exists(tmp)) {

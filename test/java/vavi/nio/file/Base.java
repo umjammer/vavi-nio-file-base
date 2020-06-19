@@ -272,6 +272,89 @@ System.out.println("rm " + source);
             Files.delete(source);
         }
     }
+
+    /**
+     * prepare src/test/resources/Hello.java
+     */
+    static void testMoveFolder(FileSystem fileSystem) throws Exception {
+
+        Path src = Paths.get("src/test/resources" , "Hello.java");
+        Path dir = fileSystem.getPath("/").resolve("VAVIFUSE_FS_TEST_F");
+
+        if (Files.exists(dir)) {
+            removeTree(dir);
+        }
+
+        Path dir1 = dir.resolve("work1");
+System.out.println("$ [createDirectory]: " + dir1);
+        dir1 = Files.createDirectories(dir1);
+
+        Path target = dir1.resolve(src.getFileName().toString());
+System.out.println("$ [copy (upload)]: " + src + " " + target);
+        target = Files.copy(src, target);
+
+        Path target2 = target.resolveSibling(target.getFileName().toString() + "_コピー");
+System.out.println("$ [copy (internal)]: " + target + " " + target2);
+        target2 = Files.copy(target, target2);
+
+System.out.println("$ [list]: " + dir1);
+Files.list(dir1).forEach(System.out::println);
+        assertEquals(2, Files.list(dir1).count());
+
+        Path dir2 = dir.resolve("work2");
+System.out.println("$ [createDirectory]: " + dir2);
+        dir2 = Files.createDirectories(dir2);
+
+        Path dir3 = dir2.resolve(dir1.getFileName());
+System.out.println("$ [move (folder, internal)]:" + dir1 + " " + dir3);
+        dir3 = Files.move(dir1, dir3); // SPEC: move returns target
+
+System.out.println("$ [list]: " + dir);
+Files.list(dir).forEach(System.out::println);
+        assertEquals(1, Files.list(dir).count());
+
+System.out.println("$ [list]: " + dir2);
+Files.list(dir2).forEach(System.out::println);
+        assertEquals(1, Files.list(dir2).count());
+
+System.out.println("$ [list]: " + dir3);
+Files.list(dir3).forEach(System.out::println);
+        assertEquals(2, Files.list(dir3).count());
+
+        removeTree(dir);
+    }
+
+    /** */
+    static void removeTree(Path dir) throws Exception {
+        List<Path> files = new ArrayList<>();
+        List<Path> dirs = new ArrayList<>();
+        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                files.add(file);
+                return FileVisitResult.CONTINUE;
+            }
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                dirs.add(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        files.forEach(sneaked(p -> {
+System.out.println("$ [*delete file]: " + p);
+            Files.delete(p);
+Thread.sleep(300);
+        }));
+        dirs.stream().filter(p -> !p.equals(dir)).forEach(sneaked(p -> {
+System.out.println("$ [*delete dir]: " + p);
+            Files.delete(p);
+Thread.sleep(300);
+        }));
+Thread.sleep(1000);
+System.out.println("$ [delete directory]: " + dir);
+        Files.delete(dir);
+Thread.sleep(300);
+    }
 }
 
 /* */
