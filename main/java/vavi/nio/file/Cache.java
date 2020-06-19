@@ -69,20 +69,20 @@ public abstract class Cache<T> {
     public void addEntry(Path path, T entry) {
         entryCache.put(path, entry);
         Path parentPath = path.getParent();
-        List<Path> paths = folderCache.get(parentPath);
-        if (paths == null) {
-            paths = new ArrayList<>();
-            folderCache.put(parentPath, paths);
+        List<Path> bros = folderCache.get(parentPath);
+        if (bros == null) {
+            bros = new ArrayList<>();
+            folderCache.put(parentPath, bros);
         }
-        paths.add(path);
+        bros.add(path);
     }
 
     /** */
     public void removeEntry(Path path) {
         entryCache.remove(path);
-        List<Path> paths = folderCache.get(path.getParent());
-        if (paths != null) {
-            paths.remove(path);
+        List<Path> bros = folderCache.get(path.getParent());
+        if (bros != null) {
+            bros.remove(path);
         }
     }
 

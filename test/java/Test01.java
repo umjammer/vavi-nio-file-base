@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +23,9 @@ import vavi.nio.file.Base;
 import vavi.nio.file.Util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -54,11 +58,18 @@ class Test01 {
     void test01() throws Exception {
         Path path = Paths.get("src/main/java/vavi/nio/file/Util.java");
         assertEquals("Util.java", Util.toFilenameString(path));
-//
-//        path = Paths.get("src/test/resources/ハ゜ンダ.txt");
-//System.err.println(StringUtil.getDump(path.toString().getBytes(Charset.forName("utf-8"))));
-//        assertEquals("パンダ.txt", Util.toFilenameString(path));
-//System.err.println(StringUtil.getDump(Util.toFilenameString(path).getBytes(Charset.forName("utf-8"))));
+
+        String test1 = "src/test/resources/パンダ.txt";
+        String test2 = Normalizer.normalize(test1, Form.NFD);
+        assertNotEquals(test1, test2);
+        String test3 = Normalizer.normalize(test2, Form.NFC);
+        assertEquals(test1, test3);
+
+        Path path1 = Paths.get(test1);
+        assertTrue(Files.exists(path1));
+
+        Path path2 = Paths.get(test2); // converted by file sytsem
+        assertTrue(Files.exists(path2));
     }
 
     @Test
@@ -86,6 +97,7 @@ class Test01 {
         OutputStream os = new FileOutputStream(dst.toFile());
         Util.transfer(is, os);
         assertEquals(Files.size(src), Files.size(dst));
+        Files.delete(dst);
     }
 }
 
