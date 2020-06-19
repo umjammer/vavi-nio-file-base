@@ -15,6 +15,8 @@ import java.text.Normalizer;
 import java.text.Normalizer.Form;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -55,6 +57,7 @@ class Test01 {
     }
 
     @Test
+    @EnabledOnOs(OS.MAC)
     void test01() throws Exception {
         Path path = Paths.get("src/main/java/vavi/nio/file/Util.java");
         assertEquals("Util.java", Util.toFilenameString(path));
