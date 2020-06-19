@@ -29,6 +29,11 @@ import java.text.Normalizer.Form;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -328,6 +333,71 @@ Debug.printf("Skip double close of stream %s", this);
         }
 
         protected abstract void onClosed() throws IOException;
+    }
+
+    /** */
+    static abstract class StrealingOutputStreamForUploading<T> extends OutputStreamForUploading {
+        // TODO pool
+        private ExecutorService executor = Executors.newSingleThreadExecutor();
+        private Future<T> future;
+        private CountDownLatch latch1 = new CountDownLatch(1);
+        private CountDownLatch latch2 = new CountDownLatch(1);
+        private CountDownLatch latch3 = new CountDownLatch(1);
+
+        /** */
+        public StrealingOutputStreamForUploading() {
+            super(null, false);
+        }
+
+        /** */
+        protected void setOutputStream(OutputStream os) {
+            out = os;
+            latch1.countDown();
+            try { latch2.await(); } catch (InterruptedException e) { throw new IllegalStateException(e); }
+        }
+
+        /** should call {@link #setOutputStream(OutputStream)} */
+        protected abstract T upload() throws IOException;
+
+        /** set #out */
+        private void init() {
+            future = executor.submit(() -> {
+                try {
+                    T newEntry = upload();
+                    latch3.countDown();
+                    return newEntry;
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            try { latch1.await(); } catch (InterruptedException e) { throw new IllegalStateException(e); }
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            try {
+                super.write(b);
+            } catch (NullPointerException e) {
+                init();
+                super.write(b);
+            }
+        }
+
+        /** */
+        protected abstract void onClosed(T newEntry);
+
+        @Override
+        protected void onClosed() throws IOException {
+            try {
+                latch2.countDown();
+                latch3.await();
+                out.close();
+
+                onClosed(future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     /** */
