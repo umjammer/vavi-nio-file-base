@@ -394,6 +394,8 @@ Debug.printf("Skip double close of stream %s", this);
                 out.close();
 
                 onClosed(future.get());
+
+                executor.shutdown();
             } catch (InterruptedException | ExecutionException e) {
                 throw new IllegalStateException(e);
             }
