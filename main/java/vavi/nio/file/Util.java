@@ -336,7 +336,7 @@ Debug.printf("Skip double close of stream %s", this);
     }
 
     /** */
-    static abstract class StrealingOutputStreamForUploading<T> extends OutputStreamForUploading {
+    static abstract class StealingOutputStreamForUploading<T> extends OutputStreamForUploading {
         // TODO pool
         private ExecutorService executor = Executors.newSingleThreadExecutor();
         private Future<T> future;
@@ -345,7 +345,7 @@ Debug.printf("Skip double close of stream %s", this);
         private CountDownLatch latch3 = new CountDownLatch(1);
 
         /** */
-        public StrealingOutputStreamForUploading() {
+        public StealingOutputStreamForUploading() {
             super(null, false);
         }
 
