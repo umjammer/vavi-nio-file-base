@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
  * @version 0.00 2017/03/16 umjammer initial version <br>
  */
 public abstract class Cache<T> {
-    /** <NFC normalized path {@link Path}, {@link T}> */
+    /** <{@link Path}, {@link T}> */
     protected Map<Path, T> entryCache = new ConcurrentHashMap<>(); // TODO refresh
 
-    /** <NFC normalized path {@link Path}, {@link List<Path>}> */
+    /** <{@link Path}, {@link List<Path>}> */
     protected Map<Path, List<Path>> folderCache = new ConcurrentHashMap<>(); // TODO refresh
 
     /** There is metadata or not. */
@@ -69,7 +69,7 @@ public abstract class Cache<T> {
     /** */
     public void addEntry(Path path, T entry) {
         entryCache.put(path, entry);
-        Path parentPath = path.getParent();
+        Path parentPath = path.toAbsolutePath().getParent();
         List<Path> bros = folderCache.get(parentPath);
         if (bros == null) {
             bros = new ArrayList<>();
@@ -81,7 +81,8 @@ public abstract class Cache<T> {
     /** */
     public void removeEntry(Path path) {
         entryCache.remove(path);
-        List<Path> bros = folderCache.get(path.getParent());
+        Path parentPath = path.toAbsolutePath().getParent();
+        List<Path> bros = folderCache.get(parentPath);
         if (bros != null) {
             bros.remove(path);
         }
