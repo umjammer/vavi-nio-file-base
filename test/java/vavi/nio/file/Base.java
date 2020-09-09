@@ -355,6 +355,40 @@ System.out.println("$ [delete directory]: " + dir);
         Files.delete(dir);
 Thread.sleep(300);
     }
+
+    /**
+     * prepare src/test/resources/Hello.java
+     */
+    static void testDescription(FileSystem fileSystem) throws Exception {
+
+        Path src = Paths.get("src/test/resources" , "Hello.java");
+        Path dir = fileSystem.getPath("/").resolve("VAVIFUSE_FS_TEST_D");
+
+        try {
+            if (Files.exists(dir)) {
+                removeTree(dir);
+            }
+System.out.println("$ [createDirectory]: " + dir);
+            dir = Files.createDirectories(dir);
+
+            Path target = dir.resolve(src.getFileName().toString());
+System.out.println("$ [copy (upload)]: " + src + " " + target);
+            target = Files.copy(src, target);
+
+            Object o = Files.getAttribute(target, "user:description");
+System.out.println("description: " + new String((byte[]) o));
+
+            String description = "説明 ★";
+            Files.setAttribute(target, "user:description", description.getBytes());
+System.out.println("description write: ");
+
+            o = Files.getAttribute(target, "user:description");
+System.out.println("description: " + new String((byte[]) o));
+            assertEquals(description, new String((byte[]) o));
+        } finally {
+            removeTree(dir);
+        }
+    }
 }
 
 /* */
