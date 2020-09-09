@@ -49,17 +49,21 @@ import vavi.util.Debug;
  */
 public interface Util {
 
-    /** */
+    /** to NFC string */
     static String toPathString(Path path) throws IOException {
         return Normalizer.normalize(path.toRealPath().toString(), Form.NFC);
     }
 
-    /** */
+    /** to NFC string */
     static String toFilenameString(Path path) throws IOException {
         return Normalizer.normalize(path.toRealPath().getFileName().toString(), Form.NFC);
     }
 
-    /** @see "ignoreAppleDouble" */
+    /**
+     * TODO out source
+     *
+     * @see "ignoreAppleDouble"
+     */
     static boolean isAppleDouble(Path path) throws IOException {
 //System.err.println("path.toRealPath(): " + path.toRealPath());
 //System.err.println("path.getFileName(): " + path.getFileName());
@@ -81,7 +85,9 @@ public interface Util {
         }
     }
 
-    /** */
+    /**
+     * @see java.nio.file.Files#newDirectoryStream(Path, java.nio.file.DirectoryStream.Filter)
+     */
     static DirectoryStream<Path> newDirectoryStream(final List<Path> list,
                                                     final DirectoryStream.Filter<? super Path> filter) {
         List<Path> filtered = filter != null ? list.stream().filter(p -> {
@@ -110,7 +116,9 @@ public interface Util {
         };
     }
 
-    /** */
+    /**
+     * @see java.nio.file.Files#newByteChannel(Path, Set, java.nio.file.attribute.FileAttribute...)
+     */
     static abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
         protected long written;
         private WritableByteChannel wbc;
@@ -178,7 +186,9 @@ Debug.println("writable byte channel: close");
         }
     }
 
-    /** */
+    /**
+     * @see java.nio.file.Files#newByteChannel(Path, Set, java.nio.file.attribute.FileAttribute...)
+     */
     static abstract class SeekableByteChannelForReading implements SeekableByteChannel {
         private long read = 0;
         private ReadableByteChannel rbc;
@@ -256,7 +266,9 @@ Debug.println("readable byte channel: read: " + n + "/" + read + " -> " + (read 
                 options.contains(StandardOpenOption.APPEND);
     }
 
-    /** */
+    /**
+     * @see java.nio.file.Files#newInputStream(Path, OpenOption...)
+     */
     static abstract class InputStreamForDownloading extends FilterInputStream {
         private AtomicBoolean closed = new AtomicBoolean();
 
@@ -290,6 +302,8 @@ Debug.printf("Skip double close of stream %s", this);
 
     /**
      * TODO limited under 2GB
+     *
+     * @see java.nio.file.Files#newOutputStream(Path, OpenOption...)
      */
     static abstract class OutputStreamForUploading extends FilterOutputStream {
         private AtomicBoolean closed = new AtomicBoolean();
@@ -335,7 +349,9 @@ Debug.printf("Skip double close of stream %s", this);
         protected abstract void onClosed() throws IOException;
     }
 
-    /** */
+    /**
+     * @see java.nio.file.Files#newOutputStream(Path, OpenOption...)
+     */
     static abstract class StealingOutputStreamForUploading<T> extends OutputStreamForUploading {
         // TODO pool
         private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -356,7 +372,7 @@ Debug.printf("Skip double close of stream %s", this);
             try { latch2.await(); } catch (InterruptedException e) { throw new IllegalStateException(e); }
         }
 
-        /** should call {@link #setOutputStream(OutputStream)} */
+        /** must call {@link #setOutputStream(OutputStream)} */
         protected abstract T upload() throws IOException;
 
         /** set #out */
@@ -405,7 +421,9 @@ Debug.printf("Skip double close of stream %s", this);
     /** */
     static final int BUFFER_SIZE = 4 * 1024 * 1024;
 
-    /** */
+    /**
+     * @see #BUFFER_SIZE
+     */
     static void transfer(InputStream is, OutputStream os) throws IOException {
         WritableByteChannel wbc = Channels.newChannel(os);
         ReadableByteChannel rbc = Channels.newChannel(is);
@@ -417,7 +435,9 @@ Debug.printf("Skip double close of stream %s", this);
         }
     }
 
-    /** */
+    /**
+     * @see #BUFFER_SIZE
+     */
     static void transfer(SeekableByteChannel in, SeekableByteChannel out) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
         while (in.read(buffer) != -1 || buffer.position() > 0) {
