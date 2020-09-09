@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -122,6 +123,19 @@ public abstract class Cache<T> {
         } catch (NoSuchFileException e) {
             return false;
         }
+    }
+
+    /**
+     * uses {@link Object#equals(Object)} for comparison
+     * @throws NoSuchElementException when not found
+     */
+    public Path getEntry(T target) {
+        for (Map.Entry<Path, T> e : entryCache.entrySet()) {
+            if (e.getValue().equals(target)) {
+                return e.getKey();
+            }
+        }
+        throw new NoSuchElementException(target.toString());
     }
 }
 
