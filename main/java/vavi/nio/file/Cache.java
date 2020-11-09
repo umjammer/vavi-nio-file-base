@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -35,12 +36,12 @@ public abstract class Cache<T> {
         return entryCache.containsKey(path);
     }
 
-    /** */
+    /** raw operation for the cache */
     public T getFile(Path path) {
         return entryCache.get(path);
     }
 
-    /** */
+    /** raw operation for the cache  */
     public T putFile(Path path, T entry) {
         return entryCache.put(path, entry);
     }
@@ -67,7 +68,7 @@ public abstract class Cache<T> {
         return folderCache.put(path, children);
     }
 
-    /** */
+    /** parent folder cache will be modified */
     public void addEntry(Path path, T entry) {
         entryCache.put(path, entry);
         Path parentPath = path.toAbsolutePath().getParent();
@@ -79,7 +80,7 @@ public abstract class Cache<T> {
         bros.add(path);
     }
 
-    /** */
+    /** parent folder cache will be modified */
     public void removeEntry(Path path) {
         entryCache.remove(path);
         Path parentPath = path.toAbsolutePath().getParent();
@@ -103,12 +104,13 @@ public abstract class Cache<T> {
         }
     }
 
-    /** */
+    /** move folder */
     private List<Path> changeParent(List<Path> children, Path parent) {
         return children.stream().map(p -> parent.resolve(p.getFileName())).collect(Collectors.toList());
     }
 
     /**
+     * query for cache
      * @throws NoSuchFileException must be thrown when the path is not found.
      */
     public abstract T getEntry(Path path) throws IOException;
@@ -126,6 +128,7 @@ public abstract class Cache<T> {
     }
 
     /**
+     * query for opposite direction
      * uses {@link Object#equals(Object)} for comparison
      * @throws NoSuchElementException when not found
      */
@@ -136,6 +139,20 @@ public abstract class Cache<T> {
             }
         }
         throw new NoSuchElementException(target.toString());
+    }
+
+    /**
+     * query for opposite direction
+     * @param query is used for comparison
+     * @throws NoSuchElementException when not found
+     */
+    public Path getEntry(Function<T, Boolean> query) {
+        for (Map.Entry<Path, T> e : entryCache.entrySet()) {
+            if (query.apply(e.getValue())) {
+                return e.getKey();
+            }
+        }
+        throw new NoSuchElementException(query.toString());
     }
 }
 
