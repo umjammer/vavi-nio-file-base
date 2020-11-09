@@ -51,12 +51,17 @@ public interface Util {
 
     /** to NFC string */
     static String toPathString(Path path) throws IOException {
-        return Normalizer.normalize(path.toRealPath().toString(), Form.NFC);
+        return toNormalizedString(path.toRealPath().toString());
     }
 
     /** to NFC string */
     static String toFilenameString(Path path) throws IOException {
-        return Normalizer.normalize(path.toRealPath().getFileName().toString(), Form.NFC);
+        return toNormalizedString(path.toRealPath().getFileName().toString());
+    }
+
+    /** to NFC string */
+    static String toNormalizedString(String string) throws IOException {
+        return Normalizer.normalize(string, Form.NFC);
     }
 
     /**
