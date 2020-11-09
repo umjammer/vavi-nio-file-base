@@ -71,7 +71,7 @@ class Test01 {
         Path path1 = Paths.get(test1);
         assertTrue(Files.exists(path1));
 
-        Path path2 = Paths.get(test2); // converted by file sytsem
+        Path path2 = Paths.get(test2); // converted by file system
         assertTrue(Files.exists(path2));
     }
 

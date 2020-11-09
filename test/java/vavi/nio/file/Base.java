@@ -326,6 +326,11 @@ Files.list(dir3).forEach(System.out::println);
 
     /** */
     static void removeTree(Path dir) throws Exception {
+        removeTree(dir, true);
+    }
+
+    /** */
+    static void removeTree(Path dir, boolean deleteSelf) throws Exception {
         List<Path> files = new ArrayList<>();
         List<Path> dirs = new ArrayList<>();
         Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
@@ -351,9 +356,11 @@ System.out.println("$ [*delete dir]: " + p);
 Thread.sleep(300);
         }));
 Thread.sleep(1000);
+        if (deleteSelf) {
 System.out.println("$ [delete directory]: " + dir);
-        Files.delete(dir);
+            Files.delete(dir);
 Thread.sleep(300);
+        }
     }
 
     /**
