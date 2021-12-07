@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * UploadMonitor.
  *
- * TODO embed into java7-fs-base
  * TODO {@link java.util.concurrent.locks.ReentrantReadWriteLock}???
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)

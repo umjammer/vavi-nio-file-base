@@ -160,7 +160,7 @@ Debug.println(Level.FINE, "writable byte channel: set position: " + pos);
 
         @Override
         public SeekableByteChannel truncate(long size) throws IOException {
-Debug.println("writable byte channel: truncate: " + size + ", " + written);
+Debug.println(Level.FINE, "writable byte channel: truncate: " + size + ", " + written);
             // TODO implement correctly
 
             if (written > size) {
@@ -173,7 +173,7 @@ Debug.println("writable byte channel: truncate: " + size + ", " + written);
         @Override
         public int write(ByteBuffer src) throws IOException {
             int n = wbc.write(src);
-Debug.println("writable byte channel: write: " + n + "/" + written + " -> " + (written + n));
+Debug.println(Level.FINE, "writable byte channel: write: " + n + "/" + written + " -> " + (written + n));
             written += n;
             return n;
         }
@@ -186,7 +186,7 @@ Debug.println(Level.FINE, "writable byte channel: size: " + written);
 
         @Override
         public void close() throws IOException {
-Debug.println("writable byte channel: close");
+Debug.println(Level.FINE, "writable byte channel: close");
             wbc.close();
         }
     }
@@ -228,7 +228,7 @@ Debug.println(Level.FINE, "readable byte channel: set position: " + pos);
         public int read(ByteBuffer dst) throws IOException {
             int n = rbc.read(dst);
             if (n > 0) {
-Debug.println("readable byte channel: read: " + n + "/" + read + " -> " + (read + n));
+Debug.println(Level.FINE, "readable byte channel: read: " + n + "/" + read + " -> " + (read + n));
                 read += n;
             }
             return n;
@@ -291,7 +291,7 @@ Debug.println("readable byte channel: read: " + n + "/" + read + " -> " + (read 
         @Override
         public void close() throws IOException {
             if (closed.getAndSet(true)) {
-Debug.printf("Skip double close of stream %s", this);
+Debug.printf(Level.FINE, "Skip double close of stream %s", this);
                 return;
             }
 
@@ -331,7 +331,7 @@ Debug.printf("Skip double close of stream %s", this);
         @Override
         public void close() throws IOException {
             if (closed.getAndSet(true)) {
-Debug.printf("Skip double close of stream %s", this);
+Debug.printf(Level.FINE, "Skip double close of stream %s", this);
                 return;
             }
 

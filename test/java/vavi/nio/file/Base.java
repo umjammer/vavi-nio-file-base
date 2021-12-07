@@ -205,14 +205,10 @@ System.out.println("$ [*rm]: " + dst2);
         Path dir = fs.getPath("/").resolve("VAVIFUSE_FS_TEST_L");
         Path target = dir.resolve(source.getFileName().toString());
         if (Files.exists(dir)) {
-            Files.list(dir).forEach(p -> {
-                try {
+            Files.list(dir).forEach(sneaked(p -> {
 System.out.println("rm " + p);
-                    Files.delete(p);
-                } catch (IOException e) {
-                    throw new IllegalStateException(e);
-                }
-            });
+                Files.delete(p);
+            }));
 System.out.println("rmdir " + dir);
             Files.delete(dir);
         }
@@ -347,12 +343,20 @@ Files.list(dir3).forEach(System.out::println);
         });
         files.forEach(sneaked(p -> {
 System.out.println("$ [*delete file]: " + p);
-            Files.delete(p);
+            if (Files.exists(p)) {
+                Files.delete(p);
+            } else {
+System.out.println("file not found: " + p);
+            }
 Thread.sleep(300);
         }));
         dirs.stream().filter(p -> !p.equals(dir)).forEach(sneaked(p -> {
 System.out.println("$ [*delete dir]: " + p);
-            Files.delete(p);
+            if (Files.exists(p)) {
+                Files.delete(p);
+            } else {
+System.out.println("dir not found: " + p);
+            }
 Thread.sleep(300);
         }));
 Thread.sleep(1000);
