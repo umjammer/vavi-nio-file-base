@@ -11,14 +11,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessMode;
 import java.nio.file.FileStore;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.github.fge.filesystem.attributes.DummyFileAttributes;
@@ -41,17 +43,34 @@ import vavi.util.Debug;
 @ParametersAreNonnullByDefault
 public abstract class ExtendedFileSystemDriverBase extends UnixLikeFileSystemDriverBase {
 
+    public static final String ENV_IGNORE_APPLE_DOUBLE = "ignoreAppleDouble";
+
     /** */
-    protected ExtendedFileSystemDriverBase(final FileStore fileStore, final FileSystemFactoryProvider factoryProvider) {
-        super(fileStore, factoryProvider);
+    protected boolean ignoreAppleDouble = false;
+
+    /** currently set ignoreAppleDouble only */
+    @SuppressWarnings("unchecked")
+    protected void setEnv(Map<String, ?> env) {
+        ignoreAppleDouble = (Boolean) ((Map<String, Object>) env).getOrDefault(ENV_IGNORE_APPLE_DOUBLE, Boolean.FALSE);
+//Debug.println("ignoreAppleDouble: " + ignoreAppleDouble);
     }
 
     /** */
-    private UploadMonitor<DummyFileAttributes> uploadMonitor = new UploadMonitor<>();
+    private UploadMonitor<DummyFileAttributes> uploadMonitor;
 
-    @Nonnull
+    /** */
+    protected ExtendedFileSystemDriverBase(final FileStore fileStore, final FileSystemFactoryProvider factoryProvider) {
+        super(fileStore, factoryProvider);
+        uploadMonitor = newUploadMonitor(); 
+    }
+
+    /** */
+    protected UploadMonitor<DummyFileAttributes> newUploadMonitor() {
+        return new UploadMonitor<>();
+    }
+
     @Override
-    public SeekableByteChannel newByteChannel(final Path path,
+    public final SeekableByteChannel newByteChannel(final Path path,
                                               final Set<? extends OpenOption> options,
                                               final FileAttribute<?>... attrs) throws IOException {
         if (options != null && Util.isWriting(options)) {
@@ -108,11 +127,20 @@ if (pos < uploadMonitor.entry(path).size()) {
         }
     }
 
-    /* @see {@link #checkAccess(Path,AccessMode[]) */
-    protected abstract void checkAccessImpl(final Path path, final AccessMode... modes) throws IOException;
-
-    @Override
-    public void checkAccess(final Path path, final AccessMode... modes) throws IOException {
+    /**
+     * Check access modes for a path on this filesystem
+     * <p>
+     * If no modes are provided to check for, this simply checks for the
+     * existence of the path.
+     * </p>
+     *
+     * @param path the path to check
+     * @param modes the modes to check for, if any
+     * @throws IOException filesystem level error, or a plain I/O error.
+     *               and you should throw {@link NoSuchFileException} when the file not found.
+     * @see FileSystemProvider#checkAccess(Path, AccessMode...)
+     */
+    public final void checkAccess(Path path, AccessMode... modes) throws IOException {
         if (uploadMonitor.isUploading(path)) {
 Debug.println("uploading... : " + path + ", " + uploadMonitor.entry(path));
             return;
@@ -121,12 +149,10 @@ Debug.println("uploading... : " + path + ", " + uploadMonitor.entry(path));
         checkAccessImpl(path, modes);
     }
 
-    /* @see {@link #getPathMetadata(Path) */
-    protected abstract Object getPathMetadataImpl(final Path path) throws IOException;
+    protected abstract void checkAccessImpl(Path path, AccessMode... modes) throws IOException;
 
-    @Nonnull
     @Override
-    public Object getPathMetadata(final Path path) throws IOException {
+    public final Object getPathMetadata(final Path path) throws IOException {
         if (uploadMonitor.isUploading(path)) {
 Debug.println("uploading... : " + path + ", " + uploadMonitor.entry(path));
             return uploadMonitor.entry(path);
@@ -134,4 +160,9 @@ Debug.println("uploading... : " + path + ", " + uploadMonitor.entry(path));
 
         return getPathMetadataImpl(path);
     }
+
+    /**
+     * @throws IOException you should throw {@link NoSuchFileException} when the file not found.
+     */
+    protected abstract Object getPathMetadataImpl(Path path) throws IOException;
 }
