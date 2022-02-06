@@ -126,6 +126,11 @@ public abstract class FileSystemDriverBase
         return path.toAbsolutePath().equals(path2.toAbsolutePath());
     }
 
+    /** must call this from sub class */
+    protected FileAttributesProvider getProvider(String name, Object metadata) throws IOException {
+        return attributesFactory.getProvider(name, metadata);
+    }
+
     @Override
     public final void setAttribute(final Path path, final String attribute,
         final Object value, final LinkOption... options)
@@ -145,8 +150,7 @@ public abstract class FileSystemDriverBase
 
         final Object metadata = getPathMetadata(path);
 
-        final FileAttributesProvider provider
-            = attributesFactory.getProvider(type, metadata);
+        final FileAttributesProvider provider = getProvider(type, metadata);
 
         if (provider == null)
             throw new UnsupportedOperationException();
@@ -174,8 +178,7 @@ public abstract class FileSystemDriverBase
 
         final Object metadata = getPathMetadata(path.toRealPath(options));
 
-        final FileAttributesProvider provider
-            = attributesFactory.getProvider(type, metadata);
+        final FileAttributesProvider provider = getProvider(type, metadata);
 
         if (provider == null)
             throw new UnsupportedOperationException();

@@ -40,7 +40,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.DosFileAttributeView;
 import java.nio.file.attribute.DosFileAttributes;
 import java.nio.file.attribute.FileAttributeView;
-import java.nio.file.attribute.PosixFileAttributes;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -146,11 +145,6 @@ public class FileAttributesFactory
         final Object metadata)
         throws IOException
     {
-        // TODO ugly
-        if (DummyFileAttributes.class.isInstance(metadata)) {
-            return (FileAttributesProvider) metadata;
-        }
-
         final MethodHandle handle = providers.get(Objects.requireNonNull(name));
 
         if (handle == null)
@@ -299,20 +293,12 @@ public class FileAttributesFactory
         providers.put(name, getConstructor(providerClass));
     }
 
+    /** must call this from sub class */
     @Nullable
-    private <C> C getProviderInstance(final Class<C> targetClass,
+    protected <C> C getProviderInstance(final Class<C> targetClass,
         final Map<String, Class<?>> map, final Object metadata)
         throws IOException
     {
-        // TODO ugly
-        if (DummyFileAttributes.class.isInstance(metadata)) {
-            if (PosixFileAttributes.class.equals(targetClass)) {
-                throw new UnsupportedOperationException("request posix for dummy");
-            } else {
-                return (C) metadata;
-            }
-        }
-
         final MethodHandle handle = getHandle(targetClass, map);
 
         if (handle == null)

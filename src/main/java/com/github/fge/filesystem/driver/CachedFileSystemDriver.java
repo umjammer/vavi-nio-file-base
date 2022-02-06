@@ -61,7 +61,7 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
      * if your api has more effective api. override this method.
      * this method traverses all siblings from root, it costs heavy.
      * @param parentEntry not used in this method, nullable
-     * @return null when not found 
+     * @return null when not found
      */
     protected T getEntry(T parentEntry, Path path) throws IOException {
 //Debug.println("search: " + path);
