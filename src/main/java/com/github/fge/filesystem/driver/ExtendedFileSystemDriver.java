@@ -54,10 +54,10 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
     /** utility for entries */
     protected abstract String getFilenameString(T entry);
 
-    /** utility for entries  */
+    /** utility for entries */
     protected abstract boolean isFolder(T entry) throws IOException;
 
-    /** utility for entries  */
+    /** utility for entries */
     protected abstract boolean exists(T entry) throws IOException;
 
     /**
@@ -88,7 +88,7 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
                 if (isFolder(entry)) {
                     throw new IsDirectoryException("path: " + path);
                 } else {
-                    throw new FileAlreadyExistsException("path: " + path);
+                    whenUploadEntryExists(entry, path, options);
                 }
             }
 Debug.println(Level.FINE, "newOutputStream: cause target not exists");
@@ -98,6 +98,14 @@ Debug.println(Level.FINE, "newOutputStream: cause target not found, " + e.getMes
 
         T parent = getEntry(path.toAbsolutePath().getParent());
         return uploadEntry(parent, path, options);
+    }
+
+    /**
+     * Overrides this method if you want to do special action when the target file is exists.
+     * @throws FileAlreadyExistsException if you don't override this method.
+     */
+    protected void whenUploadEntryExists(T sourceEntry, Path path, Set<? extends OpenOption> options) throws IOException {
+        throw new FileAlreadyExistsException("path: " + path);
     }
 
     /**
