@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.github.fge.filesystem.exceptions.IsDirectoryException;
@@ -61,8 +62,10 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
     protected abstract boolean exists(T entry) throws IOException;
 
     /**
+     * @return not null
      * @throws NoSuchFileException when an entry for the path not found
      */
+    @Nonnull
     protected abstract T getEntry(Path path)throws IOException;
 
     @Override
