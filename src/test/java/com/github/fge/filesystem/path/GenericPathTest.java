@@ -35,14 +35,13 @@ import com.github.fge.filesystem.fs.GenericFileSystem;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
 import com.github.fge.filesystem.provider.FileSystemRepository;
 
+import static com.github.fge.filesystem.path.PathAssert.assertPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import static com.github.fge.filesystem.path.PathAssert.assertPath;
 
 
 public final class GenericPathTest
@@ -237,5 +236,20 @@ public final class GenericPathTest
         final Path p = new GenericPath(fs2, unixFactory, elements);
 
         assertEquals(expected, p.toUri().toString(), "generated URI is correct");
+    }
+
+    @Test
+    void test2() throws Exception {
+        PathElementsFactory unixFactory = new UnixPathElementsFactory();
+        GenericFileSystem fs = new GenericFileSystem(uri, repository, driver, provider);
+
+        Path path1 = new GenericPath(fs, unixFactory, unixFactory.toPathElements("/AAA/BBB"));
+        Path path2 = new GenericPath(fs, unixFactory, unixFactory.toPathElements("AAA/BBB"));
+System.err.println(path1.toAbsolutePath());
+System.err.println(path2.toAbsolutePath());
+
+        assertEquals(path1, path1.toAbsolutePath());
+        assertNotEquals(path2, path2.toAbsolutePath());
+        assertNotEquals(path1, path2);
     }
 }
