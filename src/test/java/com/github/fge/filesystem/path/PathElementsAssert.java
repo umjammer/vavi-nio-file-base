@@ -18,21 +18,21 @@
 
 package com.github.fge.filesystem.path;
 
-import org.assertj.core.api.ObjectAssert;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Objects;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import org.assertj.core.api.AbstractObjectAssert;
 
 
 @ParametersAreNonnullByDefault
 // cannot be final, see CustomSoftAssertions
 public class PathElementsAssert
-    extends ObjectAssert<PathElements>
+    extends AbstractObjectAssert<PathElementsAssert, PathElements>
 {
     public PathElementsAssert(final PathElements actual)
     {
-        super(actual);
+        super(actual, PathElementsAssert.class);
     }
 
     public static PathElementsAssert assertElements(

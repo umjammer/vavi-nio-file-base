@@ -22,20 +22,22 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-
 import com.github.fge.filesystem.CustomSoftAssertions;
 import com.github.fge.filesystem.driver.FileSystemDriver;
 import com.github.fge.filesystem.fs.GenericFileSystem;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
 import com.github.fge.filesystem.provider.FileSystemRepository;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static com.github.fge.filesystem.path.PathAssert.assertPath;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -44,10 +46,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
+@ExtendWith(SoftAssertionsExtension.class)
 public final class GenericPathTest
 {
-    @RegisterExtension
-    final CustomSoftAssertions soft = new CustomSoftAssertions();
+    @InjectSoftAssertions
+    CustomSoftAssertions soft;
 
     private static final String[] NO_NAMES = new String[0];
 
@@ -200,7 +203,7 @@ public final class GenericPathTest
             new PathElements("/", new String[] { "p1", "p2" }));
         rr = (GenericPath) p.relativize(p.resolve(q));
 
-        soft.assertThat(rr.getFileSystem())
+        assertThat(rr.getFileSystem())
             .as("rr and q filesystems should be the same (p absolute)")
             .isSameAs(q.getFileSystem());
         soft.assertThat(rr.elements).hasSameContentsAs(q.elements);
@@ -212,7 +215,7 @@ public final class GenericPathTest
             new PathElements(null, new String[] { "p1", "p2" }));
         rr = (GenericPath) p.relativize(p.resolve(q));
 
-        soft.assertThat(rr.getFileSystem())
+        assertThat(rr.getFileSystem())
             .as("rr and q filesystems should be the same (p not absolute)")
             .isSameAs(q.getFileSystem());
         soft.assertThat(rr.elements).hasSameContentsAs(q.elements);

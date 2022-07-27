@@ -20,7 +20,10 @@ package com.github.fge.filesystem.path;
 
 import java.util.stream.Stream;
 
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,12 +32,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.github.fge.filesystem.CustomSoftAssertions;
 
 import static com.github.fge.filesystem.path.PathElementsAssert.assertElements;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+@ExtendWith(SoftAssertionsExtension.class)
 public final class PathElementsTest
 {
-    @RegisterExtension
-    final CustomSoftAssertions soft = new CustomSoftAssertions();
+    @InjectSoftAssertions
+    CustomSoftAssertions soft;
 
     private static final String[] NO_NAMES = new String[0];
 
@@ -175,18 +180,18 @@ public final class PathElementsTest
         final Object o = new Object();
 
         //noinspection EqualsWithItself
-        soft.assertThat(p1.equals(p1)).isTrue();
-        soft.assertThat(p1.hashCode()).isEqualTo(p1.hashCode());
+        assertThat(p1.equals(p1)).isTrue();
+        assertThat(p1.hashCode()).isEqualTo(p1.hashCode());
 
-        soft.assertThat(p1.equals(o)).isFalse();
+        assertThat(p1.equals(o)).isFalse();
         //noinspection ObjectEqualsNull
-        soft.assertThat(p1.equals(null)).isFalse();
+        assertThat(p1.equals(null)).isFalse();
 
-        soft.assertThat(p2.equals(p3)).isTrue();
-        soft.assertThat(p3.equals(p2)).isTrue();
-        soft.assertThat(p3.hashCode()).isEqualTo(p2.hashCode());
+        assertThat(p2.equals(p3)).isTrue();
+        assertThat(p3.equals(p2)).isTrue();
+        assertThat(p3.hashCode()).isEqualTo(p2.hashCode());
 
-        soft.assertThat(p4.equals(p3)).isFalse();
+        assertThat(p4.equals(p3)).isFalse();
     }
 
     private static String[] stringArray(final String first,
