@@ -33,8 +33,8 @@ public final class GlobPathMatcher
     {
         try {
             Class<?> clazz = Class.forName("sun.nio.fs.Globs");
-            Method method = BeanUtil.getPrivateMethod(clazz, "toUnixRegexPattern", new Class[] { String.class });
-            matcher = new RegexPathMatcher(String.class.cast(BeanUtil.invoke(method, null, Objects.requireNonNull(glob))));
+            Method method = BeanUtil.getPrivateMethod(clazz, "toUnixRegexPattern", String.class);
+            matcher = new RegexPathMatcher((String) BeanUtil.invoke(method, null, Objects.requireNonNull(glob)));
         } catch (PrivilegedActionException | ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }

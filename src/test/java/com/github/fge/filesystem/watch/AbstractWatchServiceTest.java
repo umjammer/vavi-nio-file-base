@@ -24,6 +24,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.Watchable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class AbstractWatchServiceTest {
   @Test
   public void testRegister() throws IOException {
     Watchable watchable = new StubWatchable();
-    AbstractWatchService.BasicWatchKey key = watcher.register(watchable, new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+    AbstractWatchService.BasicWatchKey key = watcher.register(watchable, new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
     assertTrue(key.isValid());
     assertTrue(key.pollEvents().isEmpty());
     assertTrue(key.subscribesTo(ENTRY_CREATE));
@@ -83,7 +84,7 @@ public class AbstractWatchServiceTest {
   @Test
   public void testPostEvent() throws IOException {
     AbstractWatchService.BasicWatchKey key =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
 
     AbstractWatchService.BasicWatchEvent<Path> event =
         new AbstractWatchService.BasicWatchEvent<>(ENTRY_CREATE, 1, null);
@@ -106,7 +107,7 @@ public class AbstractWatchServiceTest {
   @Test
   public void testKeyStates() throws IOException {
     AbstractWatchService.BasicWatchKey key =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
 
     AbstractWatchService.BasicWatchEvent<Path> event =
         new AbstractWatchService.BasicWatchEvent<>(ENTRY_CREATE, 1, null);
@@ -145,7 +146,7 @@ public class AbstractWatchServiceTest {
   @Test
   public void testKeyRequeuedOnResetIfEventsArePending() throws IOException {
     AbstractWatchService.BasicWatchKey key =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
     key.post(new AbstractWatchService.BasicWatchEvent<>(ENTRY_CREATE, 1, null));
     key.signal();
 
@@ -165,7 +166,7 @@ public class AbstractWatchServiceTest {
   @Test
   public void testOverflow() throws IOException {
     AbstractWatchService.BasicWatchKey key =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
     for (int i = 0; i < AbstractWatchService.BasicWatchKey.MAX_QUEUE_SIZE + 10; i++) {
       key.post(new AbstractWatchService.BasicWatchEvent<>(ENTRY_CREATE, 1, null));
     }
@@ -186,7 +187,7 @@ public class AbstractWatchServiceTest {
   @Test
   public void testResetAfterCancelReturnsFalse() throws IOException {
     AbstractWatchService.BasicWatchKey key =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
     key.signal();
     key.cancel();
     assertFalse(key.reset());
@@ -195,9 +196,9 @@ public class AbstractWatchServiceTest {
   @Test
   public void testClosedWatcher() throws IOException, InterruptedException {
     AbstractWatchService.BasicWatchKey key1 =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_CREATE)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_CREATE)));
     AbstractWatchService.BasicWatchKey key2 =
-        watcher.register(new StubWatchable(), new HashSet<>(Arrays.asList(ENTRY_MODIFY)));
+        watcher.register(new StubWatchable(), new HashSet<>(Collections.singletonList(ENTRY_MODIFY)));
 
     assertTrue(key1.isValid());
     assertTrue(key2.isValid());
@@ -228,7 +229,7 @@ public class AbstractWatchServiceTest {
     }
 
     try {
-      watcher.register(new StubWatchable(), Arrays.asList());
+      watcher.register(new StubWatchable(), Collections.emptyList());
       fail();
     } catch (ClosedWatchServiceException expected) {
     }
