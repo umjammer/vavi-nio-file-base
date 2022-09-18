@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import vavi.io.Seekable;
 import vavi.util.Debug;
 
 
@@ -142,13 +143,13 @@ public interface Util {
 
         @Override
         public long position() throws IOException {
-Debug.println(Level.FINE, "writable byte channel: get position: " + written);
+Debug.println(Level.WARNING, "SeekableByteChannelForWriting: get position: " + written);
             return written;
         }
 
         @Override
         public SeekableByteChannel position(long pos) throws IOException {
-Debug.println(Level.FINE, "writable byte channel: set position: " + pos);
+Debug.println(Level.WARNING, "SeekableByteChannelForWriting: set position: " + pos);
             written = pos;
             return this;
         }
@@ -198,8 +199,10 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
         private long read = 0;
         private ReadableByteChannel rbc;
         private long size;
+        InputStream in;
 
         public SeekableByteChannelForReading(InputStream in) throws IOException {
+            this.in = in;
             this.rbc = Channels.newChannel(in);
             this.size = getSize();
         }
@@ -213,13 +216,26 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
 
         @Override
         public long position() throws IOException {
-Debug.println(Level.FINE, "readable byte channel: get position: " + read);
+            if (in instanceof Seekable) {
+                // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
+Debug.println(Level.FINE, "SeekableByteChannelForReading: position");
+                read = ((Seekable) in).position();
+            } else {
+Debug.println(Level.WARNING, "SeekableByteChannelForReading: position: non seekable input: " + read + ", " + in.getClass().getName());
+            }
             return read;
         }
 
         @Override
         public SeekableByteChannel position(long pos) throws IOException {
-Debug.println(Level.FINE, "readable byte channel: set position: " + pos);
+            if (in instanceof Seekable) {
+                // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
+Debug.println(Level.FINE, "SeekableByteChannelForReading: set position: " + pos);
+                ((Seekable) in).position(pos);
+            } else {
+Debug.println(Level.WARNING, "SeekableByteChannelForReading: set position: non seekable input: " + pos + ", " + in.getClass().getName());
+            }
+
             read = pos;
             return this;
         }
