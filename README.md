@@ -4,7 +4,7 @@
 
 ## java7-fs-base
 
-This project is licensed under both LGPLv3 and ASL 2.0. See file LICENSE for
+This project is licensed under GPLv2.0, LGPLv3 and ASL 2.0. See file LICENSE for
 more details.
 
 ## What this is
@@ -61,11 +61,3 @@ easier way; see [the wiki](https://github.com/fge/java7-fs-base/wiki) for more i
 **THIS IS STILL A WORK IN PROGRESS**. At the moment there is only one implementation over this
 package but more are to come -- the next target is [box.com](https://box.com), and Amazon S3 after
 that.
-
-## NOTE: JDK/JRE restrictions
-
-You **must** use either the JDK provided by Oracle or OpenJDK for compilation, and an Oracle/OpenJDK
-JRE to run. At this moment, this package depends on a package in... `sun.nio.fs`. More precisely, it
-depends on it for generating patterns suitable for use in a glob
-[`PathMatcher`](https://docs.oracle.com/javase/7/docs/api/java/nio/file/PathMatcher.html).
-
