@@ -66,14 +66,20 @@ public interface Util {
     }
 
     /**
-     * TODO out source
-     *
      * @see "ignoreAppleDouble"
      */
     static boolean isAppleDouble(Path path) throws IOException {
 //System.err.println("path.toRealPath(): " + path.toRealPath());
 //System.err.println("path.getFileName(): " + path.getFileName());
-        String filename = path.getFileName().toString();
+        return isAppleDouble(path.getFileName().toString());
+    }
+
+    /**
+     * TODO out source
+     *
+     * @see "ignoreAppleDouble"
+     */
+    static boolean isAppleDouble(String filename) {
         return filename.startsWith("._") ||
                filename.equals(".DS_Store") ||
                filename.equals(".localized") ||
