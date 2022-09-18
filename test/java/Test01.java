@@ -4,8 +4,6 @@
  * Programmed by Naohide Sano
  */
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -101,8 +99,8 @@ class Test01 {
         if (Files.exists(dst)) {
             Files.delete(dst);
         }
-        InputStream is = new FileInputStream(src.toFile());
-        OutputStream os = new FileOutputStream(dst.toFile());
+        InputStream is = Files.newInputStream(src);
+        OutputStream os = Files.newOutputStream(dst);
         Util.transfer(is, os);
         assertEquals(Files.size(src), Files.size(dst));
         Files.delete(dst);

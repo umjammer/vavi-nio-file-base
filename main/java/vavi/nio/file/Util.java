@@ -83,8 +83,8 @@ public interface Util {
      * @return nullable
      */
     static <T extends U, U> T getOneOfOptions(Class<T> clazz, Set<? extends U> options) {
-        if (options != null && options.stream().anyMatch(o -> clazz.isInstance(o))) {
-            return clazz.cast(options.stream().filter(o -> clazz.isInstance(o)).findFirst().get());
+        if (options != null && options.stream().anyMatch(clazz::isInstance)) {
+            return clazz.cast(options.stream().filter(clazz::isInstance).findFirst().get());
         } else {
             return null;
         }
@@ -124,7 +124,7 @@ public interface Util {
     /**
      * @see java.nio.file.Files#newByteChannel(Path, Set, java.nio.file.attribute.FileAttribute...)
      */
-    static abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
+    abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
         protected long written;
         private WritableByteChannel wbc;
 
@@ -160,7 +160,7 @@ Debug.println(Level.FINE, "writable byte channel: set position: " + pos);
 
         @Override
         public SeekableByteChannel truncate(long size) throws IOException {
-Debug.println(Level.FINE, "writable byte channel: truncate: " + size + ", " + written);
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: truncate: " + size + ", " + written);
             // TODO implement correctly
 
             if (written > size) {
@@ -173,20 +173,20 @@ Debug.println(Level.FINE, "writable byte channel: truncate: " + size + ", " + wr
         @Override
         public int write(ByteBuffer src) throws IOException {
             int n = wbc.write(src);
-Debug.println(Level.FINE, "writable byte channel: write: " + n + "/" + written + " -> " + (written + n));
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: write: " + n + "/" + written + " -> " + (written + n));
             written += n;
             return n;
         }
 
         @Override
         public long size() throws IOException {
-Debug.println(Level.FINE, "writable byte channel: size: " + written);
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: size: " + written);
             return written;
         }
 
         @Override
         public void close() throws IOException {
-Debug.println(Level.FINE, "writable byte channel: close");
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
             wbc.close();
         }
     }
@@ -194,7 +194,7 @@ Debug.println(Level.FINE, "writable byte channel: close");
     /**
      * @see java.nio.file.Files#newByteChannel(Path, Set, java.nio.file.attribute.FileAttribute...)
      */
-    static abstract class SeekableByteChannelForReading implements SeekableByteChannel {
+    abstract class SeekableByteChannelForReading implements SeekableByteChannel {
         private long read = 0;
         private ReadableByteChannel rbc;
         private long size;
@@ -228,7 +228,7 @@ Debug.println(Level.FINE, "readable byte channel: set position: " + pos);
         public int read(ByteBuffer dst) throws IOException {
             int n = rbc.read(dst);
             if (n > 0) {
-Debug.println(Level.FINE, "readable byte channel: read: " + n + "/" + read + " -> " + (read + n));
+Debug.println(Level.FINER, "SeekableByteChannelForReading: read: " + n + "/" + read + " -> " + (read + n));
                 read += n;
             }
             return n;
@@ -274,7 +274,7 @@ Debug.println(Level.FINE, "readable byte channel: read: " + n + "/" + read + " -
     /**
      * @see java.nio.file.Files#newInputStream(Path, OpenOption...)
      */
-    static abstract class InputStreamForDownloading extends FilterInputStream {
+    abstract class InputStreamForDownloading extends FilterInputStream {
         private AtomicBoolean closed = new AtomicBoolean();
 
         private boolean closeOnCloseInternal = true;
@@ -310,7 +310,7 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
      *
      * @see java.nio.file.Files#newOutputStream(Path, OpenOption...)
      */
-    static abstract class OutputStreamForUploading extends FilterOutputStream {
+    abstract class OutputStreamForUploading extends FilterOutputStream {
         private AtomicBoolean closed = new AtomicBoolean();
 
         private boolean closeOnCloseInternal = true;
@@ -357,7 +357,7 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
     /**
      * @see java.nio.file.Files#newOutputStream(Path, OpenOption...)
      */
-    static abstract class StealingOutputStreamForUploading<T> extends OutputStreamForUploading {
+    abstract class StealingOutputStreamForUploading<T> extends OutputStreamForUploading {
         // TODO pool
         private ExecutorService executor = Executors.newSingleThreadExecutor();
         private Future<T> future;
@@ -424,7 +424,7 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
     }
 
     /** */
-    static final int BUFFER_SIZE = 4 * 1024 * 1024;
+    int BUFFER_SIZE = 4 * 1024 * 1024;
 
     /**
      * @see #BUFFER_SIZE

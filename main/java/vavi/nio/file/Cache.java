@@ -69,7 +69,7 @@ public abstract class Cache<T> {
 
     /** raw operation for the folder cache */
     public List<Path> putFolder(Path path, List<Path> children) {
-        return folderCache.put(path.toAbsolutePath(), children.stream().map(p -> p.toAbsolutePath()).collect(Collectors.toList()));
+        return folderCache.put(path.toAbsolutePath(), children.stream().map(Path::toAbsolutePath).collect(Collectors.toList()));
     }
 
     /** parent folder cache will be modified */
@@ -78,12 +78,8 @@ public abstract class Cache<T> {
         entryCache.put(path.toAbsolutePath(), entry);
         // parent
         Path parentPath = path.toAbsolutePath().getParent();
-        List<Path> bros = folderCache.get(parentPath.toAbsolutePath());
-        if (bros == null) {
-            bros = new ArrayList<>();
-            folderCache.put(parentPath.toAbsolutePath(), bros);
-        }
-        if (!bros.contains(path.toAbsolutePath()) || allowDupulicatedName) {
+        List<Path> bros = folderCache.computeIfAbsent(parentPath.toAbsolutePath(), k -> new ArrayList<>());
+        if (!bros.contains(path.toAbsolutePath()) || allowDuplicatedName) {
 //System.err.println("DIR CACHE.1: " + path);
             bros.add(path.toAbsolutePath());
         }

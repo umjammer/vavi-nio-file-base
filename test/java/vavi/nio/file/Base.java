@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public interface Base {
 
     /**
-     * prepare src/test/resources/Hello.java
+     * prepare "src/test/resources/Hello.java"
      */
     static void testAll(FileSystem fileSystem) throws Exception {
 
@@ -270,7 +270,7 @@ System.out.println("rm " + source);
     }
 
     /**
-     * prepare src/test/resources/Hello.java
+     * prepare "src/test/resources/Hello.java"
      */
     static void testMoveFolder(FileSystem fileSystem) throws Exception {
 
