@@ -31,8 +31,13 @@ public abstract class Cache<T> {
     /** <{@link Path}, {@link List<Path>}> */
     protected Map<Path, List<Path>> folderCache = new ConcurrentHashMap<>(); // TODO refresh
 
-    /** */
-    private boolean allowDupulicatedName = false;
+    /** allow duplicated name in the same directory or not, e.g. google drive allows it. */
+    private boolean allowDuplicatedName = false;
+
+    /** sets allow duplicated name in the same directory or not */
+    public void setAllowDuplicatedName(boolean allowDuplicatedName) {
+        this.allowDuplicatedName = allowDuplicatedName;
+    }
 
     /** There is metadata or not. */
     public boolean containsFile(Path path) {
