@@ -9,6 +9,7 @@ package vavi.nio.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
@@ -20,6 +21,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -205,12 +207,7 @@ System.out.println("$ [*rm]: " + dst2);
         Path dir = fs.getPath("/").resolve("VAVIFUSE_FS_TEST_L");
         Path target = dir.resolve(source.getFileName().toString());
         if (Files.exists(dir)) {
-            Files.list(dir).forEach(sneaked(p -> {
-System.out.println("rm " + p);
-                Files.delete(p);
-            }));
-System.out.println("rmdir " + dir);
-            Files.delete(dir);
+            removeTree(dir, true);
         }
 
 System.out.println("mkdir " + dir);
@@ -261,7 +258,7 @@ System.out.println("cp(3) " + source + " " + target);
         assertEquals(Files.size(source), Files.size(target));
         assertEquals(Checksum.getChecksum(source), Checksum.getChecksum(target));
 
-        removeTree(dir);
+        removeTree(dir, true);
 
         if (Files.exists(source)) {
 System.out.println("rm " + source);
@@ -320,51 +317,28 @@ Files.list(dir3).forEach(System.out::println);
         removeTree(dir);
     }
 
-    /** */
+    /** delete self */
     static void removeTree(Path dir) throws Exception {
         removeTree(dir, true);
     }
 
-    /** */
+    /**
+     * @param deleteSelf remove self dir or not
+     * @see "https://www.baeldung.com/java-delete-directory"
+     */
     static void removeTree(Path dir, boolean deleteSelf) throws Exception {
-        List<Path> files = new ArrayList<>();
-        List<Path> dirs = new ArrayList<>();
-        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                files.add(file);
-                return FileVisitResult.CONTINUE;
-            }
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                dirs.add(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        files.forEach(sneaked(p -> {
-System.out.println("$ [*delete file]: " + p);
-            if (Files.exists(p)) {
-                Files.delete(p);
-            } else {
-System.out.println("file not found: " + p);
-            }
+        Files.walk(dir)
+                .sorted(Comparator.reverseOrder())
+                .forEach(sneaked(p -> {
+                    if (!deleteSelf) {
+                        if (p == dir) {
+                            return;
+                        }
+                    }
+System.out.printf("$ [*delete %s]: %s%n", Files.isDirectory(p) ? "dir" : "file", p);
+                    Files.delete(p);
 Thread.sleep(300);
-        }));
-        dirs.stream().filter(p -> !p.equals(dir)).forEach(sneaked(p -> {
-System.out.println("$ [*delete dir]: " + p);
-            if (Files.exists(p)) {
-                Files.delete(p);
-            } else {
-System.out.println("dir not found: " + p);
-            }
-Thread.sleep(300);
-        }));
-Thread.sleep(1000);
-        if (deleteSelf) {
-System.out.println("$ [delete directory]: " + dir);
-            Files.delete(dir);
-Thread.sleep(300);
-        }
+                }));
     }
 
     /**
