@@ -1,5 +1,7 @@
 [![Release](https://jitpack.io/v/umjammer/java7-fs-base.svg)](https://jitpack.io/#umjammer/java7-fs-base)
 [![Java CI with Maven](https://github.com/umjammer/java7-fs-base/workflows/Java%20CI%20with%20Maven/badge.svg?branch=vavi-patch)](https://github.com/umjammer/java7-fs-base/actions)
+[![CodeQL](https://github.com/umjammer/java7-fs-base/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/java7-fs-base/actions/workflows/codeql-analysis.yml)
+![Java](https://img.shields.io/badge/Java-8-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
 
 ## java7-fs-base
@@ -12,23 +14,9 @@ more details.
 This is a package designed to ease the creation of custom Java 7
 [`FileSystem`](https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html)s.
 
-## Versions
+## Install
 
-The current version is **0.0.1**. It is published on Maven. You can even see the
-[(poor) javadoc online](https://fge.github.io/java7-fs-base).
-
-Beware however that the...
-
-## Status
-
-BETA. You _can_ start and work on it to develop your own filesystems ([one is
-implemented already and works](https://github.com/fge/java7-fs-dropbox), but the javadoc (and the
-documentation in general) is _very_ scarce at this point.
-
-If you have questions:
-
-* I am `idletask` on Freenode, channel `##java`; or
-* I regularly lurk in chatroom `Java` on [Stack Overflow](https://stackoverflow.com).
+https://jitpack.io/#umjammer/java7-fs-base
 
 ## So, what is a "Java 7 `FileSystem`" anyway?
 
@@ -57,7 +45,3 @@ that's only the "user level" view of the API.
 
 This package therefore brings facilities to allow you to develop custom file systems in a much
 easier way; see [the wiki](https://github.com/fge/java7-fs-base/wiki) for more information.
-
-**THIS IS STILL A WORK IN PROGRESS**. At the moment there is only one implementation over this
-package but more are to come -- the next target is [box.com](https://box.com), and Amazon S3 after
-that.
