@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+/**
+ * CachedFileSystemDriverBaseTest.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 2021/10/30 umjammer initial version <br>
+ */
 class CachedFileSystemDriverBaseTest {
 
     @Test
@@ -55,10 +62,10 @@ System.err.println("name: " + name + ", sub: " + sub + ", parent: " + parent + "
         String p = parent.toString().charAt(0) != '/' ? "/" + parent.toString() : "/";
 System.err.println("get dir list: " + p);
         switch (p) {
-        case "/": return Arrays.asList("a1", "a2", "aa", "a3").stream().map(Paths::get).collect(Collectors.toList());
-        case "/aa": return Arrays.asList("b1", "bb").stream().map(Paths::get).collect(Collectors.toList());
-        case "/aa/bb": return Arrays.asList("c1", "c2", "c3", "cc").stream().map(Paths::get).collect(Collectors.toList());
-        case "/aa/bb/cc": return Arrays.asList("d1", "d2", "d3", "d4", "d0", "d5").stream().map(Paths::get).collect(Collectors.toList());
+        case "/": return Stream.of("a1", "a2", "aa", "a3").map(Paths::get).collect(Collectors.toList());
+        case "/aa": return Stream.of("b1", "bb").map(Paths::get).collect(Collectors.toList());
+        case "/aa/bb": return Stream.of("c1", "c2", "c3", "cc").map(Paths::get).collect(Collectors.toList());
+        case "/aa/bb/cc": return Stream.of("d1", "d2", "d3", "d4", "d0", "d5").map(Paths::get).collect(Collectors.toList());
         default: return Collections.emptyList();
         }
     }

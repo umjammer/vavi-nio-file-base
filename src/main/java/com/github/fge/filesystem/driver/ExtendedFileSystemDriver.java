@@ -38,11 +38,14 @@ import vavi.util.Debug;
 
 
 /**
- * ExtendedFileSystemDriverBase.
- *
+ * ExtendedFileSystemDriver.
+ * <p>
+ * Wrapping same processing for each different type of file system driver's file object as <code>T</code>
+ * You need to implement minimum abstract methods only.
+ * </p>
+ * @param <T> different type of file system driver's file object
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/06/10 umjammer initial version <br>
- * @see UnixLikeFileSystemDriverBase
  */
 @ParametersAreNonnullByDefault
 public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriverBase {
@@ -79,7 +82,12 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
         return downloadEntry(entry, path, options);
     }
 
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @param entry source
+     * @param path source
+     * @see #newInputStream(Path, Set)
+     */
     protected abstract InputStream downloadEntry(T entry, Path path, Set<? extends OpenOption> options) throws IOException;
 
     @Override
@@ -104,15 +112,19 @@ Debug.println(Level.FINE, "newOutputStream: cause target not found, " + e.getMes
     }
 
     /**
-     * Overrides this method if you want to do special action when the target file is exists.
+     * Overrides this method if you want to do special action when the target file exists.
      * @throws FileAlreadyExistsException if you don't override this method.
+     * @see #newOutputStream(Path, Set), {@link #uploadEntry(Object, Path, Set)}
      */
-    protected void whenUploadEntryExists(T sourceEntry, Path path, Set<? extends OpenOption> options) throws IOException {
+    protected void whenUploadEntryExists(T destEntry, Path path, Set<? extends OpenOption> options) throws IOException {
         throw new FileAlreadyExistsException("path: " + path);
     }
 
     /**
      * you must implement `cache.addEntry(path, newEntry)` after async upload is done.
+     * @param parentEntry dest parent
+     * @param path dest
+     * @see #newOutputStream(Path, Set)
      */
     protected abstract OutputStream uploadEntry(T parentEntry, Path path, Set<? extends OpenOption> options) throws IOException;
 
@@ -122,10 +134,16 @@ Debug.println(Level.FINE, "newOutputStream: cause target not found, " + e.getMes
         return Util.newDirectoryStream(getDirectoryEntries(dir, false), filter);
     }
 
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @see #newDirectoryStream(Path, DirectoryStream.Filter), {@link #getDirectoryEntries(Path, boolean)}}
+     */
     protected abstract List<T> getDirectoryEntries(T dirEntry, Path dir) throws IOException;
 
-    /** common process */
+    /**
+     * common process
+     * @see #getDirectoryEntries(Path, boolean)
+     */
     protected List<Path> getDirectoryEntries(Path dir, boolean dummy) throws IOException {
         T dirEntry = getEntry(dir);
 
@@ -153,10 +171,16 @@ Debug.println(Level.FINE, "createDirectory: target cause not found, " + e.getMes
         createDirectoryEntry(dir);
     }
 
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @see #createDirectory(Path, FileAttribute[]), {@link #createDirectoryEntry(Path)}
+     */
     protected abstract T createDirectoryEntry(T parentEntry, Path dir) throws IOException;
 
-    /** common process */
+    /**
+     * common process
+     * @see #createDirectoryEntry(Object, Path)
+     */
     protected void createDirectoryEntry(Path dir) throws IOException {
         T parentEntry = getEntry(dir.toAbsolutePath().getParent());
         createDirectoryEntry(parentEntry, dir);
@@ -176,14 +200,21 @@ Debug.println(Level.FINE, "createDirectory: target cause not found, " + e.getMes
     }
 
     /**
-     * should implement light-weight. 
+     * should implement light-weight-ly.
+     * @see #delete(Path)
      */
     protected abstract boolean hasChildren(T dirEntry, Path dir) throws IOException;
 
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @see #delete(Path), {@link #removeEntry(Path)}
+     */
     protected abstract void removeEntry(T entry, Path path) throws IOException;
 
-    /** common process */
+    /**
+     * common process
+     * @see #removeEntry(Object, Path)
+     */
     protected void removeEntry(Path path) throws IOException {
         T entry = getEntry(path);
         removeEntry(entry, path);
@@ -211,10 +242,14 @@ Debug.println(Level.FINE, "copy: cause target not found, " + e.getMessage());
     /**
      * implement driver depends code
      * @return null means that copy is async, after process like cache by your self.
+     * @see #copyEntry(Object, Object, Path, Path, Set)
      */
     protected abstract T copyEntry(T sourceEntry, T targetParentEntry, Path source, Path target, Set<CopyOption> options) throws IOException;
 
-    /** common process */
+    /**
+     * common process
+     * @see #copyEntry(Object, Object, Path, Path, Set)
+     */
     protected void copyEntry(Path source, Path target, Set<CopyOption> options) throws IOException {
         T sourceEntry = getEntry(source);
         T targetParentEntry = getEntry(target.toAbsolutePath().getParent());
@@ -268,13 +303,21 @@ Debug.println(Level.FINE, "move: cause target not found, " + e.getMessage());
         }
     }
 
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @see #move(Path, Path, Set)
+     */
     protected abstract T moveEntry(T sourceEntry, T targetParentEntry, Path source, Path target, boolean targetIsParent) throws IOException;
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @see #move(Path, Path, Set)
+     */
     protected abstract T moveFolderEntry(T sourceEntry, T targetParentEntry, Path source, Path target, boolean targetIsParent) throws IOException;
 
     /**
+     * common process
      * @param targetIsParent if the target is folder
+     * @see #moveEntry(Object, Object, Path, Path, boolean), {@link #moveFolderEntry(Object, Object, Path, Path, boolean)}
      */
     protected void moveEntry(Path source, Path target, boolean targetIsParent) throws IOException {
         T sourceEntry = getEntry(source);
@@ -286,17 +329,26 @@ Debug.println(Level.FINE, "move: cause target not found, " + e.getMessage());
         }
     }
 
-    /** implement driver depends code */
+    /**
+     * implement driver depends code
+     * @see #renameEntry(Path, Path)
+     */
     protected abstract T renameEntry(T sourceEntry, T targetParentEntry, Path source, Path target) throws IOException;
 
-    /** common process */
+    /**
+     * common process
+     * @see #renameEntry(Object, Object, Path, Path)
+     */
     protected void renameEntry(Path source, Path target) throws IOException {
         T sourceEntry = getEntry(source);
         T targetParentEntry = getEntry(target.getParent());
         renameEntry(sourceEntry, targetParentEntry, source, target);
     }
 
-    /** to ignore check, override me */
+    /**
+     * to ignore check, override me
+     * @see #checkAccessEntry(Object, Path, AccessMode...)
+     */
     @Override
     protected final void checkAccessImpl(Path path, AccessMode... modes) throws IOException {
         T entry = getEntry(path);
@@ -308,7 +360,10 @@ Debug.println(Level.FINE, "move: cause target not found, " + e.getMessage());
         checkAccessEntry(entry, path, modes);
     }
 
-    /** to check original access mode, override me */
+    /**
+     * to check original access mode, override me
+     * @see #checkAccessImpl(Path, AccessMode...)
+     */
     protected void checkAccessEntry(T entry, Path path, AccessMode... modes) throws IOException {
         // TODO: assumed; not a file == directory
         for (final AccessMode mode : modes) {
@@ -318,17 +373,21 @@ Debug.println(Level.FINE, "move: cause target not found, " + e.getMessage());
         }
     }
 
-    /* @see {@link #getPathMetadata(Path) */
+    /** @see #getPathMetadata(Path) */
     @Override
     protected final Object getPathMetadataImpl(Path path) throws IOException {
         return getPathMetadata(getEntry(path));
     }
 
-    /** if you pass your own object, override me */
+    /**
+     * if you pass your own object, override me
+     * @see #getPathMetadata(Path)
+     */
     protected Object getPathMetadata(T entry) throws IOException {
         return entry; 
     }
 
+    /** do nothing, cause most fs need not close, if it's needed override this */
     @Override
     public void close() throws IOException {
     }
