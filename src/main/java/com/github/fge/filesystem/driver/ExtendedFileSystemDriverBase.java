@@ -51,19 +51,28 @@ import vavi.util.Debug;
 @ParametersAreNonnullByDefault
 public abstract class ExtendedFileSystemDriverBase extends UnixLikeFileSystemDriverBase {
 
+    /** env key for ignoring apple double files */
     public static final String ENV_IGNORE_APPLE_DOUBLE = "ignoreAppleDouble";
 
     /** */
+    protected Map<String, ?> env;
+
+    /** ignoring apple double files or not */
     protected boolean ignoreAppleDouble = false;
 
     /** currently set ignoreAppleDouble only */
     @SuppressWarnings("unchecked")
     protected void setEnv(Map<String, ?> env) {
-        ignoreAppleDouble = (Boolean) ((Map<String, Object>) env).getOrDefault(ENV_IGNORE_APPLE_DOUBLE, Boolean.FALSE);
-//Debug.println("ignoreAppleDouble: " + ignoreAppleDouble);
+        this.env = env;
+        ignoreAppleDouble = isEnabled(ENV_IGNORE_APPLE_DOUBLE, (Map<String, Object>) env);
+Debug.println(Level.FINE, "ignoreAppleDouble: " + ignoreAppleDouble);
     }
 
-    /** */
+    /** utility for env (value is nullable and assumes null as true) */
+    static boolean isEnabled(String key, Map<String, Object> map) {
+        return map.containsKey(key) && (map.get(key) == null || (boolean) map.get(key));
+    }
+
     private UploadMonitor<DummyFileAttributes> uploadMonitor;
 
     /** */

@@ -10,13 +10,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
+
+import static com.github.fge.filesystem.driver.ExtendedFileSystemDriverBase.ENV_IGNORE_APPLE_DOUBLE;
+import static com.github.fge.filesystem.driver.ExtendedFileSystemDriverBase.isEnabled;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 class CachedFileSystemDriverBaseTest {
 
@@ -51,6 +61,31 @@ System.err.println("get dir list: " + p);
         case "/aa/bb/cc": return Arrays.asList("d1", "d2", "d3", "d4", "d0", "d5").stream().map(Paths::get).collect(Collectors.toList());
         default: return Collections.emptyList();
         }
+    }
+
+    @Test
+    void test1() {
+        Map<String, Object> env = new HashMap<>();
+        env.put(ENV_IGNORE_APPLE_DOUBLE, null);
+        assertTrue(isEnabled(ENV_IGNORE_APPLE_DOUBLE, env));
+        env.clear();;
+        env.put(ENV_IGNORE_APPLE_DOUBLE, true);
+        assertTrue(isEnabled(ENV_IGNORE_APPLE_DOUBLE, env));
+        env.clear();;
+        env.put(ENV_IGNORE_APPLE_DOUBLE, false);
+        assertFalse(isEnabled(ENV_IGNORE_APPLE_DOUBLE, env));
+        env.clear();
+        env.put(ENV_IGNORE_APPLE_DOUBLE, null);
+        assertThrows(NullPointerException.class, () -> {
+            // npe at cast to Boolean
+            boolean r = (boolean) env.getOrDefault(ENV_IGNORE_APPLE_DOUBLE, false);
+        });
+        env.clear();
+        env.put(ENV_IGNORE_APPLE_DOUBLE, null);
+        assertDoesNotThrow(() -> {
+            // no cast, no error
+            env.getOrDefault(ENV_IGNORE_APPLE_DOUBLE, false);
+        });
     }
 }
 
