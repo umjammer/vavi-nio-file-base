@@ -19,6 +19,7 @@ import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -33,6 +34,9 @@ import vavi.util.Debug;
  * <p>
  * Caching downloaded files also for like a network drive.
  * </p>
+ * system property
+ * <li>"disableFileCache" ({@link #ENV_DISABLED_FILE_CACHE}) ... true: don't use files cache</li>
+ *
  * @param <T> different type of file system driver's file object
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-09-18 nsano initial version <br>
@@ -42,12 +46,28 @@ public abstract class DoubleCachedFileSystemDriver<T> extends CachedFileSystemDr
     /** TODO size limit */
     private Path cacheRoot;
 
+    /** env key for ignoring apple double files */
+    public static final String ENV_DISABLED_FILE_CACHE = "disableFileCache";
+
+    /** file cache enabled */
+    private boolean isFileCacheDisabled;
+
     /** creates a cached filesystem */
-    protected DoubleCachedFileSystemDriver(FileStore fileStore, FileSystemFactoryProvider factoryProvider) throws IOException {
+    protected DoubleCachedFileSystemDriver(FileStore fileStore, FileSystemFactoryProvider factoryProvider) {
         super(fileStore, factoryProvider);
-        cacheRoot = Files.createTempDirectory("java7-fs-base");
+    }
+
+    @Override
+    protected void setEnv(Map<String, ?> env) throws IOException {
+        super.setEnv(env);
+        this.isFileCacheDisabled = isEnabled(ENV_DISABLED_FILE_CACHE);
+        if (!isFileCacheDisabled) {
+            cacheRoot = Files.createTempDirectory("java7-fs-base");
 Debug.println(Level.FINE, "files cache is created: " + cacheRoot);
-        Runtime.getRuntime().addShutdownHook(new Thread(this::dispose));
+            Runtime.getRuntime().addShutdownHook(new Thread(this::dispose));
+        } else {
+Debug.println(Level.FINE, "files cache is disabled");
+        }
     }
 
     /** clean up cache */
@@ -97,6 +117,11 @@ Debug.println(Level.FINE, "CACHE created: " + localCache.getFileName() + ", loca
 
     @Override
     protected final InputStream downloadEntry(T entry, Path path, Set<? extends OpenOption> options) throws IOException {
+        if (isFileCacheDisabled) {
+Debug.println(Level.FINE, "downloading and caching ignored: " + path);
+            return downloadEntryImpl(entry, path, options);
+        }
+
         Path localCache = cacheRoot.resolve(getUniqueKey(path));
         if (!Files.exists(localCache)) {
 Debug.println(Level.FINE, "downloading and caching: " + path + ", " + localCache.getFileName());

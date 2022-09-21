@@ -49,6 +49,7 @@ import vavi.util.Debug;
  * if your file system driver class extends this class,
  * your {@link FileAttributesFactory} should extends {@link ExtendedFileAttributesFactory}.
  * </p>
+ *
  * TODO separate about {@link UploadMonitor}
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
@@ -61,18 +62,23 @@ public abstract class ExtendedFileSystemDriverBase extends UnixLikeFileSystemDri
     /** env key for ignoring apple double files */
     public static final String ENV_IGNORE_APPLE_DOUBLE = "ignoreAppleDouble";
 
-    /** */
+    /** device specific options */
     protected Map<String, ?> env;
 
     /** ignoring apple double files or not */
     protected boolean ignoreAppleDouble = false;
 
     /** currently set ignoreAppleDouble only */
-    @SuppressWarnings("unchecked")
-    protected void setEnv(Map<String, ?> env) {
+    protected void setEnv(Map<String, ?> env) throws IOException {
         this.env = env;
-        ignoreAppleDouble = isEnabled(ENV_IGNORE_APPLE_DOUBLE, (Map<String, Object>) env);
+        ignoreAppleDouble = isEnabled(ENV_IGNORE_APPLE_DOUBLE);
 Debug.println(Level.FINE, "ignoreAppleDouble: " + ignoreAppleDouble);
+    }
+
+    /** utility for env (value is nullable and assumes null as true) */
+    @SuppressWarnings("unchecked")
+    protected boolean isEnabled(String key) {
+        return isEnabled(key, (Map<String, Object>) env);
     }
 
     /** utility for env (value is nullable and assumes null as true) */
