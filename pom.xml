@@ -3,7 +3,7 @@
 
   <groupId>com.github.fge</groupId>
   <artifactId>java7-fs-base</artifactId>
-  <version>0.0.12v</version>
+  <version>0.0.13v</version>
 
   <name>java7-fs-base</name>
   <url>https://github.com/umjammer/java7-fs-base</url>
@@ -18,17 +18,20 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.10.1</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
           <encoding>utf-8</encoding>
+          <compilerArgument>-Xlint:deprecation</compilerArgument>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
+        <version>3.0.0-M7</version>
         <configuration>
           <trimStackTrace>false</trimStackTrace>
           <argLine>
@@ -51,7 +54,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.8.1</version>
+        <version>5.9.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -62,19 +65,19 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-net</artifactId>
-      <version>1.0.7</version>
+      <version>1.0.8</version>
     </dependency>
 
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-nio-file</artifactId>
-      <version>0.0.13</version>
+      <version>0.0.14</version>
     </dependency>
 
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.2</version>
       <scope>provided</scope>
     </dependency>
 
@@ -102,14 +105,14 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.23.4</version>
+      <version>4.8.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.11.1</version>
+      <version>3.23.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

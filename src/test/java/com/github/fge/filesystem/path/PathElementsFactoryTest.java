@@ -20,25 +20,28 @@ package com.github.fge.filesystem.path;
 
 import java.util.stream.Stream;
 
+import com.github.fge.filesystem.CustomSoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.github.fge.filesystem.CustomSoftAssertions;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+@ExtendWith(SoftAssertionsExtension.class)
 public final class PathElementsFactoryTest
 {
     private final PathElementsFactory factory = new UnixPathElementsFactory();
 
-    @RegisterExtension
-    final CustomSoftAssertions soft = new CustomSoftAssertions();
+    @InjectSoftAssertions
+    CustomSoftAssertions soft;
 
     static Stream<Arguments> rootAndNamesData()
     {
@@ -65,9 +68,9 @@ public final class PathElementsFactoryTest
     {
         final String[] ret = factory.rootAndNames(path);
 
-        soft.assertThat(ret[0]).as("root is correctly calculated")
+        assertThat(ret[0]).as("root is correctly calculated")
             .isEqualTo(root);
-        soft.assertThat(ret[1]).as("names are correctly extracted")
+        assertThat(ret[1]).as("names are correctly extracted")
             .isEqualTo(names);
     }
 

@@ -25,7 +25,10 @@ import vavi.nio.file.Util;
 
 /**
  * CachedFileSystemDriver.
- *
+ * <p>
+ * Retrieved filenames and directories are cached.
+ * </p>
+ * @param <T> different type of file system driver's file object
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2021/10/30 umjammer initial version <br>
  */
@@ -62,6 +65,7 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
      * this method traverses all siblings from root, it costs heavy.
      * @param parentEntry not used in this method, nullable
      * @return null when not found
+     * @see "cache#cacheEntry(Path)"
      */
     protected T getEntry(T parentEntry, Path path) throws IOException {
 //Debug.println("search: " + path);
@@ -83,10 +87,10 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
         return cache.getFile(path);
     }
 
-    /** */
+    /** cache for filenames */
     protected Cache<T> cache = new Cache<T>() {
         /**
-         * @see #ignoreAppleDouble
+         * @see ExtendedFileSystemDriverBase#ignoreAppleDouble
          * @throws NoSuchFileException must be thrown when the path is not found in this cache
          */
         public T getEntry(Path path) throws IOException {
@@ -108,11 +112,11 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
         }
 
         /**
-         * @throws NoSuchFileException 
+         * @throws NoSuchFileException see {@link #getEntry(Object)}
          */
         private T cacheEntry(Path path) throws IOException {
-            T parentDirEntry = getEntry(path.toAbsolutePath().getParent());
-            T entry = CachedFileSystemDriver.this.getEntry(parentDirEntry, path);
+            T parentEntry = getEntry(path.toAbsolutePath().getParent());
+            T entry = CachedFileSystemDriver.this.getEntry(parentEntry, path);
             if (entry != null) {
                 addEntry(path, entry);
             } else {
@@ -166,7 +170,7 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
         cache.removeEntry(path);
     }
 
-    /** */
+    @Override
     protected void copyEntry(Path source, Path target, final Set<CopyOption> options) throws IOException {
         T sourceEntry = getEntry(source);
         T targetParentEntry = getEntry(target.toAbsolutePath().getParent());
@@ -182,9 +186,6 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
         }
     }
 
-    /**
-     * @param targetIsParent if the target is folder
-     */
     @Override
     protected void moveEntry(final Path source, final Path target, boolean targetIsParent) throws IOException {
         T sourceEntry = cache.getEntry(source);
