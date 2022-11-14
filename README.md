@@ -1,7 +1,7 @@
 [![Release](https://jitpack.io/v/umjammer/java7-fs-base.svg)](https://jitpack.io/#umjammer/java7-fs-base)
-[![Java CI with Maven](https://github.com/umjammer/java7-fs-base/workflows/Java%20CI%20with%20Maven/badge.svg?branch=vavi-patch)](https://github.com/umjammer/java7-fs-base/actions)
+[![Java CI](https://github.com/umjammer/java7-fs-base/workflows/Java%20CI%20with%20Maven/badge.svg?branch=vavi-patch)](https://github.com/umjammer/java7-fs-base/actions)
 [![CodeQL](https://github.com/umjammer/java7-fs-base/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/java7-fs-base/actions/workflows/codeql-analysis.yml)
-![Java](https://img.shields.io/badge/Java-8-b07219)
+![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
 
 ## java7-fs-base
