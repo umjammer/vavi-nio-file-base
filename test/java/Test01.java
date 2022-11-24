@@ -73,6 +73,19 @@ class Test01 {
         assertTrue(Files.exists(path2));
     }
 
+    static final String nfd1 = "がぎぐげござじずぜぞだぢづでどばびぶべぼゞヾぱぴぷぺぽゔ";
+    static final String nfd2 = "ガギグゲゴザジズゼゾダヂヅデドバビブベボゞヾパピプペポヴ";
+    static final String nfc1 = "がぎぐげござじずぜぞだぢづでどばびぶべぼゞヾぱぴぷぺぽゔ";
+    static final String nfc2 = "ガギグゲゴザジズゼゾダヂヅデドバビブベボゞヾパピプペポヴ";
+
+    @Test
+    void test11() throws Exception {
+        String actual = Util.toNormalizedString(nfd1);
+        assertEquals(nfc1, actual);
+        actual = Util.toNormalizedString(nfd2);
+        assertEquals(nfc2, actual);
+    }
+
     @Test
     void test02() throws Exception {
         Base.testAll(Jimfs.newFileSystem(Configuration.unix()));
@@ -119,6 +132,7 @@ class Test01 {
         Files.copy(src, dir.resolve(src.getFileName().toString()));
         Base.removeTree(dir, true);
         assertFalse(Files.exists(dir));
+        fs.close();
     }
 }
 
