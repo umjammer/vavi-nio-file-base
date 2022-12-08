@@ -4,20 +4,31 @@
  * Programmed by Naohide Sano
  */
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import vavi.io.Seekable;
 import vavi.nio.file.Base;
 import vavi.nio.file.Util;
 
@@ -35,6 +46,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @version 0.00 2019/07/11 umjammer initial version <br>
  */
 class Test01 {
+
+    static Path tmp = Paths.get("tmp");
+
+    @BeforeAll
+    static void setup() throws Exception {
+        if (!Files.exists(tmp)) {
+            Files.createDirectory(tmp);
+        }
+    }
 
     @Test
     void test() {
@@ -103,10 +123,6 @@ class Test01 {
 
     @Test
     void test03() throws Exception {
-        Path tmp = Paths.get("tmp");
-        if (!Files.exists(tmp)) {
-            Files.createDirectory(tmp);
-        }
         Path src = Paths.get("src/test/resources/Hello.java");
         Path dst = Paths.get("tmp/Hello.java");
         if (Files.exists(dst)) {
@@ -133,6 +149,181 @@ class Test01 {
         Base.removeTree(dir, true);
         assertFalse(Files.exists(dir));
         fs.close();
+    }
+
+    static class SeekableByteArrayInputStream extends InputStream implements Seekable {
+        byte[] buf;
+        int pos;
+
+        SeekableByteArrayInputStream(byte[] buf) {
+            this.buf = buf;
+            this.pos = 0;
+        }
+
+        @Override
+        public int available() {
+            return buf.length - pos;
+        }
+
+        @Override
+        public int read() {
+            if (pos >= buf.length) {
+                return -1;
+            } else {
+                return buf[pos++] & 0xff;
+            }
+        }
+
+        @Override
+        public void position(long l) {
+            if (l < 0 || l >= buf.length) {
+                throw new IndexOutOfBoundsException(String.valueOf(l));
+            }
+            pos = (int) l;
+        }
+
+        @Override
+        public long position() {
+            return pos;
+        }
+    }
+
+    static class SeekableByteArrayOutputStream extends OutputStream implements Seekable {
+        List<Byte> buf;
+        int capacity;
+        int pos;
+
+        SeekableByteArrayOutputStream(int capacity) {
+            this.capacity = capacity;
+            this.buf = new ArrayList<>(capacity);
+            this.pos = 0;
+        }
+
+        @Override
+        public void write(int b) {
+            for (int i = buf.size(); i <= pos; i++) {
+                buf.add(i, (byte) 0);
+            }
+            buf.set(pos, (byte) b);
+        }
+
+        @Override
+        public void position(long l) {
+            if (l < 0 || l >= capacity) {
+                throw new IndexOutOfBoundsException(String.valueOf(l));
+            }
+            pos = (int) l;
+        }
+
+        @Override
+        public long position() {
+            return pos;
+        }
+
+        /** */
+        public byte[] toByteArray() {
+            byte[] a = new byte[buf.size()];
+            IntStream.range(0, buf.size()).forEach(i -> a[i] = buf.get(i));
+            return a;
+        }
+
+        /** */
+        public String toString() {
+            return new String(toByteArray());
+        }
+    }
+
+    @Test
+    void test07() throws Exception {
+        byte[] b = new byte[256];
+        for (int i = 0; i < 256; i++) {
+            b[i] = (byte) i;
+        }
+        InputStream is = new SeekableByteArrayInputStream(b);
+        SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(is) {
+            @Override protected long getSize() {
+                return b.length;
+            }
+        };
+        sbc.position(100);
+        byte[] rb = new byte[1];
+        sbc.read(ByteBuffer.wrap(rb));
+        assertEquals(100, rb[0]);
+    }
+
+    @Test
+    void test07_1() throws Exception {
+        byte[] b = new byte[256];
+        for (int i = 0; i < 256; i++) {
+            b[i] = (byte) i;
+        }
+        Path tmp = Test01.tmp.resolve("test07_1.dat");
+        Files.write(tmp, b, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+        FileInputStream fis = new FileInputStream(tmp.toFile());
+        SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(fis) {
+            @Override protected long getSize() {
+                return b.length;
+            }
+        };
+        sbc.position(100);
+        byte[] rb = new byte[1];
+        sbc.read(ByteBuffer.wrap(rb));
+        assertEquals(100, rb[0]);
+        Files.delete(tmp);
+    }
+
+    @Test
+    void test08() throws Exception {
+        int capacity = 256;
+        SeekableByteArrayOutputStream sbaos = new SeekableByteArrayOutputStream(capacity);
+        SeekableByteChannel sbc = new Util.SeekableByteChannelForWriting(sbaos) {
+            @Override
+            protected long getLeftOver() throws IOException {
+                return capacity - position();
+            }
+        };
+
+        sbc.position(99);
+        byte[] rb = new byte[] { 100 };
+        sbc.write(ByteBuffer.wrap(rb));
+
+        assertEquals(100, sbaos.toByteArray().length);
+        assertEquals(100, sbaos.toByteArray()[99]);
+
+        sbc.position(49);
+        rb = new byte[] { 50 };
+        sbc.write(ByteBuffer.wrap(rb));
+
+        assertEquals(100, sbaos.toByteArray().length);
+        assertEquals(50, sbaos.toByteArray()[49]);
+    }
+
+    @Test
+    void test08_1() throws Exception {
+        Path tmp = Test01.tmp.resolve("test08_1.dat");
+        FileOutputStream fos = new FileOutputStream(tmp.toFile());
+        SeekableByteChannel sbc = new Util.SeekableByteChannelForWriting(fos) {
+            @Override
+            protected long getLeftOver() throws IOException {
+                return 256 - position();
+            }
+        };
+
+        sbc.position(99);
+        byte[] rb = new byte[] { 100 };
+        sbc.write(ByteBuffer.wrap(rb));
+
+        sbc.position(49);
+        rb = new byte[] { 50 };
+        sbc.write(ByteBuffer.wrap(rb));
+
+        byte[] b = Files.readAllBytes(tmp);
+
+        assertEquals(100, b.length);
+        assertEquals(100, b[99]);
+        assertEquals(50, b[49]);
+
+        Files.delete(tmp);
     }
 }
 

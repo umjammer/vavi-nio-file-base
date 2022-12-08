@@ -132,14 +132,17 @@ public interface Util {
      * @see java.nio.file.Files#newByteChannel(Path, Set, java.nio.file.attribute.FileAttribute...)
      */
     abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
+        OutputStream out;
         protected long written;
         private WritableByteChannel wbc;
 
         public SeekableByteChannelForWriting(OutputStream out) throws IOException {
+            this.out = out;
             this.wbc = Channels.newChannel(out);
             this.written = getLeftOver();
         }
 
+        /** */
         protected abstract long getLeftOver() throws IOException;
 
         @Override
@@ -149,13 +152,33 @@ public interface Util {
 
         @Override
         public long position() throws IOException {
-Debug.println(Level.WARNING, "SeekableByteChannelForWriting: get position: " + written);
+            if (out instanceof Seekable) {
+                // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
+                written = ((Seekable) out).position();
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: get position by vavi.io.Seekable: " + written);
+            } else if (wbc instanceof SeekableByteChannel) {
+                written = ((SeekableByteChannel) wbc).position();
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: get position by java.nio.channels.SeekableByteChannel: " + written);
+            } else {
+Debug.println(Level.WARNING, "SeekableByteChannelForWriting: get position: " + written + ", " + out.getClass().getName());
+            }
+
             return written;
         }
 
         @Override
         public SeekableByteChannel position(long pos) throws IOException {
-Debug.println(Level.WARNING, "SeekableByteChannelForWriting: set position: " + pos);
+            if (out instanceof Seekable) {
+                // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: set position by vavi.io.Seekable: " + pos);
+                ((Seekable) out).position(pos);
+            } else if (wbc instanceof SeekableByteChannel) {
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: set position by java.nio.channels.SeekableByteChannel: " + pos);
+                ((SeekableByteChannel) wbc).position(pos);
+            } else {
+Debug.println(Level.WARNING, "SeekableByteChannelForWriting: set position: " + pos + ", " + out.getClass().getName());
+            }
+
             written = pos;
             return this;
         }
@@ -167,7 +190,8 @@ Debug.println(Level.WARNING, "SeekableByteChannelForWriting: set position: " + p
 
         @Override
         public SeekableByteChannel truncate(long size) throws IOException {
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: truncate: " + size + ", " + written);
+Debug.println(Level.WARNING, "SeekableByteChannelForWriting: truncate: WIP");
+Debug.println(Level.FINE, "SeekableByteChannelForWriting: truncate: " + size + ", " + written + ", " + out.getClass().getName());
             // TODO implement correctly
 
             if (written > size) {
@@ -213,6 +237,7 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
             this.size = getSize();
         }
 
+        /** */
         protected abstract long getSize() throws IOException;
 
         @Override
@@ -224,10 +249,13 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
         public long position() throws IOException {
             if (in instanceof Seekable) {
                 // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
-Debug.println(Level.FINE, "SeekableByteChannelForReading: position");
                 read = ((Seekable) in).position();
+Debug.println(Level.FINE, "SeekableByteChannelForReading: get position by vavi.io.Seekable: " + read);
+            } else if (rbc instanceof SeekableByteChannel) {
+                read = ((SeekableByteChannel) rbc).position();
+Debug.println(Level.FINE, "SeekableByteChannelForReading: get position by java.nio.channels.SeekableByteChannel: " + read);
             } else {
-Debug.println(Level.WARNING, "SeekableByteChannelForReading: position: non seekable input: " + read + ", " + in.getClass().getName());
+Debug.println(Level.WARNING, "SeekableByteChannelForReading: get position: non seekable input: " + read + ", " + in.getClass().getName());
             }
             return read;
         }
@@ -236,8 +264,11 @@ Debug.println(Level.WARNING, "SeekableByteChannelForReading: position: non seeka
         public SeekableByteChannel position(long pos) throws IOException {
             if (in instanceof Seekable) {
                 // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
-Debug.println(Level.FINE, "SeekableByteChannelForReading: set position: " + pos);
+Debug.println(Level.FINE, "SeekableByteChannelForReading: set position by vavi.io.Seekable: " + pos);
                 ((Seekable) in).position(pos);
+            } else if (rbc instanceof SeekableByteChannel) {
+Debug.println(Level.FINE, "SeekableByteChannelForReading: set position by java.nio.channels.SeekableByteChannel: " + pos);
+                ((SeekableByteChannel) rbc).position(pos);
             } else {
 Debug.println(Level.WARNING, "SeekableByteChannelForReading: set position: non seekable input: " + pos + ", " + in.getClass().getName());
             }
