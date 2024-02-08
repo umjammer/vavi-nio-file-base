@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.fge</groupId>
-  <artifactId>java7-fs-base</artifactId>
   <version>0.0.13v</version>
+  <artifactId>vavi-nio-file-base</artifactId>
 
   <name>java7-fs-base</name>
   <url>https://github.com/umjammer/java7-fs-base</url>
