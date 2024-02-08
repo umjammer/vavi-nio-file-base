@@ -1,5 +1,5 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-nio-file-base.svg)](https://jitpack.io/#umjammer/vavi-nio-file-base)
-[![Java CI](https://github.com/umjammer/vavi-nio-file-base/workflows/Java%20CI%20with%20Maven/badge.svg?branch=vavi-patch)](https://github.com/umjammer/vavi-nio-file-base/actions)
+[![Java CI](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-nio-file-base/actions)
 [![CodeQL](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/codeql-analysis.yml)
 ![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
@@ -29,7 +29,7 @@ https://jitpack.io/#umjammer/vavi-nio-file-base
  * JSR-107 Cache Specification
     * https://github.com/jsr107/jsr107spec
     * https://github.com/ben-manes/caffeine
- * merge into java7-fs-base
+ * ~~merge into java7-fs-base~~
 
 ---
 
