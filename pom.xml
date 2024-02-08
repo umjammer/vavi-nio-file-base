@@ -5,13 +5,13 @@
   <version>0.0.13v</version>
   <artifactId>vavi-nio-file-base</artifactId>
 
-  <name>java7-fs-base</name>
-  <url>https://github.com/umjammer/java7-fs-base</url>
+  <name>vavi-nio-file-base</name>
+  <url>https://github.com/umjammer/vavi-nio-file-base</url>
   <scm>
-    <url>https://github.com/umjammer/java7-fs-base</url>
+    <url>https://github.com/umjammer/vavi-nio-file-base</url>
   </scm>
   <issueManagement>
-    <url>https://github.com/umjammer/java7-fs-base/issues</url>
+    <url>https://github.com/umjammer/vavi-nio-file-base/issues</url>
   </issueManagement>
   <description>Helper classes for FileSystem implementations</description>
 
