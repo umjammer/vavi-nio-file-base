@@ -33,6 +33,7 @@ import vavi.util.Debug;
  * DoubleCachedFileSystemDriver.
  * <p>
  * Caching downloaded files also for like a network drive.
+ * Double means caching "directory structure" and "file data".
  * </p>
  * system property
  * <li>"disableFileCache" ({@link #ENV_DISABLED_FILE_CACHE}) ... true: don't use files cache</li>
