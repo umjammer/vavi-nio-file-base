@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.fge</groupId>
-  <version>0.0.13v</version>
   <artifactId>vavi-nio-file-base</artifactId>
+  <version>0.0.14v</version>
 
   <name>vavi-nio-file-base</name>
   <url>https://github.com/umjammer/vavi-nio-file-base</url>
