@@ -1,10 +1,39 @@
-[![Release](https://jitpack.io/v/umjammer/java7-fs-base.svg)](https://jitpack.io/#umjammer/java7-fs-base)
-[![Java CI with Maven](https://github.com/umjammer/java7-fs-base/workflows/Java%20CI%20with%20Maven/badge.svg?branch=vavi-patch)](https://github.com/umjammer/java7-fs-base/actions)
-[![CodeQL](https://github.com/umjammer/java7-fs-base/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/java7-fs-base/actions/workflows/codeql-analysis.yml)
-![Java](https://img.shields.io/badge/Java-8-b07219)
+[![Release](https://jitpack.io/v/umjammer/vavi-nio-file-base.svg)](https://jitpack.io/#umjammer/vavi-nio-file-base)
+[![Java CI](https://github.com/umjammer/vavi-nio-file-base/workflows/Java%20CI%20with%20Maven/badge.svg?branch=vavi-patch)](https://github.com/umjammer/vavi-nio-file-base/actions)
+[![CodeQL](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/codeql-analysis.yml)
+![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
 
-## java7-fs-base
+## vavi-nio-file-base
+
+Java nio file (JSR-203) basics based on [java7-fs-base](https://github.com/fge/java7-fs-base).
+
+### vavi-nio-file
+
+* cache for file system
+* utilities
+    * channels for filesystems
+    * input/output streams for upload/download
+    * output engine input stream ✭
+* base test case
+
+## Install
+
+https://jitpack.io/#umjammer/vavi-nio-file-base
+
+## Usage
+
+## TODO
+
+ * ~~rename project to vavi-nio-file-base~~
+ * JSR-107 Cache Specification
+    * https://github.com/jsr107/jsr107spec
+    * https://github.com/ben-manes/caffeine
+ * merge into java7-fs-base
+
+---
+
+# Original
 
 This project is licensed under GPLv2.0, LGPLv3 and ASL 2.0. See file LICENSE for
 more details.
@@ -13,10 +42,6 @@ more details.
 
 This is a package designed to ease the creation of custom Java 7
 [`FileSystem`](https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html)s.
-
-## Install
-
-https://jitpack.io/#umjammer/java7-fs-base
 
 ## So, what is a "Java 7 `FileSystem`" anyway?
 
