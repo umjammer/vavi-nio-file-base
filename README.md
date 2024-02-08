@@ -6,6 +6,17 @@
 
 ## vavi-nio-file-base
 
+Java nio file (JSR-203) basics based on [java7-fs-base](https://github.com/fge/java7-fs-base).
+
+### vavi-nio-file
+
+* cache for file system
+* utilities
+    * channels for filesystems
+    * input/output streams for upload/download
+    * output engine input stream ✭
+* base test case
+
 ## Install
 
 https://jitpack.io/#umjammer/vavi-nio-file-base
@@ -15,6 +26,10 @@ https://jitpack.io/#umjammer/vavi-nio-file-base
 ## TODO
 
  * ~~rename project to vavi-nio-file-base~~
+ * JSR-107 Cache Specification
+    * https://github.com/jsr107/jsr107spec
+    * https://github.com/ben-manes/caffeine
+ * merge into java7-fs-base
 
 ---
 
