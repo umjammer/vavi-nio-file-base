@@ -35,5 +35,3 @@ public interface Notification<T> extends Closeable {
         throw new NoSuchElementException(matcher);
     }
 }
-
-/* */

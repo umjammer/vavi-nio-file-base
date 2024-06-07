@@ -76,5 +76,3 @@ public class GlobPathMatcherTest {
         assertFalse(pm.matches(Paths.get("Zbc.java")));
     }
 }
-
-/* */

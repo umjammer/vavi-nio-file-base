@@ -42,5 +42,3 @@ Debug.println("WEBSOCKET: onOpen: " + session.getId());
         onNotifyMessageImpl(notification);
     }
 }
-
-/* */

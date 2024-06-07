@@ -46,5 +46,3 @@ Debug.println("WEBSOCKET: onOpen: " + session.getId());
         onCloseInternal(session);
     }
 }
-
-/* */

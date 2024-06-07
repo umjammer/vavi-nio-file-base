@@ -326,5 +326,3 @@ class Test01 {
         Files.delete(tmp);
     }
 }
-
-/* */

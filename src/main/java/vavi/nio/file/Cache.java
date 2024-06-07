@@ -166,5 +166,3 @@ public abstract class Cache<T> {
         throw new NoSuchElementException(query.toString());
     }
 }
-
-/* */
