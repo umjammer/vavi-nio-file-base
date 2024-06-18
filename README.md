@@ -1,5 +1,5 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-nio-file-base.svg)](https://jitpack.io/#umjammer/vavi-nio-file-base)
-[![Java CI](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-nio-file-base/actions)
+[![Java CI](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-nio-file-base/actions/workflows/codeql-analysis.yml)
 ![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--apps--fuse-pink)](https://github.com/umjammer/vavi-apps-fuse)
@@ -14,14 +14,20 @@ Java nio file (JSR-203) basics based on [java7-fs-base](https://github.com/fge/j
 * utilities
     * channels for filesystems
     * input/output streams for upload/download
-    * output engine input stream ✭
+    * output engine input stream 🎖
 * base test case
 
 ## Install
 
-https://jitpack.io/#umjammer/vavi-nio-file-base
+ * [maven](https://jitpack.io/#umjammer/vavi-nio-file-base)
 
 ## Usage
+
+ * [vavi-apps-fuse](https://github.com/umjammer/vavi-apps-fuse)
+ * [vavi-nio-file-cyberduck](https://github.com/umjammer/vavi-nio-file-cyberduck)
+ * [vavi-nio-file-discutils](https://github.com/umjammer/vavi-nio-file-discutils)
+ * [vavi-nio-file-adb](https://github.com/umjammer/vavi-nio-file-adb)
+ * [jnode](https://github.com/umjammer/jnode)
 
 ## TODO
 
