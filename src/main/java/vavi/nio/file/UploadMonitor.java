@@ -44,5 +44,3 @@ public class UploadMonitor<T> {
         return uploadFlags.get(path);
     }
 }
-
-/* */

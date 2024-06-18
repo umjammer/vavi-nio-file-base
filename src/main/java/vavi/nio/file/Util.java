@@ -505,5 +505,3 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
         }
     }
 }
-
-/* */

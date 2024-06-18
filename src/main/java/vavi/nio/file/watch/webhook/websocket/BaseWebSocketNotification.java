@@ -62,7 +62,7 @@ public abstract class BaseWebSocketNotification<T> implements Notification<T> {
     @OnError
     public final void onError(Throwable t) {
 Debug.println("WEBSOCKET: onError");
-t.printStackTrace();
+Debug.printStackTrace(t);
         throwable = t;
     }
 
@@ -109,5 +109,3 @@ Debug.println("WEBSOCKET: jetty's websocket stopped: " + ((org.eclipse.jetty.uti
 //Debug.println("close: exit: " + reconnect.get() + ", " + this.hashCode());
     }
 }
-
-/* */

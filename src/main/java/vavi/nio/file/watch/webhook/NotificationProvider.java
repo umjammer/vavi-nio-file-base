@@ -22,5 +22,3 @@ public interface NotificationProvider {
 
     <T> Notification<T> getNotification(Consumer<T> callback, Object... args) throws IOException;
 }
-
-/* */

@@ -37,5 +37,3 @@ public class BasicAuthorizationConfigurator extends ClientEndpointConfig.Configu
         headers.put("Authorization", Collections.singletonList("Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes())));
     }
 }
-
-/* */

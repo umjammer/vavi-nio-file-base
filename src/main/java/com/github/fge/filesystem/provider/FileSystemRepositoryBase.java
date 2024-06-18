@@ -18,25 +18,28 @@
 
 package com.github.fge.filesystem.provider;
 
-import com.github.fge.filesystem.driver.FileSystemDriver;
-import com.github.fge.filesystem.fs.GenericFileSystem;
-
-import vavi.net.http.HttpUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.ClosedFileSystemException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.driver.FileSystemDriver;
+import com.github.fge.filesystem.fs.GenericFileSystem;
+
 
 @ParametersAreNonnullByDefault
 public abstract class FileSystemRepositoryBase
@@ -191,7 +194,7 @@ public abstract class FileSystemRepositoryBase
     /** */
     protected Map<String, String> getParamsMap(URI uri) {
         try {
-            Map<String, String[]> params = HttpUtil.splitQuery(uri);
+            Map<String, String[]> params = splitQuery(uri);
             Map<String, String> result = new HashMap<>();
             for (String key : params.keySet()) {
                 String[] values = params.get(key);
@@ -201,5 +204,24 @@ public abstract class FileSystemRepositoryBase
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /** */
+    private static Map<String, String[]> splitQuery(URI uri) throws IOException {
+        Map<String, String[]> queryPairs = new HashMap<>();
+        if (uri.getQuery() != null) {
+            String[] pairs = uri.getQuery().split("&");
+            for (String pair : pairs) {
+                final int idx = pair.indexOf("=");
+                final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8) : pair;
+                final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
+                if (!queryPairs.containsKey(key)) {
+                    queryPairs.put(key, new String[] { value });
+                } else {
+                    queryPairs.put(key, Stream.concat(Arrays.stream(queryPairs.get(key)), Arrays.stream(new String[] { value })).toArray(String[]::new));
+                }
+            }
+        }
+        return queryPairs;
     }
 }
