@@ -31,7 +31,7 @@ public final class RegexPathMatcher
 {
     private final Pattern pattern;
 
-    public RegexPathMatcher(@Nonnull final String regex)
+    public RegexPathMatcher(@Nonnull String regex)
     {
         /*
          * We need Pattern.DOTALL, since it is legal in many filesystems for
@@ -42,7 +42,7 @@ public final class RegexPathMatcher
     }
 
     @Override
-    protected boolean match(final String input)
+    protected boolean match(String input)
     {
         return pattern.matcher(input).find();
     }

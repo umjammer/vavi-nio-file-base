@@ -6,7 +6,10 @@
 
 package vavi.nio.file.watch.webhook;
 
+import com.github.fge.filesystem.watch.AbstractWatchService;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.Watchable;
@@ -16,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import com.github.fge.filesystem.watch.AbstractWatchService;
-
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -29,8 +30,10 @@ import vavi.util.Debug;
  */
 public abstract class WebHookBaseWatchService<T> extends AbstractWatchService {
 
+    private static final Logger logger = getLogger(WebHookBaseWatchService.class.getName());
+
     /** */
-    private static Map<String, Notification<?>> notifications = new HashMap<>();
+    private static final Map<String, Notification<?>> notifications = new HashMap<>();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(WebHookBaseWatchService::dispose));
@@ -75,16 +78,16 @@ public abstract class WebHookBaseWatchService<T> extends AbstractWatchService {
         notifications.values().forEach(notification -> {
             try {
                 notification.close();
-Debug.println("NOIFICATION: notification closed: " + notification);
+logger.log(Level.DEBUG, "NOTIFICATION: notification closed: " + notification);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         });
         notifications.clear();
     }
 
     /** */
-    private List<BasicWatchKey> watchKeys = new ArrayList<>();
+    private final List<BasicWatchKey> watchKeys = new ArrayList<>();
 
     // design error?
     @Override

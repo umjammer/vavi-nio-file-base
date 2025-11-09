@@ -38,7 +38,7 @@ public abstract class FileAttributesProvider
      * @throws IOException failure to create the provider
      */
     // TODO: does not forbid an empty name, but ohwell
-    protected FileAttributesProvider(final String name)
+    protected FileAttributesProvider(String name)
         throws IOException
     {
         this.name = Objects.requireNonNull(name);

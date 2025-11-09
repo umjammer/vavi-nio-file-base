@@ -50,8 +50,8 @@ public abstract class FileSystemRepositoryBase
 
     protected final FileSystemFactoryProvider factoryProvider;
 
-    protected FileSystemRepositoryBase(final String scheme,
-        final FileSystemFactoryProvider factoryProvider)
+    protected FileSystemRepositoryBase(String scheme,
+                                       FileSystemFactoryProvider factoryProvider)
     {
         this.scheme = Objects.requireNonNull(scheme);
         this.factoryProvider = Objects.requireNonNull(factoryProvider);
@@ -79,8 +79,8 @@ public abstract class FileSystemRepositoryBase
 
     @Override
     @Nonnull
-    public final FileSystem createFileSystem(final FileSystemProvider provider,
-        final URI uri, final Map<String, ?> env)
+    public final FileSystem createFileSystem(FileSystemProvider provider,
+                                             URI uri, Map<String, ?> env)
         throws IOException
     {
         Objects.requireNonNull(provider);
@@ -90,8 +90,8 @@ public abstract class FileSystemRepositoryBase
         synchronized (filesystems) {
             if (filesystems.containsKey(uri))
                 throw new FileSystemAlreadyExistsException();
-            final FileSystemDriver driver = createDriver(uri, env);
-            final GenericFileSystem fs
+            FileSystemDriver driver = createDriver(uri, env);
+            GenericFileSystem fs
                 = new GenericFileSystem(uri, this, driver, provider);
             filesystems.put(uri, fs);
             return fs;
@@ -100,11 +100,11 @@ public abstract class FileSystemRepositoryBase
 
     @Override
     @Nonnull
-    public final FileSystem getFileSystem(final URI uri)
+    public final FileSystem getFileSystem(URI uri)
     {
         checkURI(uri);
 
-        final FileSystem fs;
+        FileSystem fs;
 
         synchronized (filesystems) {
             fs = filesystems.get(uri);
@@ -119,7 +119,7 @@ public abstract class FileSystemRepositoryBase
     // Note: fs never created automatically
     @Override
     @Nonnull
-    public final Path getPath(final URI uri)
+    public final Path getPath(URI uri)
     {
         checkURI(uri);
 
@@ -128,7 +128,7 @@ public abstract class FileSystemRepositoryBase
         String path;
 
         synchronized (filesystems) {
-            for (final Map.Entry<URI, GenericFileSystem> entry:
+            for (Map.Entry<URI, GenericFileSystem> entry:
                 filesystems.entrySet()) {
                 tmp = uri.relativize(entry.getKey());
                 if (tmp.isAbsolute())
@@ -149,12 +149,12 @@ public abstract class FileSystemRepositoryBase
 
     @Nonnull
     @Override
-    public final FileSystemDriver getDriver(final Path path)
+    public final FileSystemDriver getDriver(Path path)
     {
-        final FileSystem fs = Objects.requireNonNull(path).getFileSystem();
+        FileSystem fs = Objects.requireNonNull(path).getFileSystem();
 
         synchronized (filesystems) {
-            for (final GenericFileSystem gfs: filesystems.values()) {
+            for (GenericFileSystem gfs: filesystems.values()) {
                 //noinspection ObjectEquality
                 if (gfs != fs)
                     continue;
@@ -170,7 +170,7 @@ public abstract class FileSystemRepositoryBase
     // Called ONLY after the driver and fs have been successfully closed
     // uri is guaranteed to exist
     @Override
-    public final void unregister(final URI uri)
+    public final void unregister(URI uri)
     {
         Objects.requireNonNull(uri);
         synchronized (filesystems) {
@@ -179,7 +179,7 @@ public abstract class FileSystemRepositoryBase
     }
 
     /** if you want to check at the provider level, override */
-    protected void checkURI(@Nullable final URI uri)
+    protected void checkURI(@Nullable URI uri)
     {
         Objects.requireNonNull(uri);
         if (!uri.isAbsolute())
@@ -212,9 +212,9 @@ public abstract class FileSystemRepositoryBase
         if (uri.getQuery() != null) {
             String[] pairs = uri.getQuery().split("&");
             for (String pair : pairs) {
-                final int idx = pair.indexOf("=");
-                final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8) : pair;
-                final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
+                int idx = pair.indexOf("=");
+                String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8) : pair;
+                String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
                 if (!queryPairs.containsKey(key)) {
                     queryPairs.put(key, new String[] { value });
                 } else {

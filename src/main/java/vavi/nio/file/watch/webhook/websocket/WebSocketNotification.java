@@ -6,15 +6,17 @@
 
 package vavi.nio.file.watch.webhook.websocket;
 
-import java.io.IOException;
-import java.net.URI;
-
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
-import vavi.util.Debug;
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.net.URI;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -25,6 +27,8 @@ import vavi.util.Debug;
  */
 public abstract class WebSocketNotification<T> extends BaseWebSocketNotification<T> {
 
+    private static final Logger logger = getLogger(WebSocketNotification.class.getName());
+
     /** */
     protected WebSocketNotification(URI uri, Object... args) throws IOException {
         super(uri, args);
@@ -32,7 +36,7 @@ public abstract class WebSocketNotification<T> extends BaseWebSocketNotification
 
     @OnOpen
     public final void onOpen(Session session) throws IOException {
-Debug.println("WEBSOCKET: onOpen: " + session.getId());
+logger.log(Level.DEBUG, "WEBSOCKET: onOpen: " + session.getId());
         onOpenImpl(session);
     }
 

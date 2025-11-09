@@ -51,7 +51,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 public abstract class AbstractWatchService implements WatchService {
 
     private final BlockingQueue<WatchKey> queue = new LinkedBlockingQueue<>();
-    private final WatchKey poison = new BasicWatchKey(this, null, Collections.unmodifiableSet(new HashSet<WatchEvent.Kind<?>>()));
+    private final WatchKey poison = new BasicWatchKey(this, null, Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicBoolean open = new AtomicBoolean(true);
 
     /**
@@ -167,8 +167,7 @@ public abstract class AbstractWatchService implements WatchService {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof BasicWatchEvent) {
-                BasicWatchEvent<?> other = (BasicWatchEvent<?>) obj;
+            if (obj instanceof BasicWatchEvent<?> other) {
                 return kind().equals(other.kind()) && count() == other.count() && Objects.equals(context(), other.context());
             }
             return false;

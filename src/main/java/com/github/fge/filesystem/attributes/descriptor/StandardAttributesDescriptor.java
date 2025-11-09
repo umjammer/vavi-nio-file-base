@@ -50,9 +50,9 @@ public enum StandardAttributesDescriptor
     private final Class<? extends FileAttributeView> viewClass;
     private final Class<? extends BasicFileAttributes> attributeClass;
 
-    StandardAttributesDescriptor(final String name,
-        final Class<? extends FileAttributeView> viewClass,
-        final Class<? extends BasicFileAttributes> attributeClass)
+    StandardAttributesDescriptor(String name,
+                                 Class<? extends FileAttributeView> viewClass,
+                                 Class<? extends BasicFileAttributes> attributeClass)
     {
         this.name = name;
         this.viewClass = viewClass;

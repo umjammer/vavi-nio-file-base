@@ -55,13 +55,13 @@ import java.util.Set;
 public final class IsDirectoryException
     extends FileSystemException
 {
-    public IsDirectoryException(final String file)
+    public IsDirectoryException(String file)
     {
         super(file);
     }
 
-    public IsDirectoryException(final String file, final String other,
-        final String reason)
+    public IsDirectoryException(String file, String other,
+                                String reason)
     {
         super(file, other, reason);
     }

@@ -24,7 +24,6 @@ import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -46,7 +45,7 @@ public final class PathElementsTest
     @Test
     public void singletonHasNoRoot()
     {
-        final PathElements elements = PathElements.singleton("foo");
+        PathElements elements = PathElements.singleton("foo");
         assertElements(elements).hasNullRoot();
     }
 
@@ -62,20 +61,20 @@ public final class PathElementsTest
 
     @ParameterizedTest
     @MethodSource("variousNameArrays")
-    public void pathElementsWithNoRootReturnsNullRootPath(final String[] names)
+    public void pathElementsWithNoRootReturnsNullRootPath(String[] names)
     {
-        final PathElements elements = new PathElements(null, names);
+        PathElements elements = new PathElements(null, names);
 
         assertElements(elements).hasNullRoot();
     }
 
     @ParameterizedTest
     @MethodSource("variousNameArrays")
-    public void pathElementsWithRootRetunsRootOnlyRootPath(final String[] names)
+    public void pathElementsWithRootRetunsRootOnlyRootPath(String[] names)
     {
         final String root = "foo";
-        final PathElements elements = new PathElements(root, names);
-        final PathElements rootElements = elements.rootPathElement();
+        PathElements elements = new PathElements(root, names);
+        PathElements rootElements = elements.rootPathElement();
 
         soft.assertThat(rootElements).hasRoot(root).hasNoNames();
     }
@@ -83,8 +82,8 @@ public final class PathElementsTest
     @Test
     public void pathElementsWithNoNamesHasNullParent()
     {
-        final PathElements elements1 = new PathElements(null, NO_NAMES);
-        final PathElements elements2 = new PathElements("foo", NO_NAMES);
+        PathElements elements1 = new PathElements(null, NO_NAMES);
+        PathElements elements2 = new PathElements("foo", NO_NAMES);
 
         soft.assertThat(elements1.parent()).as(
             "a PathElements with no names must have a null parent").isNull();
@@ -117,11 +116,11 @@ public final class PathElementsTest
     @Test
     public void pathNameParentHasRelevantNamesAndPreservesRoot()
     {
-        final String[] before = stringArray("foo", "bar", "baz");
-        final String[] after = stringArray("foo", "bar");
+        String[] before = stringArray("foo", "bar", "baz");
+        String[] after = stringArray("foo", "bar");
 
-        final PathElements elementsWithRoot = new PathElements("root", before);
-        final PathElements elementsWithoutRoot = new PathElements(null, before);
+        PathElements elementsWithRoot = new PathElements("root", before);
+        PathElements elementsWithoutRoot = new PathElements(null, before);
 
         PathElements actual, expected;
 
@@ -139,8 +138,8 @@ public final class PathElementsTest
     @Test
     public void pathNameWithNoNamesHasNoLastName()
     {
-        final PathElements elements1 = new PathElements(null, NO_NAMES);
-        final PathElements elements2 = new PathElements("foo", NO_NAMES);
+        PathElements elements1 = new PathElements(null, NO_NAMES);
+        PathElements elements2 = new PathElements("foo", NO_NAMES);
 
         soft.assertThat(elements1.lastName()).overridingErrorMessage(
             "a PathElements with no names must not have a last name"
@@ -153,8 +152,8 @@ public final class PathElementsTest
     @Test
     public void pathNameLastNameWorksAndHasNoRoot()
     {
-        final String[] names1 = stringArray("foo", "bar", "baz");
-        final String[] names2 = stringArray("foo", "bar");
+        String[] names1 = stringArray("foo", "bar", "baz");
+        String[] names2 = stringArray("foo", "bar");
 
         PathElements elements, actual;
 
@@ -172,12 +171,12 @@ public final class PathElementsTest
     @Test
     public void equalsHashCodeWorks()
     {
-        final PathElements p1 = PathElements.EMPTY;
-        final String[] names = stringArray("foo");
-        final PathElements p2 = new PathElements(null, names);
-        final PathElements p3 = new PathElements(null, names);
-        final PathElements p4 = new PathElements("/", names);
-        final Object o = new Object();
+        PathElements p1 = PathElements.EMPTY;
+        String[] names = stringArray("foo");
+        PathElements p2 = new PathElements(null, names);
+        PathElements p3 = new PathElements(null, names);
+        PathElements p4 = new PathElements("/", names);
+        Object o = new Object();
 
         //noinspection EqualsWithItself
         assertThat(p1.equals(p1)).isTrue();
@@ -194,12 +193,12 @@ public final class PathElementsTest
         assertThat(p4.equals(p3)).isFalse();
     }
 
-    private static String[] stringArray(final String first,
-        final String... other)
+    private static String[] stringArray(String first,
+                                        String... other)
     {
         if (other.length == 0)
             return new String[] { first };
-        final String[] ret = new String[other.length + 1];
+        String[] ret = new String[other.length + 1];
         ret[0] = first;
         System.arraycopy(other, 0, ret, 1, other.length);
         return ret;

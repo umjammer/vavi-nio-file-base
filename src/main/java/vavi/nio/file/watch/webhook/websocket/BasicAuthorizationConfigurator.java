@@ -6,7 +6,6 @@
 
 package vavi.nio.file.watch.webhook.websocket;
 
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;

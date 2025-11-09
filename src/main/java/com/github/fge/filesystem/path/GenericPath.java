@@ -78,8 +78,8 @@ public final class GenericPath
      * @param factory the path elements factory
      * @param elements the path elements
      */
-    public GenericPath(final GenericFileSystem fs,
-        final PathElementsFactory factory, final PathElements elements)
+    public GenericPath(GenericFileSystem fs,
+                       PathElementsFactory factory, PathElements elements)
     {
         this.fs = Objects.requireNonNull(fs);
         this.factory = Objects.requireNonNull(factory);
@@ -102,7 +102,7 @@ public final class GenericPath
     @Override
     public Path getRoot()
     {
-        final PathElements newElements = elements.rootPathElement();
+        PathElements newElements = elements.rootPathElement();
         return newElements == null ? null
             : new GenericPath(fs, factory, newElements);
     }
@@ -110,14 +110,14 @@ public final class GenericPath
     @Override
     public Path getFileName()
     {
-        final PathElements names = elements.lastName();
+        PathElements names = elements.lastName();
         return names == null ? null : new GenericPath(fs, factory, names);
     }
 
     @Override
     public Path getParent()
     {
-        final PathElements newNames = elements.parent();
+        PathElements newNames = elements.parent();
         return newNames == null ? null : new GenericPath(fs, factory, newNames);
     }
 
@@ -128,9 +128,9 @@ public final class GenericPath
     }
 
     @Override
-    public Path getName(final int index)
+    public Path getName(int index)
     {
-        final String name;
+        String name;
 
         //noinspection ProhibitedExceptionCaught
         try {
@@ -143,9 +143,9 @@ public final class GenericPath
     }
 
     @Override
-    public Path subpath(final int beginIndex, final int endIndex)
+    public Path subpath(int beginIndex, int endIndex)
     {
-        final String[] names;
+        String[] names;
 
         //noinspection ProhibitedExceptionCaught
         try {
@@ -156,20 +156,20 @@ public final class GenericPath
         }
 
         // The result never has a root
-        final PathElements newNames = new PathElements(null, names);
+        PathElements newNames = new PathElements(null, names);
         return new GenericPath(fs, factory, newNames);
     }
 
     @Override
-    public boolean startsWith(final Path other)
+    public boolean startsWith(Path other)
     {
         if (!fs.equals(other.getFileSystem()))
             return false;
 
-        final PathElements otherNames = ((GenericPath) other).elements;
+        PathElements otherNames = ((GenericPath) other).elements;
         if (!Objects.equals(elements.root, otherNames.root))
             return false;
-        final int len = otherNames.names.length;
+        int len = otherNames.names.length;
         if (len > elements.names.length)
             return false;
         for (int i = 0; i < len; i++)
@@ -179,29 +179,29 @@ public final class GenericPath
     }
 
     @Override
-    public boolean startsWith(final String other)
+    public boolean startsWith(String other)
     {
-        final Path otherPath
+        Path otherPath
             = new GenericPath(fs, factory, factory.toPathElements(other));
         return startsWith(otherPath);
     }
 
     @Override
-    public boolean endsWith(final Path other)
+    public boolean endsWith(Path other)
     {
         if (!fs.equals(other.getFileSystem()))
             return false;
 
-        final PathElements otherElements = ((GenericPath) other).elements;
+        PathElements otherElements = ((GenericPath) other).elements;
 
         //noinspection VariableNotUsedInsideIf
         if (otherElements.root != null)
             return false;
 
-        final String[] names = elements.names;
-        final int length = names.length;
-        final String[] otherNames = otherElements.names;
-        final int otherLength = otherNames.length;
+        String[] names = elements.names;
+        int length = names.length;
+        String[] otherNames = otherElements.names;
+        int otherLength = otherNames.length;
 
         if (length < otherLength)
             return false;
@@ -214,9 +214,9 @@ public final class GenericPath
     }
 
     @Override
-    public boolean endsWith(final String other)
+    public boolean endsWith(String other)
     {
-        final GenericPath otherPath
+        GenericPath otherPath
             = new GenericPath(fs, factory, factory.toPathElements(other));
         return endsWith(otherPath);
     }
@@ -224,19 +224,19 @@ public final class GenericPath
     @Override
     public Path normalize()
     {
-        final PathElements normalized = factory.normalize(elements);
+        PathElements normalized = factory.normalize(elements);
         return elements.equals(normalized) ? this
             : new GenericPath(fs, factory, normalized);
     }
 
     @SuppressWarnings("ObjectEquality")
     @Override
-    public Path resolve(final Path other)
+    public Path resolve(Path other)
     {
         checkProvider(other);
-        final GenericPath otherPath = (GenericPath) other;
+        GenericPath otherPath = (GenericPath) other;
 
-        final PathElements newNames
+        PathElements newNames
             = factory.resolve(elements, otherPath.elements);
 
         /*
@@ -251,19 +251,19 @@ public final class GenericPath
     }
 
     @Override
-    public Path resolve(final String other)
+    public Path resolve(String other)
     {
-        final PathElements otherElements = factory.toPathElements(other);
+        PathElements otherElements = factory.toPathElements(other);
         return resolve(new GenericPath(fs, factory, otherElements));
     }
 
     @Override
-    public Path resolveSibling(final Path other)
+    public Path resolveSibling(Path other)
     {
         checkProvider(other);
-        final GenericPath otherPath = (GenericPath) other;
+        GenericPath otherPath = (GenericPath) other;
 
-        final PathElements newNames
+        PathElements newNames
             = factory.resolveSibling(elements, otherPath.elements);
 
         /*
@@ -277,21 +277,21 @@ public final class GenericPath
     }
 
     @Override
-    public Path resolveSibling(final String other)
+    public Path resolveSibling(String other)
     {
-        final PathElements otherElements = factory.toPathElements(other);
+        PathElements otherElements = factory.toPathElements(other);
         return resolveSibling(new GenericPath(fs, factory, otherElements));
     }
 
     @Override
-    public Path relativize(final Path other)
+    public Path relativize(Path other)
     {
         checkProvider(other);
 
-        final GenericPath otherPath = (GenericPath) other;
-        final PathElements otherElements = otherPath.elements;
+        GenericPath otherPath = (GenericPath) other;
+        PathElements otherElements = otherPath.elements;
 
-        final PathElements relativized
+        PathElements relativized
             = factory.relativize(elements, otherElements);
 
         return new GenericPath(fs, factory, relativized);
@@ -301,13 +301,13 @@ public final class GenericPath
     public URI toUri()
     {
         // URI is normalized, so this works...
-        final URI base = fs.getUri();
-        final String scheme = base.getScheme();
-        final String authority = base.getAuthority();
-        final String path = base.getPath();
-        final String query = base.getQuery();
-        final String fragment = base.getFragment();
-        final String uriPath = factory.toUriPath(path, elements);
+        URI base = fs.getUri();
+        String scheme = base.getScheme();
+        String authority = base.getAuthority();
+        String path = base.getPath();
+        String query = base.getQuery();
+        String fragment = base.getFragment();
+        String uriPath = factory.toUriPath(path, elements);
         try {
             return new URI(scheme, authority, uriPath, query, fragment)
                 .normalize();
@@ -321,13 +321,13 @@ public final class GenericPath
     {
         if (isAbsolute())
             return this;
-        final PathElements root = factory.getRootPathElements();
+        PathElements root = factory.getRootPathElements();
         return new GenericPath(fs, factory, factory.resolve(root, elements));
     }
 
     @SuppressWarnings("OverloadedVarargsMethod")
     @Override
-    public Path toRealPath(final LinkOption... options)
+    public Path toRealPath(LinkOption... options)
         throws IOException
     {
         // TODO: symlinks
@@ -342,24 +342,23 @@ public final class GenericPath
 
     @SuppressWarnings("OverloadedVarargsMethod")
     @Override
-    public WatchKey register(final WatchService watcher,
-        final WatchEvent.Kind<?>[] events,
-        final WatchEvent.Modifier... modifiers)
+    public WatchKey register(WatchService watcher,
+                             WatchEvent.Kind<?>[] events,
+                             WatchEvent.Modifier... modifiers)
         throws IOException
     {
-        if (!(watcher instanceof AbstractWatchService)) {
+        if (!(watcher instanceof AbstractWatchService service)) {
             throw new IllegalArgumentException(
                 "watcher (" + watcher + ") is not associated with this file system");
           }
 
-          AbstractWatchService service = (AbstractWatchService) watcher;
-          return service.register(this, Arrays.asList(events), modifiers);
+        return service.register(this, Arrays.asList(events), modifiers);
     }
 
     @SuppressWarnings("OverloadedVarargsMethod")
     @Override
-    public WatchKey register(final WatchService watcher,
-        final WatchEvent.Kind<?>... events)
+    public WatchKey register(WatchService watcher,
+                             WatchEvent.Kind<?>... events)
         throws IOException
     {
         return register(watcher, events, new WatchEvent.Modifier[0]);
@@ -369,32 +368,28 @@ public final class GenericPath
     @Override
     public Iterator<Path> iterator()
     {
-        final Iterator<PathElements> iterator = elements.iterator();
+        Iterator<PathElements> iterator = elements.iterator();
 
-        return new Iterator<Path>()
-        {
+        return new Iterator<>() {
             @Override
-            public boolean hasNext()
-            {
+            public boolean hasNext() {
                 return iterator.hasNext();
             }
 
             @Override
-            public Path next()
-            {
+            public Path next() {
                 return new GenericPath(fs, factory, iterator.next());
             }
 
             @Override
-            public void remove()
-            {
+            public void remove() {
                 throw new UnsupportedOperationException();
             }
         };
     }
 
     @Override
-    public int compareTo(final Path other)
+    public int compareTo(Path other)
     {
         try {
             checkProvider(other);
@@ -412,7 +407,7 @@ public final class GenericPath
     }
 
     @Override
-    public boolean equals(@Nullable final Object obj)
+    public boolean equals(@Nullable Object obj)
     {
         if (obj == null)
             return false;
@@ -420,7 +415,7 @@ public final class GenericPath
             return true;
         if (getClass() != obj.getClass())
             return false;
-        final GenericPath other = (GenericPath) obj;
+        GenericPath other = (GenericPath) obj;
         return fs.equals(other.fs)
             && factory.equals(other.factory)
             && elements.equals(other.elements);
@@ -433,7 +428,7 @@ public final class GenericPath
         return asString;
     }
 
-    private void checkProvider(final Path other)
+    private void checkProvider(Path other)
     {
         if (!fs.provider().equals(other.getFileSystem().provider()))
             throw new ProviderMismatchException();

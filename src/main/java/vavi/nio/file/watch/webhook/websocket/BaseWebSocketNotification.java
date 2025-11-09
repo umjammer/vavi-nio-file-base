@@ -6,18 +6,20 @@
 
 package vavi.nio.file.watch.webhook.websocket;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.OnError;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 import vavi.nio.file.watch.webhook.Notification;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -28,15 +30,17 @@ import vavi.util.Debug;
  */
 public abstract class BaseWebSocketNotification<T> implements Notification<T> {
 
+    private static final Logger logger = getLogger(BaseWebSocketNotification.class.getName());
+
     /** */
-    private WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+    private final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
     /** websocket uri */
-    private URI uri;
+    private final URI uri;
     /** */
     protected Session session;
     /** */
-    private AtomicBoolean reconnect = new AtomicBoolean(true);
+    private final AtomicBoolean reconnect = new AtomicBoolean(true);
     /** */
     private Throwable throwable;
     /** */
@@ -61,8 +65,7 @@ public abstract class BaseWebSocketNotification<T> implements Notification<T> {
 
     @OnError
     public final void onError(Throwable t) {
-Debug.println("WEBSOCKET: onError");
-Debug.printStackTrace(t);
+logger.log(Level.DEBUG, "WEBSOCKET: onError", t);
         throwable = t;
     }
 
@@ -71,19 +74,19 @@ Debug.printStackTrace(t);
 
     /** */
     protected final void onCloseInternal(Session session) throws IOException {
-Debug.println("WEBSOCKET: onClose: " + session.getId());
+logger.log(Level.DEBUG, "WEBSOCKET: onClose: " + session.getId());
         onCloseImpl(session);
 
         if (reconnect.get()) {
             if (throwable == null) {
                 try {
-Debug.println("WEBSOCKET: reconnect");
+logger.log(Level.DEBUG, "WEBSOCKET: reconnect");
                     this.session = container.connectToServer(this, uri);
                 } catch (DeploymentException e) {
                     throw new IOException(e);
                 }
             } else {
-Debug.println("WEBSOCKET: has error, exit");
+logger.log(Level.DEBUG, "WEBSOCKET: has error, exit");
             }
         }
     }
@@ -92,20 +95,20 @@ Debug.println("WEBSOCKET: has error, exit");
     public final void close() throws IOException {
         if (reconnect.getAndSet(false)) {
             session.close();
-Debug.println("WEBSOCKET: close: " + session.getId());
+logger.log(Level.DEBUG, "WEBSOCKET: close: " + session.getId());
 
             // TODO encapsulate into jsr356
             // https://stackoverflow.com/a/46472909/6102938
             if (container != null && container instanceof org.eclipse.jetty.util.component.LifeCycle) { 
                 try {
-Debug.println("WEBSOCKET: stopping jetty's websocket client");
+logger.log(Level.DEBUG, "WEBSOCKET: stopping jetty's websocket client");
                     ((org.eclipse.jetty.util.component.LifeCycle) container).stop();
-Debug.println("WEBSOCKET: jetty's websocket stopped: " + ((org.eclipse.jetty.util.component.LifeCycle) container).isStopped());
+logger.log(Level.DEBUG, "WEBSOCKET: jetty's websocket stopped: " + ((org.eclipse.jetty.util.component.LifeCycle) container).isStopped());
                 } catch (Exception e) {
                     throw new IOException(e);
                 }
             }
         }
-//Debug.println("close: exit: " + reconnect.get() + ", " + this.hashCode());
+//logger.log(Level.TRACE, "close: exit: " + reconnect.get() + ", " + this.hashCode());
     }
 }

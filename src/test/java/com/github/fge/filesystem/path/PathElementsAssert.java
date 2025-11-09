@@ -30,13 +30,13 @@ import org.assertj.core.api.AbstractObjectAssert;
 public class PathElementsAssert
     extends AbstractObjectAssert<PathElementsAssert, PathElements>
 {
-    public PathElementsAssert(final PathElements actual)
+    public PathElementsAssert(PathElements actual)
     {
         super(actual, PathElementsAssert.class);
     }
 
     public static PathElementsAssert assertElements(
-        final PathElements actual)
+        PathElements actual)
     {
         return new PathElementsAssert(actual);
     }
@@ -53,23 +53,29 @@ public class PathElementsAssert
         return this;
     }
 
-    public final PathElementsAssert hasRoot(final String expected)
+    public final PathElementsAssert hasRoot(String expected)
     {
         if (!Objects.equals(actual.root, expected))
             failWithMessage(
-                "root component is not what is expected\n"
-                + "expected: <%s>\nactual: <%s>\n",
+                    """
+                            root component is not what is expected
+                            expected: <%s>
+                            actual: <%s>
+                            """,
                 expected, actual.root
             );
         return this;
     }
 
-    public final PathElementsAssert hasSameRootAs(final PathElements other)
+    public final PathElementsAssert hasSameRootAs(PathElements other)
     {
         if (!Objects.equals(actual.root, other.root))
             failWithMessage(
-                "root component is not the same as other\n"
-                + "expected: <%s>\nactual  : <%s>\n",
+                    """
+                            root component is not the same as other
+                            expected: <%s>
+                            actual  : <%s>
+                            """,
                 other.root, actual.root
             );
         return this;
@@ -87,21 +93,27 @@ public class PathElementsAssert
         return this;
     }
 
-    public final PathElementsAssert hasNames(final String... expected)
+    public final PathElementsAssert hasNames(String... expected)
     {
         if (!Arrays.equals(actual.names, expected))
-            failWithMessage("names array is not what is expected\n"
-                + "expected: <%s>\nactual  : <%s>\n",
+            failWithMessage("""
+                            names array is not what is expected
+                            expected: <%s>
+                            actual  : <%s>
+                            """,
                 Arrays.toString(expected), Arrays.toString(actual.names));
         return this;
     }
 
-    public final PathElementsAssert hasSameNamesAs(final PathElements other)
+    public final PathElementsAssert hasSameNamesAs(PathElements other)
     {
         if (!Arrays.equals(actual.names, other.names))
             failWithMessage(
-                "names differ from provided elements instance\n"
-                + "expected: <%s>\nactual  : <%s>\n",
+                    """
+                            names differ from provided elements instance
+                            expected: <%s>
+                            actual  : <%s>
+                            """,
                 Arrays.toString(other.names), Arrays.toString(actual.names));
         return this;
     }
@@ -110,7 +122,7 @@ public class PathElementsAssert
      * PathElements check
      */
 
-    public final PathElementsAssert hasSameContentsAs(final PathElements other)
+    public final PathElementsAssert hasSameContentsAs(PathElements other)
     {
         return hasSameRootAs(other).hasSameNamesAs(other);
     }

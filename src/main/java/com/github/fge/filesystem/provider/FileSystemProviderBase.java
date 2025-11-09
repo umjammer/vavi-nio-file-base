@@ -106,7 +106,7 @@ public abstract class FileSystemProviderBase
     protected final FileSystemRepository repository;
     protected final FileSystemOptionsFactory optionsFactory;
 
-    protected FileSystemProviderBase(final FileSystemRepository repository)
+    protected FileSystemProviderBase(FileSystemRepository repository)
     {
         this.repository = Objects.requireNonNull(repository);
         optionsFactory = repository.getFactoryProvider().getOptionsFactory();
@@ -119,24 +119,24 @@ public abstract class FileSystemProviderBase
     }
 
     @Override
-    public final FileSystem newFileSystem(final URI uri,
-        final Map<String, ?> env)
+    public final FileSystem newFileSystem(URI uri,
+                                          Map<String, ?> env)
         throws IOException
     {
-        final URI normalized = Objects.requireNonNull(uri).normalize();
+        URI normalized = Objects.requireNonNull(uri).normalize();
         return repository.createFileSystem(this, normalized,
             Collections.unmodifiableMap(env));
     }
 
     @Override
-    public final FileSystem getFileSystem(final URI uri)
+    public final FileSystem getFileSystem(URI uri)
     {
         return repository.getFileSystem(uri);
     }
 
     // TODO: this method is supposed to check the validity of the URI
     @Override
-    public final Path getPath(final URI uri)
+    public final Path getPath(URI uri)
     {
         return repository.getPath(uri);
     }
@@ -157,13 +157,13 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#newInputStream(Path, Set)
      */
     @Override
-    public final InputStream newInputStream(final Path path,
-        final OpenOption... options)
+    public final InputStream newInputStream(Path path,
+                                            OpenOption... options)
         throws IOException
     {
-        final Set<OpenOption> optionSet
+        Set<OpenOption> optionSet
             = optionsFactory.compileReadOptions(options);
-        final FileSystemDriver driver = repository.getDriver(path);
+        FileSystemDriver driver = repository.getDriver(path);
 
         driver.checkAccess(path);
 
@@ -200,13 +200,13 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#newOutputStream(Path, Set)
      */
     @Override
-    public final OutputStream newOutputStream(final Path path,
-        final OpenOption... options)
+    public final OutputStream newOutputStream(Path path,
+                                              OpenOption... options)
         throws IOException
     {
-        final Set<OpenOption> optionSet
+        Set<OpenOption> optionSet
             = optionsFactory.compileWriteOptions(options);
-        final FileSystemDriver driver = repository.getDriver(path);
+        FileSystemDriver driver = repository.getDriver(path);
 //System.err.println("optionSet: CREATE_NEW: " + optionSet.contains(StandardOpenOption.CREATE_NEW) + ", CREATE: " + optionSet.contains(StandardOpenOption.CREATE));
         try {
             driver.checkAccess(path, AccessMode.WRITE);
@@ -233,15 +233,15 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#newByteChannel(Path, Set, FileAttribute[])
      */
     @Override
-    public final SeekableByteChannel newByteChannel(final Path path,
-        final Set<? extends OpenOption> options,
-        final FileAttribute<?>... attrs)
+    public final SeekableByteChannel newByteChannel(Path path,
+                                                    Set<? extends OpenOption> options,
+                                                    FileAttribute<?>... attrs)
         throws IOException
     {
         // TODO: check options
         if (attrs.length != 0)
             throw new UnsupportedOperationException("TODO");
-        final FileSystemDriver driver = repository.getDriver(path);
+        FileSystemDriver driver = repository.getDriver(path);
         // TODO: check existence/creation
         return driver.newByteChannel(path, options, attrs);
     }
@@ -265,12 +265,12 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#newDirectoryStream(Path, DirectoryStream.Filter)
      */
     @Override
-    public final DirectoryStream<Path> newDirectoryStream(final Path dir,
-        final DirectoryStream.Filter<? super Path> filter)
+    public final DirectoryStream<Path> newDirectoryStream(Path dir,
+                                                          DirectoryStream.Filter<? super Path> filter)
         throws IOException
     {
         // TODO: EXECUTE permission not checked; unneeded on Unix. Others?
-        final FileSystemDriver driver = repository.getDriver(dir);
+        FileSystemDriver driver = repository.getDriver(dir);
         driver.checkAccess(dir, AccessMode.READ);
         return driver.newDirectoryStream(dir, filter);
     }
@@ -290,8 +290,8 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#createDirectory(Path, FileAttribute[])
      */
     @Override
-    public final void createDirectory(final Path dir,
-        final FileAttribute<?>... attrs)
+    public final void createDirectory(Path dir,
+                                      FileAttribute<?>... attrs)
         throws IOException
     {
         // TODO
@@ -302,7 +302,7 @@ public abstract class FileSystemProviderBase
             }
         }
 
-        final FileSystemDriver driver = repository.getDriver(dir);
+        FileSystemDriver driver = repository.getDriver(dir);
 
         try {
             checkAccess(dir);
@@ -335,10 +335,10 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#delete(Path)
      */
     @Override
-    public final void delete(final Path path)
+    public final void delete(Path path)
         throws IOException
     {
-        final FileSystemDriver driver = repository.getDriver(path);
+        FileSystemDriver driver = repository.getDriver(path);
         driver.checkAccess(path);
         driver.delete(path);
     }
@@ -373,15 +373,15 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#copy(Path, Path, Set)
      */
     @Override
-    public final void copy(final Path source, final Path target,
-        final CopyOption... options)
+    public final void copy(Path source, Path target,
+                           CopyOption... options)
         throws IOException
     {
-        final Set<CopyOption> optionSet
+        Set<CopyOption> optionSet
             = optionsFactory.compileCopyOptions(options);
 
-        final FileSystemDriver src = repository.getDriver(source);
-        final FileSystemDriver dst = repository.getDriver(target);
+        FileSystemDriver src = repository.getDriver(source);
+        FileSystemDriver dst = repository.getDriver(target);
 
         src.checkAccess(source);
         try {
@@ -404,9 +404,9 @@ public abstract class FileSystemProviderBase
         /*
          * Otherwise, translate the copy options and do a regular stream copy.
          */
-        final Set<OpenOption> readOptions
+        Set<OpenOption> readOptions
             = optionsFactory.toReadOptions(optionSet);
-        final Set<OpenOption> writeOptions
+        Set<OpenOption> writeOptions
             = optionsFactory.toWriteOptions(optionSet);
 
         try (
@@ -414,10 +414,10 @@ public abstract class FileSystemProviderBase
              * It is delegated to the drivers to see whether the source or
              * target are directories
              */
-            final InputStream in = src.newInputStream(source, readOptions);
-            final OutputStream out = dst.newOutputStream(source, writeOptions);
+            InputStream in = src.newInputStream(source, readOptions);
+            OutputStream out = dst.newOutputStream(source, writeOptions)
         ) {
-            final byte[] buf = new byte[BUFSIZE];
+            byte[] buf = new byte[BUFSIZE];
             int bytesRead;
 
             while ((bytesRead = in.read(buf)) != -1)
@@ -455,15 +455,15 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#move(Path, Path, Set)
      */
     @Override
-    public final void move(final Path source, final Path target,
-        final CopyOption... options)
+    public final void move(Path source, Path target,
+                           CopyOption... options)
         throws IOException
     {
-        final Set<CopyOption> optionSet
+        Set<CopyOption> optionSet
             = optionsFactory.compileCopyOptions(options);
 
-        final FileSystemDriver src = repository.getDriver(source);
-        final FileSystemDriver dst = repository.getDriver(target);
+        FileSystemDriver src = repository.getDriver(source);
+        FileSystemDriver dst = repository.getDriver(target);
 
         /*
          * If the same filesystem, call the (hopefully optimize) move method
@@ -479,15 +479,15 @@ public abstract class FileSystemProviderBase
          * Otherwise, translate the copy options and do a regular stream copy.
          */
         // TODO!!
-        final Set<OpenOption> readOptions
+        Set<OpenOption> readOptions
             = optionsFactory.toReadOptions(optionSet);
-        final Set<OpenOption> writeOptions
+        Set<OpenOption> writeOptions
             = optionsFactory.toWriteOptions(optionSet);
         try (
-            final InputStream in = src.newInputStream(source, readOptions);
-            final OutputStream out = dst.newOutputStream(source, writeOptions);
+            InputStream in = src.newInputStream(source, readOptions);
+            OutputStream out = dst.newOutputStream(source, writeOptions)
         ) {
-            final byte[] buf = new byte[BUFSIZE];
+            byte[] buf = new byte[BUFSIZE];
             int bytesRead;
 
             while ((bytesRead = in.read(buf)) != -1)
@@ -518,11 +518,11 @@ public abstract class FileSystemProviderBase
      */
     @SuppressWarnings("ObjectEquality")
     @Override
-    public final boolean isSameFile(final Path path, final Path path2)
+    public final boolean isSameFile(Path path, Path path2)
         throws IOException
     {
-        final FileSystemDriver driver = repository.getDriver(path);
-        final FileSystemDriver driver2 = repository.getDriver(path2);
+        FileSystemDriver driver = repository.getDriver(path);
+        FileSystemDriver driver2 = repository.getDriver(path2);
 
         if (driver != driver2)
             return false;
@@ -546,7 +546,7 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#isSameFile(Path, Path)
      */
     @Override
-    public final boolean isHidden(final Path path)
+    public final boolean isHidden(Path path)
         throws IOException
     {
         return repository.getDriver(path).isHidden(path);
@@ -564,7 +564,7 @@ public abstract class FileSystemProviderBase
      * @see FileSystemDriver#checkAccess(Path, AccessMode...)
      */
     @Override
-    public final void checkAccess(final Path path, final AccessMode... modes)
+    public final void checkAccess(Path path, AccessMode... modes)
         throws IOException
     {
         repository.getDriver(path).checkAccess(path, modes);
@@ -572,7 +572,7 @@ public abstract class FileSystemProviderBase
 
     @Override
     public final <V extends FileAttributeView> V getFileAttributeView(
-        final Path path, final Class<V> type, final LinkOption... options)
+        Path path, Class<V> type, LinkOption... options)
     {
         optionsFactory.checkLinkOptions(options);
         return repository.getDriver(path)
@@ -581,17 +581,17 @@ public abstract class FileSystemProviderBase
 
     @Override
     public final <A extends BasicFileAttributes> A readAttributes(
-        final Path path, final Class<A> type, final LinkOption... options)
+        Path path, Class<A> type, LinkOption... options)
         throws IOException
     {
         optionsFactory.checkLinkOptions(options);
-        final FileSystemDriver driver = repository.getDriver(path);
+        FileSystemDriver driver = repository.getDriver(path);
         return driver.readAttributes(path, type, options);
     }
 
     @Override
-    public final Map<String, Object> readAttributes(final Path path,
-        final String attributes, final LinkOption... options)
+    public final Map<String, Object> readAttributes(Path path,
+                                                    String attributes, LinkOption... options)
         throws IOException
     {
         optionsFactory.checkLinkOptions(options);
@@ -600,8 +600,8 @@ public abstract class FileSystemProviderBase
     }
 
     @Override
-    public final void setAttribute(final Path path, final String attribute,
-        final Object value, final LinkOption... options)
+    public final void setAttribute(Path path, String attribute,
+                                   Object value, LinkOption... options)
         throws IOException
     {
         optionsFactory.checkLinkOptions(options);
@@ -610,7 +610,7 @@ public abstract class FileSystemProviderBase
     }
 
     @Override
-    public final FileStore getFileStore(final Path path)
+    public final FileStore getFileStore(Path path)
         throws IOException
     {
         // See GenericFileSystem: only one file store per filesystem

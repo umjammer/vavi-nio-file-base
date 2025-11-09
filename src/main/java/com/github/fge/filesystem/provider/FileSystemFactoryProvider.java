@@ -84,28 +84,28 @@ public class FileSystemFactoryProvider
     }
 
     protected final void setPathElementsFactory(
-        final PathElementsFactory pathElementsFactory
+        PathElementsFactory pathElementsFactory
     )
     {
         this.pathElementsFactory = Objects.requireNonNull(pathElementsFactory);
     }
 
     protected final void setPathMatcherFactory(
-        final PathMatcherFactory pathMatcherFactory
+        PathMatcherFactory pathMatcherFactory
     )
     {
         this.pathMatcherFactory = Objects.requireNonNull(pathMatcherFactory);
     }
 
     protected final void setAttributesFactory(
-        final FileAttributesFactory attributesFactory
+        FileAttributesFactory attributesFactory
     )
     {
         this.attributesFactory = Objects.requireNonNull(attributesFactory);
     }
 
     protected final void setOptionsFactory(
-        final FileSystemOptionsFactory optionsFactory
+        FileSystemOptionsFactory optionsFactory
     )
     {
         this.optionsFactory = Objects.requireNonNull(optionsFactory);

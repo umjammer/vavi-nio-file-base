@@ -28,15 +28,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-07-20 nsano initial version <br>
  */
-public class UtilTest {
+class UtilTest {
 
-    class Uploader {
+    static class Uploader {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Path p;
         Uploader(Path p) {
             this.p = p;
         }
-        public void upload() throws IOException {
+        public void upload() throws IOException { // TODO why not used ???
             Files.copy(p, baos);
         }
     }

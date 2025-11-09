@@ -35,17 +35,17 @@ public final class NoSuchAttributeException
     {
     }
 
-    public NoSuchAttributeException(final String s)
+    public NoSuchAttributeException(String s)
     {
         super(s);
     }
 
-    public NoSuchAttributeException(final String message, final Throwable cause)
+    public NoSuchAttributeException(String message, Throwable cause)
     {
         super(message, cause);
     }
 
-    public NoSuchAttributeException(final Throwable cause)
+    public NoSuchAttributeException(Throwable cause)
     {
         super(cause);
     }

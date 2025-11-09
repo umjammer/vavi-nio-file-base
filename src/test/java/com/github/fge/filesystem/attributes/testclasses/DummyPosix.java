@@ -28,7 +28,7 @@ import java.nio.file.attribute.UserPrincipal;
 public final class DummyPosix
     extends PosixFileAttributesProvider
 {
-    public DummyPosix(final ArgType1 arg)
+    public DummyPosix(ArgType1 arg)
         throws IOException
     {
     }

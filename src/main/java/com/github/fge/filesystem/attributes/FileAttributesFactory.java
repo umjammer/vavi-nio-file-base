@@ -93,22 +93,22 @@ public class FileAttributesFactory
      */
     public FileAttributesFactory()
     {
-        for (final AttributesDescriptor descriptor:
+        for (AttributesDescriptor descriptor:
             StandardAttributesDescriptor.values())
             addDescriptor(descriptor);
     }
 
     public final boolean supportsFileAttributeView(
-        final Class<? extends FileAttributeView> viewClass
+        Class<? extends FileAttributeView> viewClass
     )
     {
         Objects.requireNonNull(viewClass);
         return getHandle(viewClass, viewMap) != null;
     }
 
-    public final boolean supportsFileAttributeView(final String name)
+    public final boolean supportsFileAttributeView(String name)
     {
-        final AttributesDescriptor descriptor
+        AttributesDescriptor descriptor
             = descriptors.get(Objects.requireNonNull(name));
         return descriptor != null
             && getHandle(descriptor.getViewClass(), viewMap) != null;
@@ -141,11 +141,11 @@ public class FileAttributesFactory
      * @see MethodHandle#invoke(Object...)
      */
     @Nullable
-    public final FileAttributesProvider getProvider(final String name,
-        final Object metadata)
+    public final FileAttributesProvider getProvider(String name,
+                                                    Object metadata)
         throws IOException
     {
-        final MethodHandle handle = providers.get(Objects.requireNonNull(name));
+        MethodHandle handle = providers.get(Objects.requireNonNull(name));
 
         if (handle == null)
             return null;
@@ -181,7 +181,7 @@ public class FileAttributesFactory
      */
     @Nullable
     public final <V extends FileAttributeView> V getFileAttributeView(
-        final Class<V> targetClass, final Object metadata
+        Class<V> targetClass, Object metadata
     )
         throws IOException
     {
@@ -208,7 +208,7 @@ public class FileAttributesFactory
      */
     @Nullable
     public final <A extends BasicFileAttributes> A getFileAttributes(
-        final Class<A> targetClass, final Object metadata
+        Class<A> targetClass, Object metadata
     )
         throws IOException
     {
@@ -227,7 +227,7 @@ public class FileAttributesFactory
      *
      * @see FileSystemDriverBase#getPathMetadata(Path)
      */
-    protected final void setMetadataClass(final Class<?> metadataClass)
+    protected final void setMetadataClass(Class<?> metadataClass)
     {
         //noinspection VariableNotUsedInsideIf
         if (this.metadataClass != null)
@@ -245,10 +245,10 @@ public class FileAttributesFactory
      *
      * @see AttributesDescriptor#getName()
      */
-    protected final void addDescriptor(final AttributesDescriptor descriptor)
+    protected final void addDescriptor(AttributesDescriptor descriptor)
     {
         Objects.requireNonNull(descriptor);
-        final String name = descriptor.getName();
+        String name = descriptor.getName();
 
         if (descriptors.containsKey(name))
             throw new IllegalArgumentException("a descriptor already exists "
@@ -273,8 +273,8 @@ public class FileAttributesFactory
      * @see AttributesDescriptor#getViewClass()
      * @see AttributesDescriptor#getAttributeClass()
      */
-    protected final void addImplementation(final String name,
-        final Class<? extends FileAttributesProvider> providerClass)
+    protected final void addImplementation(String name,
+                                           Class<? extends FileAttributesProvider> providerClass)
     {
         Objects.requireNonNull(name);
         Objects.requireNonNull(providerClass);
@@ -282,7 +282,7 @@ public class FileAttributesFactory
             throw new IllegalArgumentException("metadata class has not been "
                 + "set");
 
-        final AttributesDescriptor descriptor
+        AttributesDescriptor descriptor
             = descriptors.get(Objects.requireNonNull(name));
 
         if (descriptor == null)
@@ -295,11 +295,11 @@ public class FileAttributesFactory
 
     /** must call this from sub class */
     @Nullable
-    protected <C> C getProviderInstance(final Class<C> targetClass,
-        final Map<String, Class<?>> map, final Object metadata)
+    protected <C> C getProviderInstance(Class<C> targetClass,
+                                        Map<String, Class<?>> map, Object metadata)
         throws IOException
     {
-        final MethodHandle handle = getHandle(targetClass, map);
+        MethodHandle handle = getHandle(targetClass, map);
 
         if (handle == null)
             return null;
@@ -315,14 +315,14 @@ public class FileAttributesFactory
     }
 
     @Nullable
-    private MethodHandle getHandle(final Class<?> c,
-        final Map<String, Class<?>> map)
+    private MethodHandle getHandle(Class<?> c,
+                                   Map<String, Class<?>> map)
     {
         MethodHandle ret = null;
         Class<?> candidate, bestFit = null;
         String name;
 
-        for (final Map.Entry<String, Class<?>> entry: map.entrySet()) {
+        for (Map.Entry<String, Class<?>> entry: map.entrySet()) {
             name = entry.getKey();
             candidate = entry.getValue();
             /*
@@ -348,10 +348,10 @@ public class FileAttributesFactory
     }
 
     private static void checkCasts(
-        final Class<? extends FileAttributesProvider> providerClass,
-        final AttributesDescriptor descriptor)
+        Class<? extends FileAttributesProvider> providerClass,
+        AttributesDescriptor descriptor)
     {
-        final int modifiers = providerClass.getModifiers();
+        int modifiers = providerClass.getModifiers();
 
         if (!Modifier.isPublic(modifiers))
             throw new InvalidAttributeProviderException("provider class must "
@@ -377,10 +377,10 @@ public class FileAttributesFactory
 
     @Nonnull
     private MethodHandle getConstructor(
-        final Class<? extends FileAttributesProvider> providerClass
+        Class<? extends FileAttributesProvider> providerClass
     )
     {
-        final MethodHandle handle;
+        MethodHandle handle;
         try {
             handle = LOOKUP.findConstructor(providerClass,
                 MethodType.methodType(void.class, metadataClass));
@@ -390,7 +390,7 @@ public class FileAttributesFactory
                 + metadataClass, e);
         }
 
-        final MethodType type = handle.type().changeReturnType(providerClass);
+        MethodType type = handle.type().changeReturnType(providerClass);
         return handle.asType(type);
     }
 }

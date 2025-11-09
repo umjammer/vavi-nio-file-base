@@ -43,15 +43,15 @@ import java.nio.file.PathMatcher;
 public abstract class UnixLikeFileSystemDriverBase
     extends FileSystemDriverBase
 {
-    protected UnixLikeFileSystemDriverBase(final FileStore fileStore,
-        final FileSystemFactoryProvider factoryProvider)
+    protected UnixLikeFileSystemDriverBase(FileStore fileStore,
+                                           FileSystemFactoryProvider factoryProvider)
     {
         super(fileStore, factoryProvider);
     }
 
     @SuppressWarnings("DesignForExtension")
     @Override
-    public boolean isHidden(final Path path)
+    public boolean isHidden(Path path)
         throws IOException
     {
         return path.getNameCount() > 0

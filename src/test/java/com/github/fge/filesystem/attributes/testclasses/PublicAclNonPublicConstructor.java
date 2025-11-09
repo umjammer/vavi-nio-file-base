@@ -26,7 +26,7 @@ import java.nio.file.attribute.UserPrincipal;
 public final class PublicAclNonPublicConstructor
     extends AclFileAttributesProvider
 {
-    PublicAclNonPublicConstructor(final ArgType1 arg)
+    PublicAclNonPublicConstructor(ArgType1 arg)
         throws IOException
     {
     }

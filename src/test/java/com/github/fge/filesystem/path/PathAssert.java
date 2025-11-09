@@ -29,12 +29,12 @@ import java.nio.file.Path;
 public final class PathAssert
     extends ObjectAssert<Path>
 {
-    public PathAssert(final Path actual)
+    public PathAssert(Path actual)
     {
         super(actual);
     }
 
-    public static PathAssert assertPath(final Path actual)
+    public static PathAssert assertPath(Path actual)
     {
         return new PathAssert(actual);
     }

@@ -76,8 +76,8 @@ public abstract class FileSystemDriverBase
     // Needed to translate copy options into read/write open options
     protected final FileSystemOptionsFactory optionsFactory;
 
-    protected FileSystemDriverBase(final FileStore fileStore,
-        final FileSystemFactoryProvider factoryProvider)
+    protected FileSystemDriverBase(FileStore fileStore,
+                                   FileSystemFactoryProvider factoryProvider)
     {
         attributesFactory = factoryProvider.getAttributesFactory();
         optionsFactory = factoryProvider.getOptionsFactory();
@@ -110,9 +110,9 @@ public abstract class FileSystemDriverBase
     @SuppressWarnings("DesignForExtension")
     @Nonnull
     @Override
-    public SeekableByteChannel newByteChannel(final Path path,
-        final Set<? extends OpenOption> options,
-        final FileAttribute<?>... attrs)
+    public SeekableByteChannel newByteChannel(Path path,
+                                              Set<? extends OpenOption> options,
+                                              FileAttribute<?>... attrs)
         throws IOException
     {
         throw new UnsupportedOperationException();
@@ -120,7 +120,7 @@ public abstract class FileSystemDriverBase
 
     @SuppressWarnings("DesignForExtension")
     @Override
-    public boolean isSameFile(final Path path, final Path path2)
+    public boolean isSameFile(Path path, Path path2)
         throws IOException
     {
         return path.toAbsolutePath().equals(path2.toAbsolutePath());
@@ -132,13 +132,13 @@ public abstract class FileSystemDriverBase
     }
 
     @Override
-    public final void setAttribute(final Path path, final String attribute,
-        final Object value, final LinkOption... options)
+    public final void setAttribute(Path path, String attribute,
+                                   Object value, LinkOption... options)
         throws IOException
     {
-        final int index = attribute.indexOf(':');
-        final String type;
-        final String name;
+        int index = attribute.indexOf(':');
+        String type;
+        String name;
 
         if (index == -1) {
             type = "basic";
@@ -148,9 +148,9 @@ public abstract class FileSystemDriverBase
             name = attribute.substring(index + 1);
         }
 
-        final Object metadata = getPathMetadata(path);
+        Object metadata = getPathMetadata(path);
 
-        final FileAttributesProvider provider = getProvider(type, metadata);
+        FileAttributesProvider provider = getProvider(type, metadata);
 
         if (provider == null)
             throw new UnsupportedOperationException();
@@ -159,14 +159,14 @@ public abstract class FileSystemDriverBase
     }
 
     @Override
-    public final Map<String, Object> readAttributes(final Path path,
-        final String attributes, final LinkOption... options)
+    public final Map<String, Object> readAttributes(Path path,
+                                                    String attributes, LinkOption... options)
         throws IOException
     {
-        final int index = attributes.indexOf(':');
+        int index = attributes.indexOf(':');
 
-        final String type;
-        final String names;
+        String type;
+        String names;
 
         if (index == -1) {
             type = "basic";
@@ -176,9 +176,9 @@ public abstract class FileSystemDriverBase
             names = attributes.substring(index + 1);
         }
 
-        final Object metadata = getPathMetadata(path.toRealPath(options));
+        Object metadata = getPathMetadata(path.toRealPath(options));
 
-        final FileAttributesProvider provider = getProvider(type, metadata);
+        FileAttributesProvider provider = getProvider(type, metadata);
 
         if (provider == null)
             throw new UnsupportedOperationException();
@@ -186,9 +186,9 @@ public abstract class FileSystemDriverBase
         if ("*".equals(names))
             return provider.getAllAttributes();
 
-        final Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
 
-        for (final String name: COMMA.split(names))
+        for (String name: COMMA.split(names))
             map.put(name, provider.getAttributeByName(name));
 
         return Collections.unmodifiableMap(map);
@@ -196,10 +196,10 @@ public abstract class FileSystemDriverBase
 
     @Override
     public final <A extends BasicFileAttributes> A readAttributes(
-        final Path path, final Class<A> type, final LinkOption... options)
+        Path path, Class<A> type, LinkOption... options)
         throws IOException
     {
-        final Object metadata = getPathMetadata(path.toRealPath(options));
+        Object metadata = getPathMetadata(path.toRealPath(options));
 
         return attributesFactory.getFileAttributes(type, metadata);
     }
@@ -207,9 +207,9 @@ public abstract class FileSystemDriverBase
     @Nullable
     @Override
     public final <V extends FileAttributeView> V getFileAttributeView(
-        final Path path, final Class<V> type, final LinkOption... options)
+        Path path, Class<V> type, LinkOption... options)
     {
-        final Object metadata;
+        Object metadata;
         try {
             metadata = getPathMetadata(path.toRealPath(options));
             return attributesFactory.getFileAttributeView(type, metadata);

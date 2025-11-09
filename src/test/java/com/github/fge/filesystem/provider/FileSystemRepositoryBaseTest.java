@@ -34,9 +34,11 @@ public class FileSystemRepositoryBaseTest {
         public MyFileSystemRepository(String scheme, FileSystemFactoryProvider factoryProvider) {
             super(scheme, factoryProvider);
         }
+        @Override
         protected FileSystemDriver createDriver(URI uri, Map<String, ?> env) throws IOException {
             return null;
         }
+        @Override
         public Map<String, String> getParamsMap(URI uri) {
             return super.getParamsMap(uri);
         }
@@ -46,12 +48,15 @@ public class FileSystemRepositoryBaseTest {
         public MyBasicFileAttributesProvider(Object entry) throws IOException {
             super();
         }
+        @Override
         public boolean isRegularFile() {
             return false;
         }
+        @Override
         public boolean isDirectory() {
             return false;
         }
+        @Override
         public long size() {
             return 0;
         }

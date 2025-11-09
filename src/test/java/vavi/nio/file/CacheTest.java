@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-07-20 nsano initial version <br>
  */
-public class CacheTest {
+class CacheTest {
 
-    class HackedCache extends Cache<String> {
+    static class HackedCache extends Cache<String> {
         @Override
         public String getEntry(Path path) throws IOException {
             return null;

@@ -21,15 +21,15 @@ package com.github.fge.filesystem.path.matchers;
 public final class GlobPathMatcher
     extends PathMatcherBase
 {
-    private RegexPathMatcher matcher;
+    private final RegexPathMatcher matcher;
 
-    public GlobPathMatcher(final String glob)
+    public GlobPathMatcher(String glob)
     {
         matcher = new RegexPathMatcher(Globs.toUnixRegexPattern(glob));
     }
 
     @Override
-    protected boolean match(final String input)
+    protected boolean match(String input)
     {
         return matcher.match(input);
     }

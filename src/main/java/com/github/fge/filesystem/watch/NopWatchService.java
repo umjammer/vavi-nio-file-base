@@ -36,7 +36,7 @@ public final class NopWatchService
     private final CountDownLatch latch = new CountDownLatch(1);
     private final Path path;
 
-    public NopWatchService(@Nonnull final Path path)
+    public NopWatchService(@Nonnull Path path)
     {
         this.path = Objects.requireNonNull(path);
     }
@@ -63,7 +63,7 @@ public final class NopWatchService
     }
 
     @Override
-    public WatchKey poll(final long timeout, final TimeUnit unit)
+    public WatchKey poll(long timeout, TimeUnit unit)
         throws InterruptedException
     {
         /*

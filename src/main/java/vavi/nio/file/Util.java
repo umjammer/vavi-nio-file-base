@@ -6,6 +6,7 @@
 
 package vavi.nio.file;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
@@ -13,6 +14,10 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.lang.reflect.Field;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.NonReadableChannelException;
@@ -35,11 +40,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
 import vavi.io.Seekable;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -49,6 +52,8 @@ import vavi.util.Debug;
  * @version 0.00 2017/03/19 umjammer initial version <br>
  */
 public interface Util {
+
+    Logger logger = getLogger(Util.class.getName());
 
     /** to NFC string */
     static String toPathString(Path path) throws IOException {
@@ -69,8 +74,8 @@ public interface Util {
      * @see "ignoreAppleDouble"
      */
     static boolean isAppleDouble(Path path) throws IOException {
-//System.err.println("path.toRealPath(): " + path.toRealPath());
-//System.err.println("path.getFileName(): " + path.getFileName());
+//logger.log(Level.TRACE, "path.toRealPath(): " + path.toRealPath());
+//logger.log(Level.TRACE, "path.getFileName(): " + path.getFileName());
         return isAppleDouble(path.getFileName().toString());
     }
 
@@ -100,17 +105,17 @@ public interface Util {
     /**
      * @see java.nio.file.Files#newDirectoryStream(Path, java.nio.file.DirectoryStream.Filter)
      */
-    static DirectoryStream<Path> newDirectoryStream(final List<Path> list,
-                                                    final DirectoryStream.Filter<? super Path> filter) {
+    static DirectoryStream<Path> newDirectoryStream(List<Path> list,
+                                                    DirectoryStream.Filter<? super Path> filter) {
         List<Path> filtered = filter != null ? list.stream().filter(p -> {
             try {
                 return filter.accept(p);
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
-        }).collect(Collectors.toList()) : list;
+        }).toList() : list;
 
-        return new DirectoryStream<Path>() {
+        return new DirectoryStream<>() {
             private final AtomicBoolean alreadyOpen = new AtomicBoolean(false);
 
             @Override
@@ -134,7 +139,7 @@ public interface Util {
     abstract class SeekableByteChannelForWriting implements SeekableByteChannel {
         OutputStream out;
         protected long written;
-        private WritableByteChannel wbc;
+        private final WritableByteChannel wbc;
 
         public SeekableByteChannelForWriting(OutputStream out) throws IOException {
             this.out = out;
@@ -155,12 +160,12 @@ public interface Util {
             if (out instanceof Seekable) {
                 // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
                 written = ((Seekable) out).position();
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: get position by vavi.io.Seekable: " + written);
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: get position by vavi.io.Seekable: " + written);
             } else if (wbc instanceof SeekableByteChannel) {
                 written = ((SeekableByteChannel) wbc).position();
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: get position by java.nio.channels.SeekableByteChannel: " + written);
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: get position by java.nio.channels.SeekableByteChannel: " + written);
             } else {
-Debug.println(Level.WARNING, "SeekableByteChannelForWriting: get position: " + written + ", " + out.getClass().getName());
+logger.log(Level.WARNING, "SeekableByteChannelForWriting: get position: " + written + ", " + out.getClass().getName());
             }
 
             return written;
@@ -170,13 +175,13 @@ Debug.println(Level.WARNING, "SeekableByteChannelForWriting: get position: " + w
         public SeekableByteChannel position(long pos) throws IOException {
             if (out instanceof Seekable) {
                 // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: set position by vavi.io.Seekable: " + pos);
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: set position by vavi.io.Seekable: " + pos);
                 ((Seekable) out).position(pos);
             } else if (wbc instanceof SeekableByteChannel) {
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: set position by java.nio.channels.SeekableByteChannel: " + pos);
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: set position by java.nio.channels.SeekableByteChannel: " + pos);
                 ((SeekableByteChannel) wbc).position(pos);
             } else {
-Debug.println(Level.WARNING, "SeekableByteChannelForWriting: set position: " + pos + ", " + out.getClass().getName());
+logger.log(Level.WARNING, "SeekableByteChannelForWriting: set position: " + pos + ", " + out.getClass().getName());
             }
 
             written = pos;
@@ -190,8 +195,8 @@ Debug.println(Level.WARNING, "SeekableByteChannelForWriting: set position: " + p
 
         @Override
         public SeekableByteChannel truncate(long size) throws IOException {
-Debug.println(Level.WARNING, "SeekableByteChannelForWriting: truncate: WIP");
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: truncate: " + size + ", " + written + ", " + out.getClass().getName());
+logger.log(Level.WARNING, "SeekableByteChannelForWriting: truncate: WIP");
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: truncate: " + size + ", " + written + ", " + out.getClass().getName());
             // TODO implement correctly
 
             if (written > size) {
@@ -204,20 +209,20 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: truncate: " + size + "
         @Override
         public int write(ByteBuffer src) throws IOException {
             int n = wbc.write(src);
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: write: " + n + "/" + written + " -> " + (written + n));
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: write: " + n + "/" + written + " -> " + (written + n));
             written += n;
             return n;
         }
 
         @Override
         public long size() throws IOException {
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: size: " + written);
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: size: " + written);
             return written;
         }
 
         @Override
         public void close() throws IOException {
-Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
+logger.log(Level.DEBUG, "SeekableByteChannelForWriting: close");
             wbc.close();
         }
     }
@@ -227,8 +232,8 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
      */
     abstract class SeekableByteChannelForReading implements SeekableByteChannel {
         private long read = 0;
-        private ReadableByteChannel rbc;
-        private long size;
+        private final ReadableByteChannel rbc;
+        private final long size;
         InputStream in;
 
         public SeekableByteChannelForReading(InputStream in) throws IOException {
@@ -250,12 +255,12 @@ Debug.println(Level.FINE, "SeekableByteChannelForWriting: close");
             if (in instanceof Seekable) {
                 // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
                 read = ((Seekable) in).position();
-Debug.println(Level.FINE, "SeekableByteChannelForReading: get position by vavi.io.Seekable: " + read);
+logger.log(Level.DEBUG, "SeekableByteChannelForReading: get position by vavi.io.Seekable: " + read);
             } else if (rbc instanceof SeekableByteChannel) {
                 read = ((SeekableByteChannel) rbc).position();
-Debug.println(Level.FINE, "SeekableByteChannelForReading: get position by java.nio.channels.SeekableByteChannel: " + read);
+logger.log(Level.DEBUG, "SeekableByteChannelForReading: get position by java.nio.channels.SeekableByteChannel: " + read);
             } else {
-Debug.println(Level.WARNING, "SeekableByteChannelForReading: get position: non seekable input: " + read + ", " + in.getClass().getName());
+logger.log(Level.WARNING, "SeekableByteChannelForReading: get position: non seekable input: " + read + ", " + in.getClass().getName());
             }
             return read;
         }
@@ -264,13 +269,13 @@ Debug.println(Level.WARNING, "SeekableByteChannelForReading: get position: non s
         public SeekableByteChannel position(long pos) throws IOException {
             if (in instanceof Seekable) {
                 // see com.github.fge.filesystem.driver.DoubleCachedFileSystemDriver#downloadEntry
-Debug.println(Level.FINE, "SeekableByteChannelForReading: set position by vavi.io.Seekable: " + pos);
+logger.log(Level.DEBUG, "SeekableByteChannelForReading: set position by vavi.io.Seekable: " + pos);
                 ((Seekable) in).position(pos);
             } else if (rbc instanceof SeekableByteChannel) {
-Debug.println(Level.FINE, "SeekableByteChannelForReading: set position by java.nio.channels.SeekableByteChannel: " + pos);
+logger.log(Level.DEBUG, "SeekableByteChannelForReading: set position by java.nio.channels.SeekableByteChannel: " + pos);
                 ((SeekableByteChannel) rbc).position(pos);
             } else {
-Debug.println(Level.WARNING, "SeekableByteChannelForReading: set position: non seekable input: " + pos + ", " + in.getClass().getName());
+logger.log(Level.WARNING, "SeekableByteChannelForReading: set position: non seekable input: " + pos + ", " + in.getClass().getName());
             }
 
             read = pos;
@@ -281,7 +286,7 @@ Debug.println(Level.WARNING, "SeekableByteChannelForReading: set position: non s
         public int read(ByteBuffer dst) throws IOException {
             int n = rbc.read(dst);
             if (n > 0) {
-Debug.println(Level.FINER, "SeekableByteChannelForReading: read: " + n + "/" + read + " -> " + (read + n));
+logger.log(Level.TRACE, "SeekableByteChannelForReading: read: " + n + "/" + read + " -> " + (read + n));
                 read += n;
             }
             return n;
@@ -325,10 +330,12 @@ Debug.println(Level.FINER, "SeekableByteChannelForReading: read: " + n + "/" + r
     }
 
     /**
+     * Uses for the case that after closing processing is necessary like caching, resource closing etc.
+     *
      * @see java.nio.file.Files#newInputStream(Path, OpenOption...)
      */
     abstract class InputStreamForDownloading extends FilterInputStream {
-        private AtomicBoolean closed = new AtomicBoolean();
+        private final AtomicBoolean closed = new AtomicBoolean();
 
         private boolean closeOnCloseInternal = true;
 
@@ -344,7 +351,7 @@ Debug.println(Level.FINER, "SeekableByteChannelForReading: read: " + n + "/" + r
         @Override
         public void close() throws IOException {
             if (closed.getAndSet(true)) {
-Debug.printf(Level.FINE, "Skip double close of stream %s", this);
+logger.log(Level.DEBUG, "Skip double close of stream %s".formatted(this));
                 return;
             }
 
@@ -355,16 +362,18 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
             onClosed();
         }
 
+        /** write process after closing */
         protected abstract void onClosed() throws IOException;
     }
 
     /**
+     * Uses for the case that after closing processing is necessary like caching, resource closing etc.
      * TODO limited under 2GB
      *
      * @see java.nio.file.Files#newOutputStream(Path, OpenOption...)
      */
     abstract class OutputStreamForUploading extends FilterOutputStream {
-        private AtomicBoolean closed = new AtomicBoolean();
+        private final AtomicBoolean closed = new AtomicBoolean();
 
         private boolean closeOnCloseInternal = true;
 
@@ -384,7 +393,7 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
         @Override
         public void close() throws IOException {
             if (closed.getAndSet(true)) {
-Debug.printf(Level.FINE, "Skip double close of stream %s", this);
+logger.log(Level.DEBUG, "Skip double close of stream %s".formatted(this));
                 return;
             }
 
@@ -396,41 +405,44 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
         }
 
         protected InputStream getInputStream() {
-            if (ByteArrayOutputStream.class.isInstance(out)) {
+            if (out instanceof ByteArrayOutputStream) {
                 // TODO engine
-                return new ByteArrayInputStream(ByteArrayOutputStream.class.cast(out).toByteArray());
+                return new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray());
             } else {
                 throw new IllegalStateException("out is not ByteArrayOutputStream: " + out.getClass().getName());
             }
         }
 
+        /** write process after closing */
         protected abstract void onClosed() throws IOException;
     }
 
     /**
+     * @param <T> type for the argument of {@link StealingOutputStreamForUploading#onClosed(T)}.
+     *
      * @see java.nio.file.Files#newOutputStream(Path, OpenOption...)
      */
     abstract class StealingOutputStreamForUploading<T> extends OutputStreamForUploading {
         // TODO pool
-        private ExecutorService executor = Executors.newSingleThreadExecutor();
+        private final ExecutorService executor = Executors.newSingleThreadExecutor();
         private Future<T> future;
-        private CountDownLatch latch1 = new CountDownLatch(1);
-        private CountDownLatch latch2 = new CountDownLatch(1);
-        private CountDownLatch latch3 = new CountDownLatch(1);
+        private final CountDownLatch latch1 = new CountDownLatch(1);
+        private final CountDownLatch latch2 = new CountDownLatch(1);
+        private final CountDownLatch latch3 = new CountDownLatch(1);
 
         /** */
         public StealingOutputStreamForUploading() {
             super(null, false);
         }
 
-        /** */
+        /** this method must be called at {@link #upload()} method */
         protected void setOutputStream(OutputStream os) {
             out = os;
             latch1.countDown();
             try { latch2.await(); } catch (InterruptedException e) { throw new IllegalStateException(e); }
         }
 
-        /** must call {@link #setOutputStream(OutputStream)} */
+        /** must call {@link #setOutputStream(OutputStream)} in this method */
         protected abstract T upload() throws IOException;
 
         /** set #out */
@@ -457,7 +469,7 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
             }
         }
 
-        /** */
+        /** write process after closing */
         protected abstract void onClosed(T newEntry);
 
         @Override
@@ -476,7 +488,7 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
         }
     }
 
-    /** */
+    /** default buffer size for transfer */
     int BUFFER_SIZE = 4 * 1024 * 1024;
 
     /**
@@ -503,5 +515,55 @@ Debug.printf(Level.FINE, "Skip double close of stream %s", this);
             out.write(buffer);
             buffer.compact();
         }
+    }
+
+    /**
+     * Gets a source path from an input stream.
+     * <p>
+     * java runtime option
+     * <ol>
+     *  <ul>{@code --add-opens=java.base/java.io=ALL-UNNAMED}</ul>
+     *  <ul>{@code --add-opens=java.base/sun.nio.ch=ALL-UNNAMED}</ul>
+     * </ol>
+     *
+     * @param object input stream
+     * @return source object as URI, nullable
+     */
+    static URI getSource(Object object) {
+        Class<?> c = object.getClass();
+        try {
+            do {
+logger.log(Level.DEBUG, "object1: " + c.getName());
+                if (object instanceof BufferedInputStream) {
+                    Field pathField = FilterInputStream.class.getDeclaredField("in");
+                    pathField.setAccessible(true);
+                    object = pathField.get(object);
+                }
+                if (object instanceof java.io.FileInputStream) {
+                    Field pathField = object.getClass().getDeclaredField("path");
+                    pathField.setAccessible(true);
+                    String path = (String) pathField.get(object);
+logger.log(Level.DEBUG, "source: java.io.FileInputStream: path : " + path);
+                    return path != null ? URI.create(path) : null;
+                }
+                if (object.getClass().getName().equals("sun.nio.ch.ChannelInputStream")) { // because it's package private
+                    Field pathField = object.getClass().getDeclaredField("ch");
+                    pathField.setAccessible(true);
+                    object = pathField.get(object);
+                }
+                if (object.getClass().getName().equals("sun.nio.ch.FileChannelImpl")) { // because it's package private
+                    Field pathField = object.getClass().getDeclaredField("path");
+                    pathField.setAccessible(true);
+                    String path = (String) pathField.get(object);
+logger.log(Level.DEBUG, "source: sun.nio.ch.FileChannelImpl: path : " + path);
+                    return path != null ? URI.create(path) : null;
+                }
+logger.log(Level.DEBUG, "object2: " + object.getClass().getName());
+                c = c.getSuperclass();
+            } while (c.getSuperclass() != null);
+        } catch (Exception e) {
+            logger.log(Logger.Level.WARNING, e.getMessage(), e);
+        }
+        return null;
     }
 }

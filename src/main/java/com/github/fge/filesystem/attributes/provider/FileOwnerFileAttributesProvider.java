@@ -57,7 +57,7 @@ public abstract class FileOwnerFileAttributesProvider
      */
 
     @Override
-    public void setOwner(final UserPrincipal owner)
+    public void setOwner(UserPrincipal owner)
         throws IOException
     {
         throw new ReadOnlyAttributeException();
@@ -67,7 +67,7 @@ public abstract class FileOwnerFileAttributesProvider
      * by name
      */
     @Override
-    public final void setAttributeByName(final String name, final Object value)
+    public final void setAttributeByName(String name, Object value)
         throws IOException
     {
         if (!"owner".equals(Objects.requireNonNull(name)))
@@ -78,7 +78,7 @@ public abstract class FileOwnerFileAttributesProvider
 
     @Nullable
     @Override
-    public final Object getAttributeByName(final String name)
+    public final Object getAttributeByName(String name)
         throws IOException
     {
         if (!"owner".equals(Objects.requireNonNull(name)))

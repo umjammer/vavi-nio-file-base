@@ -60,8 +60,8 @@ public abstract class FileStoreBase
      * @param factory the associated {@link FileAttributesFactory}
      * @param readOnly whether this filestore is read only
      */
-    protected FileStoreBase(final String name, final String type,
-        final FileAttributesFactory factory, final boolean readOnly)
+    protected FileStoreBase(String name, String type,
+                            FileAttributesFactory factory, boolean readOnly)
     {
         this.readOnly = readOnly;
         this.name = Objects.requireNonNull(name);
@@ -79,8 +79,8 @@ public abstract class FileStoreBase
      * @param factory the associated {@link FileAttributesFactory}
      * @param readOnly whether this filestore is read only
      */
-    protected FileStoreBase(final String name,
-        final FileAttributesFactory factory, final boolean readOnly)
+    protected FileStoreBase(String name,
+                            FileAttributesFactory factory, boolean readOnly)
     {
         this(name, name, factory, readOnly);
     }
@@ -126,14 +126,14 @@ public abstract class FileStoreBase
 
     @Override
     public final boolean supportsFileAttributeView(
-        final Class<? extends FileAttributeView> type)
+        Class<? extends FileAttributeView> type)
     {
         // null checks done by the factory
         return factory.supportsFileAttributeView(type);
     }
 
     @Override
-    public final boolean supportsFileAttributeView(final String name)
+    public final boolean supportsFileAttributeView(String name)
     {
         // null checks done by the factory
         return factory.supportsFileAttributeView(name);
@@ -141,13 +141,13 @@ public abstract class FileStoreBase
 
     @Override
     public final <V extends FileStoreAttributeView> V getFileStoreAttributeView(
-        final Class<V> type)
+        Class<V> type)
     {
         return null;
     }
 
     @Override
-    public final Object getAttribute(final String attribute)
+    public final Object getAttribute(String attribute)
         throws IOException
     {
         throw new UnsupportedOperationException();

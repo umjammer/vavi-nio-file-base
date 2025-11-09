@@ -69,14 +69,14 @@ public abstract class AclFileAttributesProvider
      */
 
     @Override
-    public void setOwner(final UserPrincipal owner)
+    public void setOwner(UserPrincipal owner)
         throws IOException
     {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setAcl(final List<AclEntry> acl)
+    public void setAcl(List<AclEntry> acl)
         throws IOException
     {
         throw new ReadOnlyAttributeException();
@@ -86,7 +86,7 @@ public abstract class AclFileAttributesProvider
      * by name
      */
     @Override
-    public final void setAttributeByName(final String name, final Object value)
+    public final void setAttributeByName(String name, Object value)
         throws IOException
     {
         Objects.requireNonNull(value);
@@ -107,19 +107,14 @@ public abstract class AclFileAttributesProvider
 
     @Nullable
     @Override
-    public final Object getAttributeByName(final String name)
+    public final Object getAttributeByName(String name)
         throws IOException
     {
-        switch (Objects.requireNonNull(name)) {
-            /* owner */
-            case "owner":
-                return getOwner();
-            /* acl */
-            case "acl":
-                return getAcl();
-            default:
-                throw new NoSuchAttributeException(name);
-        }
+        return switch (Objects.requireNonNull(name)) {
+            case "owner" -> getOwner(); // owner
+            case "acl" -> getAcl(); // acl
+            default -> throw new NoSuchAttributeException(name);
+        };
     }
 
     @Nonnull
@@ -127,7 +122,7 @@ public abstract class AclFileAttributesProvider
     public final Map<String, Object> getAllAttributes()
         throws IOException
     {
-        final Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
 
         map.put("owner", getOwner());
         map.put("acl", getAcl());

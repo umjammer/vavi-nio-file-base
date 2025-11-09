@@ -41,11 +41,11 @@ public final class UnixPathElementsFactory
     }
 
     @Override
-    protected String[] rootAndNames(final String path)
+    protected String[] rootAndNames(String path)
     {
-        final String[] ret = new String[2];
+        String[] ret = new String[2];
 
-        final String tmp = ROOT_PATTERN.matcher(path).replaceFirst("");
+        String tmp = ROOT_PATTERN.matcher(path).replaceFirst("");
         ret[0] = tmp.equals(path) ? null : "/";
         ret[1] = TAIL_PATTERN.matcher(tmp).replaceFirst("");
 
@@ -53,7 +53,7 @@ public final class UnixPathElementsFactory
     }
 
     @Override
-    protected String[] splitNames(final String names)
+    protected String[] splitNames(String names)
     {
         if (names.isEmpty())
             return NO_NAMES;
@@ -63,7 +63,7 @@ public final class UnixPathElementsFactory
     }
 
     @Override
-    protected boolean isValidName(final String name)
+    protected boolean isValidName(String name)
     {
         if (name.isEmpty())
             return false;
@@ -73,19 +73,19 @@ public final class UnixPathElementsFactory
     }
 
     @Override
-    protected boolean isSelf(final String name)
+    protected boolean isSelf(String name)
     {
         return ".".equals(name);
     }
 
     @Override
-    protected boolean isParent(final String name)
+    protected boolean isParent(String name)
     {
         return parentToken.equals(name);
     }
 
     @Override
-    protected boolean isAbsolute(final PathElements pathElements)
+    protected boolean isAbsolute(PathElements pathElements)
     {
         return pathElements.root != null;
     }

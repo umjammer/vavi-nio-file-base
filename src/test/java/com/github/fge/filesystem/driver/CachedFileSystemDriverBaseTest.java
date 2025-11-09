@@ -8,7 +8,6 @@ package com.github.fge.filesystem.driver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,15 +58,16 @@ System.err.println("name: " + name + ", sub: " + sub + ", parent: " + parent + "
     }
 
     List<Path> getDirectoryEntries(Path parent) {
-        String p = parent.toString().charAt(0) != '/' ? "/" + parent.toString() : "/";
+        String p = parent.toString().charAt(0) != '/' ? "/" + parent : "/";
 System.err.println("get dir list: " + p);
-        switch (p) {
-        case "/": return Stream.of("a1", "a2", "aa", "a3").map(Paths::get).collect(Collectors.toList());
-        case "/aa": return Stream.of("b1", "bb").map(Paths::get).collect(Collectors.toList());
-        case "/aa/bb": return Stream.of("c1", "c2", "c3", "cc").map(Paths::get).collect(Collectors.toList());
-        case "/aa/bb/cc": return Stream.of("d1", "d2", "d3", "d4", "d0", "d5").map(Paths::get).collect(Collectors.toList());
-        default: return Collections.emptyList();
-        }
+        return switch (p) {
+            case "/" -> Stream.of("a1", "a2", "aa", "a3").map(Paths::get).collect(Collectors.toList());
+            case "/aa" -> Stream.of("b1", "bb").map(Paths::get).collect(Collectors.toList());
+            case "/aa/bb" -> Stream.of("c1", "c2", "c3", "cc").map(Paths::get).collect(Collectors.toList());
+            case "/aa/bb/cc" ->
+                    Stream.of("d1", "d2", "d3", "d4", "d0", "d5").map(Paths::get).collect(Collectors.toList());
+            default -> Collections.emptyList();
+        };
     }
 
     @Test
@@ -75,10 +75,10 @@ System.err.println("get dir list: " + p);
         Map<String, Object> env = new HashMap<>();
         env.put(ENV_IGNORE_APPLE_DOUBLE, null);
         assertTrue(isEnabled(ENV_IGNORE_APPLE_DOUBLE, env));
-        env.clear();;
+        env.clear();
         env.put(ENV_IGNORE_APPLE_DOUBLE, true);
         assertTrue(isEnabled(ENV_IGNORE_APPLE_DOUBLE, env));
-        env.clear();;
+        env.clear();
         env.put(ENV_IGNORE_APPLE_DOUBLE, false);
         assertFalse(isEnabled(ENV_IGNORE_APPLE_DOUBLE, env));
         env.clear();

@@ -40,7 +40,7 @@ public class Globs {
     private static boolean isGlobMeta(char c) {
         return globMetaChars.indexOf(c) != -1;
     }
-    private static char EOL = 0;  //TBD
+    private static final char EOL = 0;  //TBD
 
     private static char next(String glob, int i) {
         if (i < glob.length()) {

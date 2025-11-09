@@ -65,7 +65,7 @@ public final class GenericPathTest
     @BeforeEach
     public void initMocks()
     {
-        final FileSystemFactoryProvider factoryProvider
+        FileSystemFactoryProvider factoryProvider
             = new FileSystemFactoryProvider();
         provider = mock(FileSystemProvider.class);
         repository = mock(FileSystemRepository.class);
@@ -78,8 +78,8 @@ public final class GenericPathTest
     @Test
     public void isAbsoluteDelegatesToPathElementsFactory()
     {
-        final PathElements elements1 = new PathElements("/", NO_NAMES);
-        final PathElements elements2 = PathElements.EMPTY;
+        PathElements elements1 = new PathElements("/", NO_NAMES);
+        PathElements elements2 = PathElements.EMPTY;
 
         when(factory.isAbsolute(elements1)).thenReturn(false);
         when(factory.isAbsolute(elements2)).thenReturn(true);
@@ -98,7 +98,7 @@ public final class GenericPathTest
     @Test
     public void getRootWihtoutRootReturnsNull()
     {
-        final Path path = new GenericPath(fs, factory, PathElements.EMPTY);
+        Path path = new GenericPath(fs, factory, PathElements.EMPTY);
 
         assertPath(path.getRoot()).isNull();
     }
@@ -106,8 +106,8 @@ public final class GenericPathTest
     @Test
     public void getRootWithRootDoesNotReturnNull()
     {
-        final PathElements elements = new PathElements("/", NO_NAMES);
-        final Path path = new GenericPath(fs, factory, elements);
+        PathElements elements = new PathElements("/", NO_NAMES);
+        Path path = new GenericPath(fs, factory, elements);
 
         assertPath(path.getRoot()).isNotNull();
     }
@@ -115,7 +115,7 @@ public final class GenericPathTest
     @Test
     public void getFileNameWithNoNamesReturnsNull()
     {
-        final Path path = new GenericPath(fs, factory, PathElements.EMPTY);
+        Path path = new GenericPath(fs, factory, PathElements.EMPTY);
 
         assertPath(path.getFileName()).isNull();
     }
@@ -123,10 +123,10 @@ public final class GenericPathTest
     @Test
     public void getFileNameWithNameElementsDoesNotReturnNull()
     {
-        final PathElements elements
+        PathElements elements
             = new PathElements(null, new String[] { "foo", "bar" });
 
-        final Path path = new GenericPath(fs, factory, elements);
+        Path path = new GenericPath(fs, factory, elements);
 
         assertPath(path.getFileName()).isNotNull();
     }
@@ -168,11 +168,11 @@ public final class GenericPathTest
          * is the same (this is required by Path's equals()) and that the path
          * elements are the same (this is this package's requirements).
          */
-        final FileSystemProvider fsProvider = mock(FileSystemProvider.class);
-        final PathElementsFactory elementsFactory
+        FileSystemProvider fsProvider = mock(FileSystemProvider.class);
+        PathElementsFactory elementsFactory
             = new UnixPathElementsFactory();
-        final GenericFileSystem fsForP = mock(GenericFileSystem.class);
-        final GenericFileSystem fsForQ = mock(GenericFileSystem.class);
+        GenericFileSystem fsForP = mock(GenericFileSystem.class);
+        GenericFileSystem fsForQ = mock(GenericFileSystem.class);
 
         when(fsForP.provider()).thenReturn(fsProvider);
         when(fsForQ.provider()).thenReturn(fsProvider);
@@ -181,7 +181,7 @@ public final class GenericPathTest
          * The path to be operated. As the contract says, it has no root
          * component.
          */
-        final GenericPath q = new GenericPath(fsForQ, elementsFactory,
+        GenericPath q = new GenericPath(fsForQ, elementsFactory,
             new PathElements(null, new String[] { "q1", "q2" }));
 
         /*
@@ -228,15 +228,15 @@ public final class GenericPathTest
         "foo://bar/x,/../a,foo://bar/x/a",
         "foo://bar,/a v,foo://bar/a%20v",
     })
-    public void toUriPathReturnsCorrectURI(final String s, final String path,
-        final String expected)
+    public void toUriPathReturnsCorrectURI(String s, String path,
+                                           String expected)
     {
-        final PathElementsFactory unixFactory = new UnixPathElementsFactory();
-        final URI uri2 = URI.create(s);
-        final GenericFileSystem fs2
+        PathElementsFactory unixFactory = new UnixPathElementsFactory();
+        URI uri2 = URI.create(s);
+        GenericFileSystem fs2
             = new GenericFileSystem(uri2, repository, driver, provider);
-        final PathElements elements = unixFactory.toPathElements(path);
-        final Path p = new GenericPath(fs2, unixFactory, elements);
+        PathElements elements = unixFactory.toPathElements(path);
+        Path p = new GenericPath(fs2, unixFactory, elements);
 
         assertEquals(expected, p.toUri().toString(), "generated URI is correct");
     }

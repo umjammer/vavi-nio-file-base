@@ -25,7 +25,7 @@ import org.assertj.core.api.AbstractSoftAssertions;
 public final class CustomSoftAssertions
     extends AbstractSoftAssertions
 {
-    public PathElementsAssert assertThat(final PathElements actual)
+    public PathElementsAssert assertThat(PathElements actual)
     {
         return proxy(PathElementsAssert.class, PathElements.class, actual);
     }

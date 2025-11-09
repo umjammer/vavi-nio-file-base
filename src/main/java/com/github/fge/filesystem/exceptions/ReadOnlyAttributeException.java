@@ -47,18 +47,18 @@ public final class ReadOnlyAttributeException
     {
     }
 
-    public ReadOnlyAttributeException(final String message)
+    public ReadOnlyAttributeException(String message)
     {
         super(message);
     }
 
-    public ReadOnlyAttributeException(final String message,
-        final Throwable cause)
+    public ReadOnlyAttributeException(String message,
+                                      Throwable cause)
     {
         super(message, cause);
     }
 
-    public ReadOnlyAttributeException(final Throwable cause)
+    public ReadOnlyAttributeException(Throwable cause)
     {
         super(cause);
     }

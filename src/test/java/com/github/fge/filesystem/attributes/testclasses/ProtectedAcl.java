@@ -25,7 +25,7 @@ import java.io.IOException;
 public abstract class ProtectedAcl
     extends AclFileAttributesProvider
 {
-    public ProtectedAcl(final ArgType1 arg)
+    public ProtectedAcl(ArgType1 arg)
         throws IOException
     {
     }

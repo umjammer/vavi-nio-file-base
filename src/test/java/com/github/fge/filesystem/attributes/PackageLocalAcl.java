@@ -27,7 +27,7 @@ import java.nio.file.attribute.UserPrincipal;
 final class PackageLocalAcl
     extends AclFileAttributesProvider
 {
-    public PackageLocalAcl(final ArgType1 arg)
+    public PackageLocalAcl(ArgType1 arg)
         throws IOException
     {
     }

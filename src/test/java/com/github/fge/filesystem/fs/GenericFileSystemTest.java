@@ -71,7 +71,7 @@ public final class GenericFileSystemTest
         throws IOException
     {
 //        when(driver.getUri()).thenReturn(uri);
-        final InOrder inOrder = inOrder(repository, driver);
+        InOrder inOrder = inOrder(repository, driver);
 
         fs.close();
 
@@ -86,16 +86,14 @@ public final class GenericFileSystemTest
         throws IOException
     {
 //        final URI uri = URI.create("foo://bar");
-        final IOException exception = new IOException("meh");
+        IOException exception = new IOException("meh");
 
 //        when(driver.getUri()).thenReturn(uri);
         doThrow(exception).when(driver).close();
 
-        final InOrder inOrder = inOrder(repository, driver);
+        InOrder inOrder = inOrder(repository, driver);
 
-        assertThrows(IOException.class, () -> {
-            fs.close();
-        });
+        assertThrows(IOException.class, () -> fs.close());
 
         inOrder.verify(driver).close();
         inOrder.verify(repository).unregister(uri);

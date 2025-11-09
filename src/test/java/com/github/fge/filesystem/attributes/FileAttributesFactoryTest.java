@@ -41,13 +41,11 @@ public final class FileAttributesFactoryTest
     @Test
     public void cannotRegisterProviderWithoutMetadataClass()
     {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new FileAttributesFactory()
+        assertThrows(IllegalArgumentException.class, () -> new FileAttributesFactory()
+        {
             {
-                {
-                    addImplementation("acl", PublicAcl.class);
-                }
-            };
+                addImplementation("acl", PublicAcl.class);
+            }
         }, "metadata class has not been set");
     }
 
@@ -69,57 +67,49 @@ public final class FileAttributesFactoryTest
     @Test
     public void registeringAbstractProviderFails()
     {
-        assertThrows(InvalidAttributeProviderException.class, () -> {
-            new FileAttributesFactory()
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
+        {
             {
-                {
-                    setMetadataClass(ArgType1.class);
-                    addImplementation("acl", ProtectedAcl.class);
-                }
-            };
+                setMetadataClass(ArgType1.class);
+                addImplementation("acl", ProtectedAcl.class);
+            }
         }, "provider class must not be abstract");
     }
 
     @Test
     public void registeringPackageLocalProviderFails()
     {
-        assertThrows(InvalidAttributeProviderException.class, () -> {
-            new FileAttributesFactory()
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
+        {
             {
-                {
-                    setMetadataClass(ArgType1.class);
-                    addImplementation("acl", PackageLocalAcl.class);
-                }
-            };
+                setMetadataClass(ArgType1.class);
+                addImplementation("acl", PackageLocalAcl.class);
+            }
         }, "provider class must be public");
     }
 
     @Test
     public void registeringPublicClassWithNonPublicConstructorFails()
     {
-        assertThrows(InvalidAttributeProviderException.class, () -> {
-            new FileAttributesFactory()
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
+        {
             {
-                {
-                    setMetadataClass(ArgType1.class);
-                    addImplementation("acl",
-                        PublicAclNonPublicConstructor.class);
-                }
-            };
+                setMetadataClass(ArgType1.class);
+                addImplementation("acl",
+                    PublicAclNonPublicConstructor.class);
+            }
         }, "no constructor found for class ");
     }
 
     @Test
     public void registeringConstructorWithBadArgumentTypesFails()
     {
-        assertThrows(InvalidAttributeProviderException.class, () -> {
-            new FileAttributesFactory()
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
+        {
             {
-                {
-                    setMetadataClass(Object.class);
-                    addImplementation("acl", PublicAcl.class);
-                }
-            };
+                setMetadataClass(Object.class);
+                addImplementation("acl", PublicAcl.class);
+            }
         }, "no constructor found for class ");
     }
 
@@ -128,7 +118,7 @@ public final class FileAttributesFactoryTest
     public void canGenerateProviderInstanceOfExactAttributeClassName()
         throws IOException
     {
-        final FileAttributesFactory factory
+        FileAttributesFactory factory
             = new FileAttributesFactory()
         {
             {
@@ -137,7 +127,7 @@ public final class FileAttributesFactoryTest
             }
         };
 
-        final AclFileAttributeView view
+        AclFileAttributeView view
             = factory.getFileAttributeView(AclFileAttributeView.class,
                 mock(ArgType1.class));
 
@@ -150,7 +140,7 @@ public final class FileAttributesFactoryTest
     public void canReturnSubclassOfRequiredAttributeViewClass()
         throws IOException
     {
-        final FileAttributesFactory factory
+        FileAttributesFactory factory
             = new FileAttributesFactory()
         {
             {
@@ -159,7 +149,7 @@ public final class FileAttributesFactoryTest
             }
         };
 
-        final FileOwnerAttributeView view
+        FileOwnerAttributeView view
             = factory.getFileAttributeView(FileOwnerAttributeView.class,
                 mock(ArgType1.class));
 
@@ -170,7 +160,7 @@ public final class FileAttributesFactoryTest
     @Test
     public void attributeProviderExtendingBasicReportsBasicViewSupported()
     {
-        final FileAttributesFactory factory
+        FileAttributesFactory factory
             = new FileAttributesFactory()
         {
             {

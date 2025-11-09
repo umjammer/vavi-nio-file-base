@@ -57,14 +57,14 @@ public abstract class UserDefinedFileAttributesProvider
      */
 
     @Override
-    public int write(final String name, final ByteBuffer src)
+    public int write(String name, ByteBuffer src)
         throws IOException
     {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void delete(final String name)
+    public void delete(String name)
         throws IOException
     {
         throw new ReadOnlyAttributeException();
@@ -75,7 +75,7 @@ public abstract class UserDefinedFileAttributesProvider
      */
 
     @Override
-    public final void setAttributeByName(final String name, final Object value)
+    public final void setAttributeByName(String name, Object value)
         throws IOException
     {
         Objects.requireNonNull(name);
@@ -88,7 +88,7 @@ public abstract class UserDefinedFileAttributesProvider
          * Since ClassCastException can be thrown by .setAttribute(), we can
          * take the risk of the instanceof test and subsequent cast.
          */
-        final ByteBuffer buf = value instanceof  ByteBuffer
+        ByteBuffer buf = value instanceof  ByteBuffer
             ? (ByteBuffer) value
             : ByteBuffer.wrap((byte[]) value);
 
@@ -97,13 +97,13 @@ public abstract class UserDefinedFileAttributesProvider
 
     @Nullable
     @Override
-    public final Object getAttributeByName(final String name)
+    public final Object getAttributeByName(String name)
         throws IOException
     {
         if (!list().contains(Objects.requireNonNull(name)))
             throw new IllegalArgumentException(name + " is undefined");
 
-        final ByteBuffer buf = ByteBuffer.allocate(size(name));
+        ByteBuffer buf = ByteBuffer.allocate(size(name));
         read(name, buf);
         return buf.array();
     }
@@ -113,11 +113,11 @@ public abstract class UserDefinedFileAttributesProvider
     public Map<String, Object> getAllAttributes()
         throws IOException
     {
-        final Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
 
         ByteBuffer buf;
 
-        for (final String name: list()) {
+        for (String name: list()) {
             buf = ByteBuffer.allocate(size(name));
             write(name, buf);
             map.put(name, buf.array());

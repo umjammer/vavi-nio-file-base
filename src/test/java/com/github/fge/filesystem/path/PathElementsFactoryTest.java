@@ -63,10 +63,10 @@ public final class PathElementsFactoryTest
 
     @ParameterizedTest
     @MethodSource("rootAndNamesData")
-    public void rooAndNamesSplitsCorrectly(final String path, final String root,
-        final String names)
+    public void rooAndNamesSplitsCorrectly(String path, String root,
+                                           String names)
     {
-        final String[] ret = factory.rootAndNames(path);
+        String[] ret = factory.rootAndNames(path);
 
         assertThat(ret[0]).as("root is correctly calculated")
             .isEqualTo(root);
@@ -86,14 +86,14 @@ public final class PathElementsFactoryTest
 
     @ParameterizedTest
     @MethodSource("splitNamesData")
-    public void splitNamesWorks(final String input, final String[] names)
+    public void splitNamesWorks(String input, String[] names)
     {
         assertArrayEquals(names, factory.splitNames(input), "names are split correctly");
     }
 
     static Stream<Arguments> normalizeData()
     {
-        final String[] empty = new String[0];
+        String[] empty = new String[0];
 
         return Stream.of(
             arguments(null, empty, empty ),
@@ -114,11 +114,11 @@ public final class PathElementsFactoryTest
 
     @ParameterizedTest
     @MethodSource("normalizeData")
-    public void normalizingWorks(final String root, final String[] orig,
-        final String[] expectedNames)
+    public void normalizingWorks(String root, String[] orig,
+                                 String[] expectedNames)
     {
-        final PathElements elements = new PathElements(root, orig);
-        final PathElements normalized = factory.normalize(elements);
+        PathElements elements = new PathElements(root, orig);
+        PathElements normalized = factory.normalize(elements);
 
         soft.assertThat(normalized).hasRoot(root).hasNames(expectedNames);
     }
@@ -194,17 +194,13 @@ public final class PathElementsFactoryTest
     @Test
     public void relativizingWithDifferentRootsThrowsIAE()
     {
-        final PathElements elements1
+        PathElements elements1
             = new PathElements("/", PathElements.NO_NAMES);
-        final PathElements elements2 = PathElements.EMPTY;
+        PathElements elements2 = PathElements.EMPTY;
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            factory.relativize(elements1, elements2);
-        }, "No exception thrown!");
+        assertThrows(IllegalArgumentException.class, () -> factory.relativize(elements1, elements2), "No exception thrown!");
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            factory.relativize(elements2, elements1);
-        }, "No exception thrown!");
+        assertThrows(IllegalArgumentException.class, () -> factory.relativize(elements2, elements1), "No exception thrown!");
     }
 
     static Stream<Arguments> relativizeData()
@@ -245,13 +241,13 @@ public final class PathElementsFactoryTest
 
     @ParameterizedTest
     @MethodSource("relativizeData")
-    public void relativizeGivesExpectedResults(final String root,
-        final String[] firstNames, final String[] secondNames,
-        final String[] expectedNames)
+    public void relativizeGivesExpectedResults(String root,
+                                               String[] firstNames, String[] secondNames,
+                                               String[] expectedNames)
     {
-        final PathElements first = new PathElements(root, firstNames);
-        final PathElements second = new PathElements(root, secondNames);
-        final PathElements relativized = factory.relativize(first, second);
+        PathElements first = new PathElements(root, firstNames);
+        PathElements second = new PathElements(root, secondNames);
+        PathElements relativized = factory.relativize(first, second);
 
         soft.assertThat(relativized).hasNullRoot().hasNames(expectedNames);
     }
@@ -259,11 +255,9 @@ public final class PathElementsFactoryTest
     @Test
     public void toUriPathRefusesNonAbsolutePath()
     {
-        final PathElements elements = new PathElements(null, stringArray("a"));
+        PathElements elements = new PathElements(null, stringArray("a"));
 
-        Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            factory.toUriPath(null, elements);
-        });
+        Exception e = assertThrows(IllegalArgumentException.class, () -> factory.toUriPath(null, elements));
         assertEquals("elements not absolute", e.getMessage());
     }
 
@@ -281,11 +275,11 @@ public final class PathElementsFactoryTest
 
     @ParameterizedTest
     @MethodSource("toUriPathData")
-    public void toUriPathGivesCorrectResult(final String prefix,
-        final String[] names, final String expected)
+    public void toUriPathGivesCorrectResult(String prefix,
+                                            String[] names, String expected)
     {
-        final PathElements elements = new PathElements("/", names);
-        final String actual = factory.toUriPath(prefix, elements);
+        PathElements elements = new PathElements("/", names);
+        String actual = factory.toUriPath(prefix, elements);
 
         assertEquals(expected, actual, "URI path is correctly generated");
     }
@@ -304,20 +298,20 @@ public final class PathElementsFactoryTest
 
     @ParameterizedTest
     @MethodSource("toStringData")
-    public void toStringWorks(final String root, final String[] names,
-        final String expected)
+    public void toStringWorks(String root, String[] names,
+                              String expected)
     {
-        final PathElements elements = new PathElements(root, names);
+        PathElements elements = new PathElements(root, names);
 
         assertEquals(expected, factory.toString(elements));
     }
 
-    private static String[] stringArray(final String first,
-        final String... other)
+    private static String[] stringArray(String first,
+                                        String... other)
     {
         if (other.length == 0)
             return new String[] { first };
-        final String[] ret = new String[other.length + 1];
+        String[] ret = new String[other.length + 1];
         ret[0] = first;
         System.arraycopy(other, 0, ret, 1, other.length);
         return ret;

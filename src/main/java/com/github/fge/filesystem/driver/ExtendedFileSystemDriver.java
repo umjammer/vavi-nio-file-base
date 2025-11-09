@@ -9,6 +9,8 @@ package com.github.fge.filesystem.driver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.AccessMode;
 import java.nio.file.CopyOption;
@@ -24,7 +26,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileAttribute;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -34,7 +35,8 @@ import com.github.fge.filesystem.exceptions.IsDirectoryException;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
 
 import vavi.nio.file.Util;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -50,8 +52,10 @@ import vavi.util.Debug;
 @ParametersAreNonnullByDefault
 public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriverBase {
 
+    private static final Logger logger = getLogger(ExtendedFileSystemDriver.class.getName());
+
     /** */
-    protected ExtendedFileSystemDriver(final FileStore fileStore, final FileSystemFactoryProvider factoryProvider) {
+    protected ExtendedFileSystemDriver(FileStore fileStore, FileSystemFactoryProvider factoryProvider) {
         super(fileStore, factoryProvider);
     }
 
@@ -72,7 +76,7 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
     protected abstract T getEntry(Path path)throws IOException;
 
     @Override
-    public final InputStream newInputStream(final Path path, final Set<? extends OpenOption> options) throws IOException {
+    public final InputStream newInputStream(Path path, Set<? extends OpenOption> options) throws IOException {
         T entry = getEntry(path);
 
         if (isFolder(entry)) {
@@ -91,7 +95,7 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
     protected abstract InputStream downloadEntry(T entry, Path path, Set<? extends OpenOption> options) throws IOException;
 
     @Override
-    public final OutputStream newOutputStream(final Path path, final Set<? extends OpenOption> options) throws IOException {
+    public final OutputStream newOutputStream(Path path, Set<? extends OpenOption> options) throws IOException {
         try {
             T entry = getEntry(path);
 
@@ -102,9 +106,9 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
                     whenUploadEntryExists(entry, path, options);
                 }
             }
-Debug.println(Level.FINE, "newOutputStream: cause target not exists");
+logger.log(Level.DEBUG, "newOutputStream: cause target not exists");
         } catch (NoSuchFileException e) {
-Debug.println(Level.FINE, "newOutputStream: cause target not found, " + e.getMessage());
+logger.log(Level.DEBUG, "newOutputStream: cause target not found, " + e.getMessage());
         }
 
         T parent = getEntry(path.toAbsolutePath().getParent());
@@ -163,9 +167,9 @@ Debug.println(Level.FINE, "newOutputStream: cause target not found, " + e.getMes
             if (exists(dirEntry)) {
                 throw new FileAlreadyExistsException("dir: "+ dir);
             }
-Debug.println(Level.FINE, "createDirectory: target cause not exists");
+logger.log(Level.DEBUG, "createDirectory: target cause not exists");
         } catch (NoSuchFileException e) {
-Debug.println(Level.FINE, "createDirectory: target cause not found, " + e.getMessage());
+logger.log(Level.DEBUG, "createDirectory: target cause not found, " + e.getMessage());
         }
 
         createDirectoryEntry(dir);
@@ -231,9 +235,9 @@ Debug.println(Level.FINE, "createDirectory: target cause not found, " + e.getMes
                     throw new FileAlreadyExistsException("path: " + target);
                 }
             }
-Debug.println(Level.FINE, "copy: cause target not exists");
+logger.log(Level.DEBUG, "copy: cause target not exists");
         } catch (NoSuchFileException e) {
-Debug.println(Level.FINE, "copy: cause target not found, " + e.getMessage());
+logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
         }
 
         copyEntry(source, target, options);
@@ -262,7 +266,7 @@ Debug.println(Level.FINE, "copy: cause target not found, " + e.getMessage());
     }
 
     @Override
-    public final void move(Path source, Path target, final Set<CopyOption> options) throws IOException {
+    public final void move(Path source, Path target, Set<CopyOption> options) throws IOException {
         try {
             T targetEntry = getEntry(target);
             if (exists(targetEntry)) {
@@ -290,9 +294,9 @@ Debug.println(Level.FINE, "copy: cause target not found, " + e.getMessage());
                 }
                 return;
             }
-            Debug.println(Level.FINE, "move: cause target not exists");
+            logger.log(Level.DEBUG, "move: cause target not exists");
         } catch (NoSuchFileException e) {
-Debug.println(Level.FINE, "move: cause target not found, " + e.getMessage());
+logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
         }
 
         if (source.toAbsolutePath().getParent().equals(target.toAbsolutePath().getParent())) {
@@ -366,7 +370,7 @@ Debug.println(Level.FINE, "move: cause target not found, " + e.getMessage());
      */
     protected void checkAccessEntry(T entry, Path path, AccessMode... modes) throws IOException {
         // TODO: assumed; not a file == directory
-        for (final AccessMode mode : modes) {
+        for (AccessMode mode : modes) {
             if (mode == AccessMode.EXECUTE) {
                 throw new AccessDeniedException(path.toString());
             }

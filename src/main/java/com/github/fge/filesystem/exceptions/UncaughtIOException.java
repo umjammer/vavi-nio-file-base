@@ -38,23 +38,23 @@ public final class UncaughtIOException
     {
     }
 
-    public UncaughtIOException(final String message)
+    public UncaughtIOException(String message)
     {
         super(message);
     }
 
-    public UncaughtIOException(final String message, final Throwable cause)
+    public UncaughtIOException(String message, Throwable cause)
     {
         super(message, cause);
     }
 
-    public UncaughtIOException(final Throwable cause)
+    public UncaughtIOException(Throwable cause)
     {
         super(cause);
     }
 
-    public UncaughtIOException(final String message, final Throwable cause,
-        final boolean enableSuppression, final boolean writableStackTrace)
+    public UncaughtIOException(String message, Throwable cause,
+                               boolean enableSuppression, boolean writableStackTrace)
     {
         super(message, cause, enableSuppression, writableStackTrace);
     }

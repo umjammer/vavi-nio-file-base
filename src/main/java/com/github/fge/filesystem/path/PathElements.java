@@ -76,7 +76,7 @@ public final class PathElements
      * @return a single-name, no root instance
      */
     @Nonnull
-    static PathElements singleton(final String name)
+    static PathElements singleton(String name)
     {
         return new PathElements(null, new String[] { name });
     }
@@ -91,7 +91,7 @@ public final class PathElements
      * @param names the name elements
      */
     @SuppressWarnings("MethodCanBeVariableArityMethod")
-    PathElements(@Nullable final String root, final String[] names)
+    PathElements(@Nullable String root, String[] names)
     {
         this.root = root;
         //noinspection AssignmentToCollectionOrArrayFieldFromParameter
@@ -131,12 +131,12 @@ public final class PathElements
     @Nullable
     PathElements parent()
     {
-        final int length = names.length;
+        int length = names.length;
         if (length == 0)
             return null;
         if (length == 1 && root == null)
             return null;
-        final String[] newNames = length  == 1 ? NO_NAMES
+        String[] newNames = length  == 1 ? NO_NAMES
             : Arrays.copyOf(names, length - 1);
         return new PathElements(root, newNames);
     }
@@ -153,7 +153,7 @@ public final class PathElements
     @Nullable
     PathElements lastName()
     {
-        final int length = names.length;
+        int length = names.length;
         return length == 0 ? null : singleton(names[length - 1]);
     }
 
@@ -169,27 +169,23 @@ public final class PathElements
     @Override
     public Iterator<PathElements> iterator()
     {
-        return new Iterator<PathElements>()
-        {
+        return new Iterator<>() {
             int index = 0;
 
             @Override
-            public boolean hasNext()
-            {
+            public boolean hasNext() {
                 return index < names.length;
             }
 
             @Override
-            public PathElements next()
-            {
+            public PathElements next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
                 return singleton(names[index++]);
             }
 
             @Override
-            public void remove()
-            {
+            public void remove() {
                 throw new UnsupportedOperationException();
             }
         };
@@ -202,7 +198,7 @@ public final class PathElements
     }
 
     @Override
-    public boolean equals(@Nullable final Object obj)
+    public boolean equals(@Nullable Object obj)
     {
         if (obj == null)
             return false;
@@ -210,7 +206,7 @@ public final class PathElements
             return true;
         if (getClass() != obj.getClass())
             return false;
-        final PathElements other = (PathElements) obj;
+        PathElements other = (PathElements) obj;
         return Objects.equals(root, other.root)
             && Arrays.equals(names, other.names);
     }

@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -40,12 +41,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
- * Test01.
+ * TestCase.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2019/07/11 umjammer initial version <br>
  */
-class Test01 {
+class TestCase {
 
     static Path tmp = Paths.get("tmp");
 
@@ -54,6 +55,14 @@ class Test01 {
         if (!Files.exists(tmp)) {
             Files.createDirectory(tmp);
         }
+    }
+
+    @Test
+    @Disabled("just for NFD filename creation")
+    void test0() throws Exception {
+        Path path = Path.of("src/test/resources/パンダ.txt");
+        String normalized = Normalizer.normalize(path.getFileName().toString(), Form.NFD);
+        Files.copy(path, Path.of("tmp", normalized));
     }
 
     @Test
@@ -257,7 +266,7 @@ class Test01 {
         for (int i = 0; i < 256; i++) {
             b[i] = (byte) i;
         }
-        Path tmp = Test01.tmp.resolve("test07_1.dat");
+        Path tmp = TestCase.tmp.resolve("test07_1.dat");
         Files.write(tmp, b, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
         FileInputStream fis = new FileInputStream(tmp.toFile());
         SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(fis) {
@@ -300,7 +309,7 @@ class Test01 {
 
     @Test
     void test08_1() throws Exception {
-        Path tmp = Test01.tmp.resolve("test08_1.dat");
+        Path tmp = TestCase.tmp.resolve("test08_1.dat");
         FileOutputStream fos = new FileOutputStream(tmp.toFile());
         SeekableByteChannel sbc = new Util.SeekableByteChannelForWriting(fos) {
             @Override

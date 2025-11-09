@@ -45,12 +45,12 @@ public class PathMatcherFactory
         registerPathMatcher("regex", RegexPathMatcher.class);
     }
 
-    public final PathMatcher getPathMatcher(final String name, final String arg)
+    public final PathMatcher getPathMatcher(String name, String arg)
     {
         Objects.requireNonNull(name);
         Objects.requireNonNull(arg);
 
-        final MethodHandle handle = handleMap.get(name);
+        MethodHandle handle = handleMap.get(name);
         if (handle == null)
             throw new UnsupportedOperationException();
 
@@ -63,14 +63,14 @@ public class PathMatcherFactory
         }
     }
 
-    protected final void registerPathMatcher(@Nonnull final String name,
-        @Nonnull final Class<? extends PathMatcher> matcherClass)
+    protected final void registerPathMatcher(@Nonnull String name,
+        @Nonnull Class<? extends PathMatcher> matcherClass)
     {
         Objects.requireNonNull(name);
         Objects.requireNonNull(matcherClass);
 
-        final MethodHandle handle;
-        final MethodType type;
+        MethodHandle handle;
+        MethodType type;
 
         try {
             handle = LOOKUP.findConstructor(matcherClass, CONSTRUCTOR_TYPE);

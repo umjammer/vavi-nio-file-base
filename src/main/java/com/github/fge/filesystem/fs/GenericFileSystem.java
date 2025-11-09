@@ -80,16 +80,16 @@ public final class GenericFileSystem
      * @param driver the filesystem driver
      * @param provider the filesystem provider
      */
-    public GenericFileSystem(final URI uri,
-        final FileSystemRepository repository,
-        final FileSystemDriver driver, final FileSystemProvider provider)
+    public GenericFileSystem(URI uri,
+                             FileSystemRepository repository,
+                             FileSystemDriver driver, FileSystemProvider provider)
     {
         this.uri = Objects.requireNonNull(uri);
         this.repository = Objects.requireNonNull(repository);
         this.driver = Objects.requireNonNull(driver);
         this.provider = Objects.requireNonNull(provider);
 
-        final FileSystemFactoryProvider factoryProvider
+        FileSystemFactoryProvider factoryProvider
             = repository.getFactoryProvider();
         pathElementsFactory = factoryProvider.getPathElementsFactory();
         separator = pathElementsFactory.getSeparator();
@@ -173,9 +173,9 @@ public final class GenericFileSystem
     @Override
     public Set<String> supportedFileAttributeViews()
     {
-        final Set<String> set = new HashSet<>();
+        Set<String> set = new HashSet<>();
 
-        for (final String name: attributesFactory.getDescriptors().keySet())
+        for (String name: attributesFactory.getDescriptors().keySet())
             if (attributesFactory.supportsFileAttributeView(name))
                 set.add(name);
 
@@ -184,29 +184,29 @@ public final class GenericFileSystem
 
     @SuppressWarnings("OverloadedVarargsMethod")
     @Override
-    public Path getPath(final String first, final String... more)
+    public Path getPath(String first, String... more)
     {
         if (more.length == 0)
             return new GenericPath(this, pathElementsFactory,
                 pathElementsFactory.toPathElements(first));
 
-        final StringBuilder sb = new StringBuilder(first);
+        StringBuilder sb = new StringBuilder(first);
 
-        for (final String s: more)
+        for (String s: more)
             if (!s.isEmpty())
                 sb.append(separator).append(s);
 
-        final PathElements elements
+        PathElements elements
             = pathElementsFactory.toPathElements(sb.toString());
         return new GenericPath(this, pathElementsFactory, elements);
     }
 
     @Override
-    public PathMatcher getPathMatcher(final String syntaxAndPattern)
+    public PathMatcher getPathMatcher(String syntaxAndPattern)
     {
-        final int index = Objects.requireNonNull(syntaxAndPattern).indexOf(':');
+        int index = Objects.requireNonNull(syntaxAndPattern).indexOf(':');
 
-        final String type, arg;
+        String type, arg;
 
         if (index == -1) {
             type = "glob";

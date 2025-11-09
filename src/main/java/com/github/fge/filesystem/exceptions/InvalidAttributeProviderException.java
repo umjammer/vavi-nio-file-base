@@ -34,18 +34,18 @@ public final class InvalidAttributeProviderException
     {
     }
 
-    public InvalidAttributeProviderException(final String s)
+    public InvalidAttributeProviderException(String s)
     {
         super(s);
     }
 
-    public InvalidAttributeProviderException(final String message,
-        final Throwable cause)
+    public InvalidAttributeProviderException(String message,
+                                             Throwable cause)
     {
         super(message, cause);
     }
 
-    public InvalidAttributeProviderException(final Throwable cause)
+    public InvalidAttributeProviderException(Throwable cause)
     {
         super(cause);
     }

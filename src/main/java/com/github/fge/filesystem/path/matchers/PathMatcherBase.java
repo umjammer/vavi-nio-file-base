@@ -33,7 +33,7 @@ import java.util.Objects;
 public abstract class PathMatcherBase
     implements PathMatcher
 {
-    protected abstract boolean match(final String input);
+    protected abstract boolean match(String input);
 
     /**
      * Tells if given path matches this matcher's pattern.
@@ -43,7 +43,7 @@ public abstract class PathMatcherBase
      * matcher's pattern
      */
     @Override
-    public final boolean matches(@Nonnull final Path path)
+    public final boolean matches(@Nonnull Path path)
     {
         return match(Objects.requireNonNull(path).toString());
     }

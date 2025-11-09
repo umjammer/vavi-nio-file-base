@@ -35,7 +35,7 @@ import vavi.nio.file.Util;
 public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver<T> {
 
     /** */
-    protected CachedFileSystemDriver(final FileStore fileStore, final FileSystemFactoryProvider factoryProvider) {
+    protected CachedFileSystemDriver(FileStore fileStore, FileSystemFactoryProvider factoryProvider) {
         super(fileStore, factoryProvider);
     }
 
@@ -68,7 +68,7 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
      * @see "cache#cacheEntry(Path)"
      */
     protected T getEntry(T parentEntry, Path path) throws IOException {
-//Debug.println("search: " + path);
+//logger.log(Level.DEBUG, "search: " + path);
         for (int i = 0; i < path.getNameCount(); i++) {
             Path name = path.getName(i);
             Path sub = path.subpath(0, i + 1);
@@ -79,20 +79,21 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
             if (found.isPresent()) {
                 continue;
             } else {
-//Debug.println("not found: " + path);
+//logger.log(Level.DEBUG, "not found: " + path);
                 return null;
             }
         }
-//Debug.println("found: " + path + ", " + cache.getFile(path));
+//logger.log(Level.DEBUG, "found: " + path + ", " + cache.getFile(path));
         return cache.getFile(path);
     }
 
     /** cache for filenames */
-    protected Cache<T> cache = new Cache<T>() {
+    protected Cache<T> cache = new Cache<>() {
         /**
-         * @see ExtendedFileSystemDriverBase#ignoreAppleDouble
          * @throws NoSuchFileException must be thrown when the path is not found in this cache
+         * @see ExtendedFileSystemDriverBase#ignoreAppleDouble
          */
+        @Override
         public T getEntry(Path path) throws IOException {
             if (containsFile(path)) {
                 return getFile(path);
@@ -140,11 +141,11 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
 
         List<Path> list = new ArrayList<>();
         if (useCache && cache.containsFolder(dir)) {
-//Debug.println("cache list: " + cache.getFolder(dir));
+//logger.log(Level.DEBUG, "cache list: " + cache.getFolder(dir));
             list = cache.getFolder(dir);
         } else {
             List<T> children = getDirectoryEntries(entry, dir);
-            for (final T child : children) {
+            for (T child : children) {
                 Path childPath = dir.resolve(getFilenameString(child));
                 list.add(childPath);
                 cache.putFile(childPath, child);
@@ -171,7 +172,7 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
     }
 
     @Override
-    protected void copyEntry(Path source, Path target, final Set<CopyOption> options) throws IOException {
+    protected void copyEntry(Path source, Path target, Set<CopyOption> options) throws IOException {
         T sourceEntry = getEntry(source);
         T targetParentEntry = getEntry(target.toAbsolutePath().getParent());
         if (!isFolder(sourceEntry)) {
@@ -187,7 +188,7 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
     }
 
     @Override
-    protected void moveEntry(final Path source, final Path target, boolean targetIsParent) throws IOException {
+    protected void moveEntry(Path source, Path target, boolean targetIsParent) throws IOException {
         T sourceEntry = cache.getEntry(source);
         T targetParentEntry = cache.getEntry(targetIsParent ? target : target.toAbsolutePath().getParent());
         if (!isFolder(sourceEntry)) {
