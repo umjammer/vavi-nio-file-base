@@ -18,12 +18,6 @@
 
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.GroupPrincipal;
@@ -37,6 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Provider for the {@code "posix"} file attribute view
@@ -51,159 +52,125 @@ import java.util.Set;
  */
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
-public abstract class PosixFileAttributesProvider
-    extends FileAttributesProvider
-    implements PosixFileAttributeView, PosixFileAttributes
-{
-    protected static final FileTime UNIX_EPOCH = FileTime.fromMillis(0L);
-    protected static final Set<PosixFilePermission> DEFAULT_OTHER_PERMS
-        = PosixFilePermissions.fromString("rw-r--r--");
-    protected static final Set<PosixFilePermission> DEFAULT_DIRECTORY_PERMS
-        = PosixFilePermissions.fromString("rwxr-xr-x");
+public abstract class PosixFileAttributesProvider extends FileAttributesProvider
+        implements PosixFileAttributeView, PosixFileAttributes {
 
-    protected PosixFileAttributesProvider()
-        throws IOException
-    {
+    protected static final FileTime UNIX_EPOCH = FileTime.fromMillis(0L);
+    protected static final Set<PosixFilePermission> DEFAULT_OTHER_PERMS =
+            PosixFilePermissions.fromString("rw-r--r--");
+    protected static final Set<PosixFilePermission> DEFAULT_DIRECTORY_PERMS =
+            PosixFilePermissions.fromString("rwxr-xr-x");
+
+    protected PosixFileAttributesProvider() throws IOException {
         super("posix");
     }
 
-    /*
-     * Attributes
-     */
+    //
+    // Attributes
+    //
+
     @Override
-    public final PosixFileAttributes readAttributes()
-        throws IOException
-    {
+    public final PosixFileAttributes readAttributes() throws IOException {
         return this;
     }
 
-    /*
-     * Read
-     */
+    //
+    // Read
+    //
+
     @Override
-    public FileTime lastModifiedTime()
-    {
+    public FileTime lastModifiedTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public FileTime lastAccessTime()
-    {
+    public FileTime lastAccessTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public FileTime creationTime()
-    {
+    public FileTime creationTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public boolean isSymbolicLink()
-    {
+    public boolean isSymbolicLink() {
         return false;
     }
 
     @Override
-    public boolean isOther()
-    {
+    public boolean isOther() {
         return false;
     }
 
     @Override
-    public Object fileKey()
-    {
+    public Object fileKey() {
         return null;
     }
 
     @Override
-    public Set<PosixFilePermission> permissions()
-    {
+    public Set<PosixFilePermission> permissions() {
         return isRegularFile() ? DEFAULT_OTHER_PERMS : DEFAULT_DIRECTORY_PERMS;
     }
 
-    /*
-     * Write
-     */
+    //
+    // Write
+    //
+
     @Override
     public void setTimes(@Nullable FileTime lastModifiedTime,
-        @Nullable FileTime lastAccessTime,
-        @Nullable FileTime createTime)
-        throws IOException
-    {
+                         @Nullable FileTime lastAccessTime,
+                         @Nullable FileTime createTime) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setOwner(UserPrincipal owner)
-        throws IOException
-    {
+    public void setOwner(UserPrincipal owner) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setGroup(GroupPrincipal group)
-        throws IOException
-    {
+    public void setGroup(GroupPrincipal group) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setPermissions(Set<PosixFilePermission> perms)
-        throws IOException
-    {
+    public void setPermissions(Set<PosixFilePermission> perms) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
-    /*
-     * By name
-     */
+    //
+    // By name
+    //
+
     @Override
-    public void setAttributeByName(String name, Object value)
-        throws IOException
-    {
+    @SuppressWarnings("unchecked")
+    public void setAttributeByName(String name, Object value) throws IOException {
         Objects.requireNonNull(value);
         switch (Objects.requireNonNull(name)) {
             /* basic */
-            case "lastModifiedTime":
-                setTimes((FileTime) value, null, null);
-                break;
-            case "lastAccessTime":
-                setTimes(null, (FileTime) value, null);
-                break;
-            case "creationTime":
-                setTimes(null, null, (FileTime) value);
-                break;
+            case "lastModifiedTime" -> setTimes((FileTime) value, null, null);
+            case "lastAccessTime" -> setTimes(null, (FileTime) value, null);
+            case "creationTime" -> setTimes(null, null, (FileTime) value);
             /* owner */
-            case "owner":
-                setOwner((UserPrincipal) value);
-                break;
+            case "owner" -> setOwner((UserPrincipal) value);
             /* posix */
-            case "group":
-                setGroup((GroupPrincipal) value);
-                break;
-            case "permissions":
-                //noinspection unchecked
-                setPermissions((Set<PosixFilePermission>) value);
-                break;
-            case "size":
-            case "isRegularFile":
-            case "isDirectory":
-            case "isSymbolicLink":
-            case "isOther":
-            case "fileKey":
-                throw new ReadOnlyAttributeException(name);
-            default:
-                throw new NoSuchAttributeException(name);
+            case "group" -> setGroup((GroupPrincipal) value);
+            case "permissions" -> setPermissions((Set<PosixFilePermission>) value);
+            case "size",
+                 "isRegularFile",
+                 "isDirectory",
+                 "isSymbolicLink",
+                 "isOther",
+                 "fileKey" -> throw new ReadOnlyAttributeException(name);
+            default -> throw new NoSuchAttributeException(name);
         }
     }
 
     @SuppressWarnings("OverlyComplexMethod")
     @Nonnull
     @Override
-    public Object getAttributeByName(String name)
-        throws IOException
-    {
+    public Object getAttributeByName(String name) throws IOException {
         return switch (Objects.requireNonNull(name)) {
             /* basic */
             case "lastModifiedTime" -> lastModifiedTime();
@@ -226,9 +193,7 @@ public abstract class PosixFileAttributesProvider
 
     @Nonnull
     @Override
-    public final Map<String, Object> getAllAttributes()
-        throws IOException
-    {
+    public final Map<String, Object> getAllAttributes() throws IOException {
         Map<String, Object> map = new HashMap<>();
 
         map.put("lastModifiedTime", lastModifiedTime());

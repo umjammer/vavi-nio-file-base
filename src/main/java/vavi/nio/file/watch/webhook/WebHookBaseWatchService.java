@@ -6,7 +6,6 @@
 
 package vavi.nio.file.watch.webhook;
 
-import com.github.fge.filesystem.watch.AbstractWatchService;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
@@ -18,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+
+import com.github.fge.filesystem.watch.AbstractWatchService;
 
 import static java.lang.System.getLogger;
 

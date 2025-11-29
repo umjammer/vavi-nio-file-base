@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
-
 import com.github.fge.filesystem.driver.FileSystemDriver;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
 import com.github.fge.filesystem.provider.FileSystemRepository;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,8 +39,9 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public final class GenericFileSystemTest
-{
+
+public final class GenericFileSystemTest {
+
     private final URI uri = URI.create("foo://bar");
 
     private GenericFileSystem fs;
@@ -50,8 +51,7 @@ public final class GenericFileSystemTest
     private FileSystemFactoryProvider factoryProvider;
 
     @BeforeEach
-    public void init()
-    {
+    public void init() {
         factoryProvider = new FileSystemFactoryProvider();
         repository = mock(FileSystemRepository.class);
         when(repository.getFactoryProvider()).thenReturn(factoryProvider);
@@ -61,15 +61,12 @@ public final class GenericFileSystemTest
     }
 
     @Test
-    public void newlyCreatedFileSystemIsOpen()
-    {
+    public void newlyCreatedFileSystemIsOpen() {
         assertTrue(fs.isOpen());
     }
 
     @Test
-    public void closedFileSystemClosesDriverAndUnregistersFromRepository()
-        throws IOException
-    {
+    public void closedFileSystemClosesDriverAndUnregistersFromRepository() throws IOException {
 //        when(driver.getUri()).thenReturn(uri);
         InOrder inOrder = inOrder(repository, driver);
 
@@ -82,9 +79,7 @@ public final class GenericFileSystemTest
     }
 
     @Test
-    public void filesystemIsUnregisteredEvenIfDriverFailsToClose()
-        throws IOException
-    {
+    public void filesystemIsUnregisteredEvenIfDriverFailsToClose() throws IOException {
 //        final URI uri = URI.create("foo://bar");
         IOException exception = new IOException("meh");
 

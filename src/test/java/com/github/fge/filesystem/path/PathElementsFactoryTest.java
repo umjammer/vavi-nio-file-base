@@ -21,13 +21,14 @@ package com.github.fge.filesystem.path;
 import java.util.stream.Stream;
 
 import com.github.fge.filesystem.CustomSoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -35,88 +36,83 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+
 @ExtendWith(SoftAssertionsExtension.class)
-public final class PathElementsFactoryTest
-{
+public final class PathElementsFactoryTest {
+
     private final PathElementsFactory factory = new UnixPathElementsFactory();
 
     @InjectSoftAssertions
     CustomSoftAssertions soft;
 
-    static Stream<Arguments> rootAndNamesData()
-    {
+    static Stream<Arguments> rootAndNamesData() {
         return Stream.of(
-            arguments("", null, "" ),
-            arguments("/", "/", "" ),
-            arguments("//", "/", "" ),
-            arguments("foo/bar", null, "foo/bar" ),
-            arguments("foo/bar/", null, "foo/bar" ),
-            arguments("foo//bar", null, "foo//bar" ),
-            arguments("foo//bar///", null, "foo//bar" ),
-            arguments("/foo/bar", "/", "foo/bar" ),
-            arguments("/foo/bar/", "/", "foo/bar" ),
-            arguments("//foo/bar/", "/", "foo/bar" ),
-            arguments("//foo//bar", "/", "foo//bar" ),
-            arguments("//foo//bar///", "/", "foo//bar")
+                arguments("", null, ""),
+                arguments("/", "/", ""),
+                arguments("//", "/", ""),
+                arguments("foo/bar", null, "foo/bar"),
+                arguments("foo/bar/", null, "foo/bar"),
+                arguments("foo//bar", null, "foo//bar"),
+                arguments("foo//bar///", null, "foo//bar"),
+                arguments("/foo/bar", "/", "foo/bar"),
+                arguments("/foo/bar/", "/", "foo/bar"),
+                arguments("//foo/bar/", "/", "foo/bar"),
+                arguments("//foo//bar", "/", "foo//bar"),
+                arguments("//foo//bar///", "/", "foo//bar")
         );
     }
 
     @ParameterizedTest
     @MethodSource("rootAndNamesData")
     public void rooAndNamesSplitsCorrectly(String path, String root,
-                                           String names)
-    {
+                                           String names) {
         String[] ret = factory.rootAndNames(path);
 
         assertThat(ret[0]).as("root is correctly calculated")
-            .isEqualTo(root);
+                .isEqualTo(root);
         assertThat(ret[1]).as("names are correctly extracted")
-            .isEqualTo(names);
+                .isEqualTo(names);
     }
 
-    static Stream<Arguments> splitNamesData()
-    {
+    static Stream<Arguments> splitNamesData() {
         return Stream.of(
-            arguments("", new String[0]),
-            arguments("a", stringArray("a")),
-            arguments("a/b/c", stringArray("a", "b", "c")),
-            arguments("a//b/c", stringArray("a", "b", "c"))
+                arguments("", new String[0]),
+                arguments("a", stringArray("a")),
+                arguments("a/b/c", stringArray("a", "b", "c")),
+                arguments("a//b/c", stringArray("a", "b", "c"))
         );
     }
 
     @ParameterizedTest
     @MethodSource("splitNamesData")
-    public void splitNamesWorks(String input, String[] names)
-    {
+    public void splitNamesWorks(String input, String[] names) {
         assertArrayEquals(names, factory.splitNames(input), "names are split correctly");
     }
 
-    static Stream<Arguments> normalizeData()
-    {
+    static Stream<Arguments> normalizeData() {
         String[] empty = new String[0];
 
         return Stream.of(
-            arguments(null, empty, empty ),
-            arguments("/", empty, empty ),
-            arguments("/", stringArray("."), empty ),
-            arguments("/", stringArray(".", ".."), stringArray("..") ),
-            arguments(null, stringArray("a", ".", "b"), stringArray("a", "b") ),
-            arguments(null, stringArray("a", ".."), empty ),
-            arguments(null, stringArray("a", "."), stringArray("a") ),
-            arguments(null, stringArray("a", "..", "b"), stringArray("b") ),
-            arguments(null, stringArray("a", "..", "b", ".", "c"), stringArray("b", "c") ),
-            arguments(null, stringArray("..", "a"), stringArray("..", "a") ),
-            arguments(null, stringArray("..", "..", "a"), stringArray("..", "..", "a") ),
-            arguments(null, stringArray("..", "a", ".."), stringArray("..") ),
-            arguments("null", stringArray("..", "..", ".", ".."), stringArray("..", "..", ".."))
+                arguments(null, empty, empty),
+                arguments("/", empty, empty),
+                arguments("/", stringArray("."), empty),
+                arguments("/", stringArray(".", ".."), stringArray("..")),
+                arguments(null, stringArray("a", ".", "b"), stringArray("a", "b")),
+                arguments(null, stringArray("a", ".."), empty),
+                arguments(null, stringArray("a", "."), stringArray("a")),
+                arguments(null, stringArray("a", "..", "b"), stringArray("b")),
+                arguments(null, stringArray("a", "..", "b", ".", "c"), stringArray("b", "c")),
+                arguments(null, stringArray("..", "a"), stringArray("..", "a")),
+                arguments(null, stringArray("..", "..", "a"), stringArray("..", "..", "a")),
+                arguments(null, stringArray("..", "a", ".."), stringArray("..")),
+                arguments("null", stringArray("..", "..", ".", ".."), stringArray("..", "..", ".."))
         );
     }
 
     @ParameterizedTest
     @MethodSource("normalizeData")
     public void normalizingWorks(String root, String[] orig,
-                                 String[] expectedNames)
-    {
+                                 String[] expectedNames) {
         PathElements elements = new PathElements(root, orig);
         PathElements normalized = factory.normalize(elements);
 
@@ -124,41 +120,39 @@ public final class PathElementsFactoryTest
     }
 
     @Test
-    public void resolveWorks()
-    {
+    public void resolveWorks() {
         PathElements first, second, resolved;
 
         first = new PathElements(null, stringArray("foo"));
         second = new PathElements("/", stringArray("bar"));
 
         soft.assertThat(factory.resolve(first, second))
-            .as("second itself is returned if absolute")
-            .isSameAs(second);
+                .as("second itself is returned if absolute")
+                .isSameAs(second);
 
         second = PathElements.EMPTY;
 
         soft.assertThat(factory.resolve(first, second))
-            .as("first is returned if second has no root nor name components")
-            .isSameAs(first);
+                .as("first is returned if second has no root nor name components")
+                .isSameAs(first);
 
         first = new PathElements(null, stringArray("a", "b"));
         second = new PathElements(null, stringArray("c", "d"));
         resolved = new PathElements(null, stringArray("a", "b", "c", "d"));
 
         soft.assertThat(factory.resolve(first, second))
-            .hasSameContentsAs(resolved);
+                .hasSameContentsAs(resolved);
 
         first = new PathElements("/", stringArray("a", "."));
         second = new PathElements(null, stringArray("..", "d"));
         resolved = new PathElements("/", stringArray("a", ".", "..", "d"));
 
         soft.assertThat(factory.resolve(first, second))
-            .hasSameContentsAs(resolved);
+                .hasSameContentsAs(resolved);
     }
 
     @Test
-    public void resolveSiblingWorks()
-    {
+    public void resolveSiblingWorks() {
         PathElements first, second, resolved;
 
         first = new PathElements(null, stringArray("foo"));
@@ -166,36 +160,35 @@ public final class PathElementsFactoryTest
         resolved = factory.resolveSibling(first, second);
 
         soft.assertThat(resolved)
-            .as("if first has no parent, second is returned even if empty")
-            .isSameAs(second);
+                .as("if first has no parent, second is returned even if empty")
+                .isSameAs(second);
 
         second = new PathElements(null, stringArray("bar"));
         resolved = factory.resolveSibling(first, second);
 
         soft.assertThat(resolved)
-            .as("if first has no parent, second is returned")
-            .isSameAs(second);
+                .as("if first has no parent, second is returned")
+                .isSameAs(second);
 
         first = new PathElements("/", stringArray("foo", "bar"));
         second = new PathElements("/", stringArray("bar"));
         resolved = factory.resolveSibling(first, second);
 
         soft.assertThat(resolved)
-            .as("if second is absolute, it is returned")
-            .isSameAs(second);
+                .as("if second is absolute, it is returned")
+                .isSameAs(second);
 
         second = new PathElements(null, stringArray("baz"));
         resolved = factory.resolveSibling(first, second);
 
         soft.assertThat(resolved).hasSameRootAs(first)
-            .hasNames("foo", "baz");
+                .hasNames("foo", "baz");
     }
 
     @Test
-    public void relativizingWithDifferentRootsThrowsIAE()
-    {
+    public void relativizingWithDifferentRootsThrowsIAE() {
         PathElements elements1
-            = new PathElements("/", PathElements.NO_NAMES);
+                = new PathElements("/", PathElements.NO_NAMES);
         PathElements elements2 = PathElements.EMPTY;
 
         assertThrows(IllegalArgumentException.class, () -> factory.relativize(elements1, elements2), "No exception thrown!");
@@ -203,39 +196,38 @@ public final class PathElementsFactoryTest
         assertThrows(IllegalArgumentException.class, () -> factory.relativize(elements2, elements1), "No exception thrown!");
     }
 
-    static Stream<Arguments> relativizeData()
-    {
+    static Stream<Arguments> relativizeData() {
         return Stream.of(
-            arguments(
-                "/",
-                stringArray("a", "b"),
-                stringArray("a", "b"),
-                PathElements.NO_NAMES
-            ),
-            arguments(
-                null,
-                stringArray("a", "b"),
-                stringArray("a", "c"),
-                stringArray("..", "c")
-            ),
-            arguments(
-                "whatever",
-                stringArray("a", "b"),
-                stringArray("a", "b", "c", "d", "e"),
-                stringArray("c", "d", "e")
-            ),
-            arguments(
-                "whatever",
-                stringArray("a", "b", "c", "d", "e"),
-                stringArray("a", "b", "f"),
-                stringArray("..", "..", "..", "f")
-            ),
-            arguments(
-                "whatever",
-                stringArray("a", "b", "f"),
-                stringArray("a", "b", "c", "d", "e"),
-                stringArray("..", "c", "d", "e")
-            )
+                arguments(
+                        "/",
+                        stringArray("a", "b"),
+                        stringArray("a", "b"),
+                        PathElements.NO_NAMES
+                ),
+                arguments(
+                        null,
+                        stringArray("a", "b"),
+                        stringArray("a", "c"),
+                        stringArray("..", "c")
+                ),
+                arguments(
+                        "whatever",
+                        stringArray("a", "b"),
+                        stringArray("a", "b", "c", "d", "e"),
+                        stringArray("c", "d", "e")
+                ),
+                arguments(
+                        "whatever",
+                        stringArray("a", "b", "c", "d", "e"),
+                        stringArray("a", "b", "f"),
+                        stringArray("..", "..", "..", "f")
+                ),
+                arguments(
+                        "whatever",
+                        stringArray("a", "b", "f"),
+                        stringArray("a", "b", "c", "d", "e"),
+                        stringArray("..", "c", "d", "e")
+                )
         );
     }
 
@@ -243,8 +235,7 @@ public final class PathElementsFactoryTest
     @MethodSource("relativizeData")
     public void relativizeGivesExpectedResults(String root,
                                                String[] firstNames, String[] secondNames,
-                                               String[] expectedNames)
-    {
+                                               String[] expectedNames) {
         PathElements first = new PathElements(root, firstNames);
         PathElements second = new PathElements(root, secondNames);
         PathElements relativized = factory.relativize(first, second);
@@ -253,64 +244,58 @@ public final class PathElementsFactoryTest
     }
 
     @Test
-    public void toUriPathRefusesNonAbsolutePath()
-    {
+    public void toUriPathRefusesNonAbsolutePath() {
         PathElements elements = new PathElements(null, stringArray("a"));
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> factory.toUriPath(null, elements));
         assertEquals("elements not absolute", e.getMessage());
     }
 
-    static Stream<Arguments> toUriPathData()
-    {
+    static Stream<Arguments> toUriPathData() {
         return Stream.of(
-            arguments(null, stringArray("a", "b"), "/a/b" ),
-            arguments("/", stringArray("a", "b"), "/a/b"),
-            arguments("/foo", stringArray("a", "b"), "/foo/a/b"),
-            arguments("/foo/", stringArray("a", "b"), "/foo/a/b"),
-            arguments(null, stringArray("..", "..", "a"), "/a"),
-            arguments(null, stringArray("a", ".", "b"), "/a/b")
+                arguments(null, stringArray("a", "b"), "/a/b"),
+                arguments("/", stringArray("a", "b"), "/a/b"),
+                arguments("/foo", stringArray("a", "b"), "/foo/a/b"),
+                arguments("/foo/", stringArray("a", "b"), "/foo/a/b"),
+                arguments(null, stringArray("..", "..", "a"), "/a"),
+                arguments(null, stringArray("a", ".", "b"), "/a/b")
         );
     }
 
     @ParameterizedTest
     @MethodSource("toUriPathData")
     public void toUriPathGivesCorrectResult(String prefix,
-                                            String[] names, String expected)
-    {
+                                            String[] names, String expected) {
         PathElements elements = new PathElements("/", names);
         String actual = factory.toUriPath(prefix, elements);
 
         assertEquals(expected, actual, "URI path is correctly generated");
     }
 
-    static Stream<Arguments> toStringData()
-    {
+    static Stream<Arguments> toStringData() {
         return Stream.of(
-            arguments(null, PathElements.NO_NAMES, "" ),
-            arguments("/", PathElements.NO_NAMES, "/" ),
-            arguments(null, stringArray("foo"), "foo" ),
-            arguments("/", stringArray("foo"), "/foo" ),
-            arguments(null, stringArray("foo", "bar"), "foo/bar" ),
-            arguments("/", stringArray("foo", "bar"), "/foo/bar" )
+                arguments(null, PathElements.NO_NAMES, ""),
+                arguments("/", PathElements.NO_NAMES, "/"),
+                arguments(null, stringArray("foo"), "foo"),
+                arguments("/", stringArray("foo"), "/foo"),
+                arguments(null, stringArray("foo", "bar"), "foo/bar"),
+                arguments("/", stringArray("foo", "bar"), "/foo/bar")
         );
     }
 
     @ParameterizedTest
     @MethodSource("toStringData")
     public void toStringWorks(String root, String[] names,
-                              String expected)
-    {
+                              String expected) {
         PathElements elements = new PathElements(root, names);
 
         assertEquals(expected, factory.toString(elements));
     }
 
     private static String[] stringArray(String first,
-                                        String... other)
-    {
+                                        String... other) {
         if (other.length == 0)
-            return new String[] { first };
+            return new String[] {first};
         String[] ret = new String[other.length + 1];
         ret[0] = first;
         System.arraycopy(other, 0, ret, 1, other.length);

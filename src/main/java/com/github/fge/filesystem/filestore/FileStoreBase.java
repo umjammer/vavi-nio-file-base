@@ -18,14 +18,15 @@
 
 package com.github.fge.filesystem.filestore;
 
-import com.github.fge.filesystem.attributes.FileAttributesFactory;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.Objects;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.attributes.FileAttributesFactory;
+
 
 /**
  * Base implementation of a {@link FileStore}
@@ -44,9 +45,8 @@ import java.util.Objects;
  */
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
-public abstract class FileStoreBase
-    extends FileStore
-{
+public abstract class FileStoreBase extends FileStore {
+
     private final String name;
     private final String type;
     private final boolean readOnly;
@@ -55,14 +55,12 @@ public abstract class FileStoreBase
     /**
      * Main constructor
      *
-     * @param name the name of the file store
-     * @param type the type of the file store
-     * @param factory the associated {@link FileAttributesFactory}
+     * @param name     the name of the file store
+     * @param type     the type of the file store
+     * @param factory  the associated {@link FileAttributesFactory}
      * @param readOnly whether this filestore is read only
      */
-    protected FileStoreBase(String name, String type,
-                            FileAttributesFactory factory, boolean readOnly)
-    {
+    protected FileStoreBase(String name, String type, FileAttributesFactory factory, boolean readOnly) {
         this.readOnly = readOnly;
         this.name = Objects.requireNonNull(name);
         this.type = Objects.requireNonNull(type);
@@ -75,81 +73,63 @@ public abstract class FileStoreBase
      * <p>This constructor assumes that the name and type are the same; apart
      * from that, all arguments are the same as for the other constructor.</p>
      *
-     * @param name the name (and type) of the file store
-     * @param factory the associated {@link FileAttributesFactory}
+     * @param name     the name (and type) of the file store
+     * @param factory  the associated {@link FileAttributesFactory}
      * @param readOnly whether this filestore is read only
      */
-    protected FileStoreBase(String name,
-                            FileAttributesFactory factory, boolean readOnly)
-    {
+    protected FileStoreBase(String name, FileAttributesFactory factory, boolean readOnly) {
         this(name, name, factory, readOnly);
     }
 
     @Override
-    public final String name()
-    {
+    public final String name() {
         return name;
     }
 
     @Override
-    public final String type()
-    {
+    public final String type() {
         return type;
     }
 
     @Override
-    public final boolean isReadOnly()
-    {
+    public final boolean isReadOnly() {
         return readOnly;
     }
 
     @Override
-    public long getTotalSpace()
-        throws IOException
-    {
+    public long getTotalSpace() throws IOException {
         return Long.MAX_VALUE;
     }
 
     @Override
-    public long getUsableSpace()
-        throws IOException
-    {
+    public long getUsableSpace() throws IOException {
         return Long.MAX_VALUE;
     }
 
     @Override
-    public long getUnallocatedSpace()
-        throws IOException
-    {
+    public long getUnallocatedSpace() throws IOException {
         return Long.MAX_VALUE;
     }
 
     @Override
-    public final boolean supportsFileAttributeView(
-        Class<? extends FileAttributeView> type)
-    {
+    public final boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
         // null checks done by the factory
         return factory.supportsFileAttributeView(type);
     }
 
     @Override
-    public final boolean supportsFileAttributeView(String name)
-    {
+    public final boolean supportsFileAttributeView(String name) {
         // null checks done by the factory
         return factory.supportsFileAttributeView(name);
     }
 
     @Override
-    public final <V extends FileStoreAttributeView> V getFileStoreAttributeView(
-        Class<V> type)
-    {
+    public final <V extends FileStoreAttributeView> V getFileStoreAttributeView(Class<V> type) {
         return null;
     }
 
     @Override
-    public final Object getAttribute(String attribute)
-        throws IOException
-    {
+    public final Object getAttribute(String attribute) throws IOException {
         throw new UnsupportedOperationException();
     }
 }

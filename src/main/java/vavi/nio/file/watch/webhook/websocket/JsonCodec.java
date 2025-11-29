@@ -7,7 +7,6 @@
 package vavi.nio.file.watch.webhook.websocket;
 
 import java.io.InputStream;
-
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EncodeException;
@@ -34,6 +33,7 @@ public abstract class JsonCodec {
         public boolean shouldSkipField(FieldAttributes f) {
             return false;
         }
+
         @Override
         public boolean shouldSkipClass(Class<?> clazz) {
             return InputStream.class.equals(clazz);
@@ -41,6 +41,7 @@ public abstract class JsonCodec {
     }).create();
 
     protected static abstract class JsonEncoder<T> implements Encoder.Text<T> {
+
         @Override
         public void init(EndpointConfig config) {
         }

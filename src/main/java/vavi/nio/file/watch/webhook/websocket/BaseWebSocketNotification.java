@@ -6,17 +6,17 @@
 
 package vavi.nio.file.watch.webhook.websocket;
 
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
 import javax.websocket.OnError;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
-import java.io.IOException;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
-import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
 import vavi.nio.file.watch.webhook.Notification;
 
 import static java.lang.System.getLogger;
@@ -99,7 +99,7 @@ logger.log(Level.DEBUG, "WEBSOCKET: close: " + session.getId());
 
             // TODO encapsulate into jsr356
             // https://stackoverflow.com/a/46472909/6102938
-            if (container != null && container instanceof org.eclipse.jetty.util.component.LifeCycle) { 
+            if (container != null && container instanceof org.eclipse.jetty.util.component.LifeCycle) {
                 try {
 logger.log(Level.DEBUG, "WEBSOCKET: stopping jetty's websocket client");
                     ((org.eclipse.jetty.util.component.LifeCycle) container).stop();

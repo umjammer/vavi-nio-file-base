@@ -20,6 +20,7 @@ package com.github.fge.filesystem.exceptions;
 
 import java.nio.file.spi.FileSystemProvider;
 
+
 /**
  * Exception thrown when an attribute does not exist for a given attribute view
  *
@@ -28,25 +29,20 @@ import java.nio.file.spi.FileSystemProvider;
  * methods dealing with reading/writing attributes.</p>
  */
 @SuppressWarnings("UncheckedExceptionClass")
-public final class NoSuchAttributeException
-    extends IllegalArgumentException
-{
-    public NoSuchAttributeException()
-    {
+public final class NoSuchAttributeException extends IllegalArgumentException {
+
+    public NoSuchAttributeException() {
     }
 
-    public NoSuchAttributeException(String s)
-    {
+    public NoSuchAttributeException(String s) {
         super(s);
     }
 
-    public NoSuchAttributeException(String message, Throwable cause)
-    {
+    public NoSuchAttributeException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public NoSuchAttributeException(Throwable cause)
-    {
+    public NoSuchAttributeException(Throwable cause) {
         super(cause);
     }
 }

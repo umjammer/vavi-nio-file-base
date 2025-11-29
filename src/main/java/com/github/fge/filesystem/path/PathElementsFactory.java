@@ -18,15 +18,16 @@
 
 package com.github.fge.filesystem.path;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.URI;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 
 /**
  * Abstract factory for {@link PathElements} instances
@@ -51,8 +52,8 @@ import java.util.regex.Pattern;
  * submit to these methods are normalized.</p>
  */
 @ParametersAreNonnullByDefault
-public abstract class PathElementsFactory
-{
+public abstract class PathElementsFactory {
+
     protected static final String[] NO_NAMES = new String[0];
 
     private static final Pattern SLASHES = Pattern.compile("/+");
@@ -66,21 +67,18 @@ public abstract class PathElementsFactory
      * Constructor
      *
      * @param rootSeparator the separator to insert between the root component,
-     * if any, and the first name element, if any
-     * @param separator the separator to insert between two name elements
-     * @param parentToken a canonical path token to represent the parent of the
-     * current path
+     *                      if any, and the first name element, if any
+     * @param separator     the separator to insert between two name elements
+     * @param parentToken   a canonical path token to represent the parent of the
+     *                      current path
      */
-    protected PathElementsFactory(String rootSeparator,
-                                  String separator, String parentToken)
-    {
+    protected PathElementsFactory(String rootSeparator, String separator, String parentToken) {
         this.rootSeparator = rootSeparator;
         this.separator = separator;
         this.parentToken = parentToken;
     }
 
-    public final String getSeparator()
-    {
+    public final String getSeparator() {
         return separator;
     }
 
@@ -124,7 +122,6 @@ public abstract class PathElementsFactory
      *
      * @param name the name to check
      * @return true if the name represents the current directory
-     *
      * @see #normalize(PathElements)
      */
     // TODO: is it necessary? Can we have filesystems with more than one
@@ -136,7 +133,6 @@ public abstract class PathElementsFactory
      *
      * @param name the name to check
      * @return true if the name represents the parent directory
-     *
      * @see #normalize(PathElements)
      */
     // TODO: is it necessary? Can we have filesystems with more than one
@@ -148,7 +144,6 @@ public abstract class PathElementsFactory
      *
      * @param pathElements the instance to check
      * @return true if the instance is an absolute path
-     *
      * @see Path#isAbsolute()
      */
     protected abstract boolean isAbsolute(PathElements pathElements);
@@ -161,23 +156,20 @@ public abstract class PathElementsFactory
      * @param path the string to convert
      * @return a new {@link PathElements} instance
      * @throws InvalidPathException one name element is invalid
-     *
      * @see #rootAndNames(String)
      * @see #isValidName(String)
      */
     @Nonnull
-    public final PathElements toPathElements(String path)
-    {
+    public final PathElements toPathElements(String path) {
         String[] rootAndNames = rootAndNames(path);
         String root = rootAndNames[0];
         String namesOnly = rootAndNames[1];
 
         String[] names = splitNames(namesOnly);
 
-        for (String name: names)
+        for (String name : names)
             if (!isValidName(name))
-                throw new InvalidPathException(path,
-                    "invalid path element: " + name);
+                throw new InvalidPathException(path, "invalid path element: " + name);
 
         return new PathElements(root, names);
     }
@@ -187,14 +179,12 @@ public abstract class PathElementsFactory
      *
      * @param elements the instance to normalize
      * @return a new, normalized instance
-     *
      * @see #isSelf(String)
      * @see #isParent(String)
      * @see Path#normalize()
      */
     @Nonnull
-    protected final PathElements normalize(PathElements elements)
-    {
+    protected final PathElements normalize(PathElements elements) {
         String[] names = elements.names;
         int length = names.length;
         String[] newNames = new String[length];
@@ -202,34 +192,27 @@ public abstract class PathElementsFactory
         int dstIndex = 0;
         boolean seenRegularName = false;
 
-        for (String name: names) {
-            /*
-             * Just skip self names
-             */
+        for (String name : names) {
+            // Just skip self names
             if (isSelf(name))
                 continue;
-            /*
-             * Copy over regular names, and say that we have seen such a token
-             */
+            // Copy over regular names, and say that we have seen such a token
             if (!isParent(name)) {
                 newNames[dstIndex++] = name;
                 seenRegularName = true;
                 continue;
             }
-            /*
-             * Parent token... If we have seen a regular token already _and_
-             * the destination array contains at least one element, decrease
-             * the destination index; otherwise copy it into the destination
-             * array.
-             */
+            // Parent token... If we have seen a regular token already _and_
+            // the destination array contains at least one element, decrease
+            // the destination index; otherwise copy it into the destination
+            // array.
             if (seenRegularName && dstIndex > 0)
                 dstIndex--;
             else
                 newNames[dstIndex++] = name;
         }
 
-        return new PathElements(elements.root,
-            dstIndex == 0 ? NO_NAMES : Arrays.copyOf(newNames, dstIndex));
+        return new PathElements(elements.root, dstIndex == 0 ? NO_NAMES : Arrays.copyOf(newNames, dstIndex));
     }
 
     /**
@@ -258,16 +241,13 @@ public abstract class PathElementsFactory
      *     UnsupportedOperationException}.</li>
      * </ul>
      *
-     * @param first the path performing the operation
+     * @param first  the path performing the operation
      * @param second the path on which the operation is performed
      * @return the resulting path
-     *
      * @see Path#resolve(Path)
      */
     @Nonnull
-    protected final PathElements resolve(PathElements first,
-                                         PathElements second)
-    {
+    protected final PathElements resolve(PathElements first, PathElements second) {
         if (isAbsolute(second))
             return second;
 
@@ -283,8 +263,7 @@ public abstract class PathElementsFactory
         if (secondLen == 0)
             return first;
 
-        String[] newNames
-            = Arrays.copyOf(firstNames, firstLen + secondLen);
+        String[] newNames = Arrays.copyOf(firstNames, firstLen + secondLen);
         System.arraycopy(secondNames, 0, newNames, firstLen, secondLen);
 
         return new PathElements(first.root, newNames);
@@ -308,14 +287,12 @@ public abstract class PathElementsFactory
      *     PathElements#EMPTY empty path} if parent is null.</li>
      * </ul>
      *
-     * @param first the path performing the operation
+     * @param first  the path performing the operation
      * @param second the path on which the operation is performed
      * @return the resulting path
      */
     @Nonnull
-    protected final PathElements resolveSibling(PathElements first,
-                                                PathElements second)
-    {
+    protected final PathElements resolveSibling(PathElements first, PathElements second) {
         if (isAbsolute(second))
             return second;
 
@@ -325,9 +302,7 @@ public abstract class PathElementsFactory
 
         PathElements firstParent = first.parent();
 
-        /*
-         * Note: agrees with native paths
-         */
+        // Note: agrees with native paths
         if (firstParent == null)
             return second;
 
@@ -345,21 +320,16 @@ public abstract class PathElementsFactory
      * and they are not equal, an {@link IllegalArgumentException} is thrown
      * unconditionally.</p>
      *
-     * @param first the path performing the operation
+     * @param first  the path performing the operation
      * @param second the path on which the operation is performed
      * @return the resulting path
-     *
      * @see Path#relativize(Path)
      */
     @Nonnull
-    protected final PathElements relativize(PathElements first,
-                                            PathElements second)
-    {
-        /*
-         * FIXME: javadoc says that if both have a root component then it is
-         * implementation dependent; we throw IAE unconditionally here. As
-         * Objects.equals() accounts for null, we are OK.
-         */
+    protected final PathElements relativize(PathElements first, PathElements second) {
+        // FIXME javadoc says that if both have a root component then it is
+        //  implementation dependent; we throw IAE unconditionally here. As
+        //  Objects.equals() accounts for null, we are OK.
         if (!Objects.equals(first.root, second.root))
             throw new IllegalArgumentException();
 
@@ -371,50 +341,38 @@ public abstract class PathElementsFactory
 
         int minLen = Math.min(firstLen, secondLen);
 
-        /*
-         * Start by skipping the common elements at the beginning of both name
-         * elements. We save the index since we will have to use it later.
-         */
+        // Start by skipping the common elements at the beginning of both name
+        // elements. We save the index since we will have to use it later.
         int srcIndex;
 
         for (srcIndex = 0; srcIndex < minLen; srcIndex++)
             if (!firstNames[srcIndex].equals(secondNames[srcIndex]))
                 break;
 
-        /*
-         * The resulting name elements array will always have the length of
-         * both the original name arrays minus twice the number of common
-         * elements.
-         */
+        // The resulting name elements array will always have the length of
+        // both the original name arrays minus twice the number of common
+        // elements.
         int newNamesLength = firstLen + secondLen - 2 * srcIndex;
 
-        /*
-         * We can immediately return if the new length is 0: this means that
-         * both name arrays are exhausted, which in turns means that the paths
-         * are the same. In this case, as per the docs, return an empty path.
-         */
+        // We can immediately return if the new length is 0: this means that
+        // both name arrays are exhausted, which in turns means that the paths
+        // are the same. In this case, as per the docs, return an empty path.
 
         if (newNamesLength == 0)
             return PathElements.EMPTY;
 
         String[] newNames = new String[newNamesLength];
 
-        /*
-         * Where to insert in the new names array
-         */
+        // Where to insert in the new names array
         int dstIndex = 0;
 
-        /*
-         * Since all common elements to both name elements have been exhausted,
-         * the first step after that is to insert parent tokens into the result
-         * array while there are still elements in the first array.
-         */
+        // Since all common elements to both name elements have been exhausted,
+        // the first step after that is to insert parent tokens into the result
+        // array while there are still elements in the first array.
         for (int len = srcIndex; len < firstLen; len++)
             newNames[dstIndex++] = parentToken;
 
-        /*
-         * Finally we need to insert all remaining tokens of the second array.
-         */
+        // Finally we need to insert all remaining tokens of the second array.
         for (int len = srcIndex; len < secondLen; len++)
             newNames[dstIndex++] = secondNames[len];
 
@@ -431,8 +389,7 @@ public abstract class PathElementsFactory
      * @return a string representation
      */
     @Nonnull
-    protected final String toString(PathElements elements)
-    {
+    protected final String toString(PathElements elements) {
         StringBuilder sb = new StringBuilder();
 
         boolean hasRoot = elements.root != null;
@@ -472,16 +429,13 @@ public abstract class PathElementsFactory
      *
      * <p>Trailing slashes, if any, are removed.</p>
      *
-     * @param prefix the URI path prefix (may be null)
+     * @param prefix   the URI path prefix (may be null)
      * @param elements the path elements
      * @return a raw (unencoded) path suitable for use in a URI
-     *
      * @see URI
      */
     @Nonnull
-    protected final String toUriPath(@Nullable String prefix,
-        PathElements elements)
-    {
+    protected final String toUriPath(@Nullable String prefix, PathElements elements) {
         if (!isAbsolute(elements))
             throw new IllegalArgumentException("elements not absolute");
 
@@ -495,15 +449,12 @@ public abstract class PathElementsFactory
         if (normalized.root != null)
             sb.append('/').append(normalized.root);
 
-        /*
-         * Since the path elements are normalized, the only parents we can see
-         * are at the beginning.
-         */
-        for (String name: names)
+        // Since the path elements are normalized, the only parents we can see
+        // are at the beginning.
+        for (String name : names)
             if (!isParent(name))
                 sb.append('/').append(name);
 
-        return TRAILING_SLASHES.matcher(SLASHES.matcher(sb).replaceAll("/"))
-            .replaceAll("");
+        return TRAILING_SLASHES.matcher(SLASHES.matcher(sb).replaceAll("/")).replaceAll("");
     }
 }

@@ -26,12 +26,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CacheTest {
 
     static class HackedCache extends Cache<String> {
+
         @Override
         public String getEntry(Path path) throws IOException {
             return null;
         }
-        public Map<Path, String> getEntryCache() { return entryCache; }
-        public Map<Path, List<Path>> getFolderCache() { return folderCache; }
+
+        public Map<Path, String> getEntryCache() {
+            return entryCache;
+        }
+
+        public Map<Path, List<Path>> getFolderCache() {
+            return folderCache;
+        }
     }
 
     @Test

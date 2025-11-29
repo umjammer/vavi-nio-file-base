@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.github.fge.filesystem.attributes.FileAttributesFactory;
 import com.github.fge.filesystem.attributes.provider.BasicFileAttributesProvider;
 import com.github.fge.filesystem.driver.FileSystemDriver;
 import com.github.fge.filesystem.options.FileSystemOptionsFactory;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -31,13 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class FileSystemRepositoryBaseTest {
 
     private class MyFileSystemRepository extends FileSystemRepositoryBase {
+
         public MyFileSystemRepository(String scheme, FileSystemFactoryProvider factoryProvider) {
             super(scheme, factoryProvider);
         }
+
         @Override
         protected FileSystemDriver createDriver(URI uri, Map<String, ?> env) throws IOException {
             return null;
         }
+
         @Override
         public Map<String, String> getParamsMap(URI uri) {
             return super.getParamsMap(uri);
@@ -45,17 +48,21 @@ public class FileSystemRepositoryBaseTest {
     }
 
     public static class MyBasicFileAttributesProvider extends BasicFileAttributesProvider {
+
         public MyBasicFileAttributesProvider(Object entry) throws IOException {
             super();
         }
+
         @Override
         public boolean isRegularFile() {
             return false;
         }
+
         @Override
         public boolean isDirectory() {
             return false;
         }
+
         @Override
         public long size() {
             return 0;

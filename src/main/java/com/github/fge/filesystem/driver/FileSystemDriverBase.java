@@ -18,15 +18,6 @@
 
 package com.github.fge.filesystem.driver;
 
-import com.github.fge.filesystem.attributes.FileAttributesFactory;
-import com.github.fge.filesystem.attributes.provider.FileAttributesProvider;
-import com.github.fge.filesystem.options.FileSystemOptionsFactory;
-import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
-import com.github.fge.filesystem.exceptions.UncaughtIOException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.SeekableByteChannel;
@@ -46,6 +37,16 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.attributes.FileAttributesFactory;
+import com.github.fge.filesystem.attributes.provider.FileAttributesProvider;
+import com.github.fge.filesystem.exceptions.UncaughtIOException;
+import com.github.fge.filesystem.options.FileSystemOptionsFactory;
+import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
+
 
 /**
  * A {@link FileSystemDriver} with some reasonable defaults
@@ -65,9 +66,8 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("OverloadedVarargsMethod")
 @ParametersAreNonnullByDefault
-public abstract class FileSystemDriverBase
-    implements FileSystemDriver
-{
+public abstract class FileSystemDriverBase implements FileSystemDriver {
+
     private static final Pattern COMMA = Pattern.compile(",");
 
     private final FileStore fileStore;
@@ -77,8 +77,7 @@ public abstract class FileSystemDriverBase
     protected final FileSystemOptionsFactory optionsFactory;
 
     protected FileSystemDriverBase(FileStore fileStore,
-                                   FileSystemFactoryProvider factoryProvider)
-    {
+                                   FileSystemFactoryProvider factoryProvider) {
         attributesFactory = factoryProvider.getAttributesFactory();
         optionsFactory = factoryProvider.getOptionsFactory();
         this.fileStore = Objects.requireNonNull(fileStore);
@@ -86,43 +85,35 @@ public abstract class FileSystemDriverBase
 
     @Nonnull
     @Override
-    public final FileStore getFileStore()
-    {
+    public final FileStore getFileStore() {
         return fileStore;
     }
 
     @SuppressWarnings("DesignForExtension")
     @Nonnull
     @Override
-    public UserPrincipalLookupService getUserPrincipalLookupService()
-    {
+    public UserPrincipalLookupService getUserPrincipalLookupService() {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("DesignForExtension")
     @Nonnull
     @Override
-    public WatchService newWatchService()
-    {
+    public WatchService newWatchService() {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("DesignForExtension")
     @Nonnull
     @Override
-    public SeekableByteChannel newByteChannel(Path path,
-                                              Set<? extends OpenOption> options,
-                                              FileAttribute<?>... attrs)
-        throws IOException
-    {
+    public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs)
+            throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("DesignForExtension")
     @Override
-    public boolean isSameFile(Path path, Path path2)
-        throws IOException
-    {
+    public boolean isSameFile(Path path, Path path2) throws IOException {
         return path.toAbsolutePath().equals(path2.toAbsolutePath());
     }
 
@@ -132,10 +123,8 @@ public abstract class FileSystemDriverBase
     }
 
     @Override
-    public final void setAttribute(Path path, String attribute,
-                                   Object value, LinkOption... options)
-        throws IOException
-    {
+    public final void setAttribute(Path path, String attribute, Object value, LinkOption... options)
+            throws IOException {
         int index = attribute.indexOf(':');
         String type;
         String name;
@@ -159,10 +148,8 @@ public abstract class FileSystemDriverBase
     }
 
     @Override
-    public final Map<String, Object> readAttributes(Path path,
-                                                    String attributes, LinkOption... options)
-        throws IOException
-    {
+    public final Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options)
+            throws IOException {
         int index = attributes.indexOf(':');
 
         String type;
@@ -188,7 +175,7 @@ public abstract class FileSystemDriverBase
 
         Map<String, Object> map = new HashMap<>();
 
-        for (String name: COMMA.split(names))
+        for (String name : COMMA.split(names))
             map.put(name, provider.getAttributeByName(name));
 
         return Collections.unmodifiableMap(map);
@@ -196,9 +183,7 @@ public abstract class FileSystemDriverBase
 
     @Override
     public final <A extends BasicFileAttributes> A readAttributes(
-        Path path, Class<A> type, LinkOption... options)
-        throws IOException
-    {
+            Path path, Class<A> type, LinkOption... options) throws IOException {
         Object metadata = getPathMetadata(path.toRealPath(options));
 
         return attributesFactory.getFileAttributes(type, metadata);
@@ -206,9 +191,7 @@ public abstract class FileSystemDriverBase
 
     @Nullable
     @Override
-    public final <V extends FileAttributeView> V getFileAttributeView(
-        Path path, Class<V> type, LinkOption... options)
-    {
+    public final <V extends FileAttributeView> V getFileAttributeView(Path path, Class<V> type, LinkOption... options) {
         Object metadata;
         try {
             metadata = getPathMetadata(path.toRealPath(options));
@@ -222,9 +205,7 @@ public abstract class FileSystemDriverBase
     public AsynchronousFileChannel newAsynchronousFileChannel(Path path,
                                                               Set<? extends OpenOption> options,
                                                               ExecutorService executor,
-                                                              FileAttribute<?>... attrs)
-        throws IOException
-    {
+                                                              FileAttribute<?>... attrs) throws IOException {
         throw new UnsupportedOperationException();
     }
 }

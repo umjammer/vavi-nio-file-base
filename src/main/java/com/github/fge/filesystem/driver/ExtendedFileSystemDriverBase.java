@@ -24,7 +24,6 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.github.fge.filesystem.attributes.FileAttributesFactory;
@@ -32,7 +31,6 @@ import com.github.fge.filesystem.attributes.provider.BasicFileAttributesProvider
 import com.github.fge.filesystem.attributes.provider.FileAttributesProvider;
 import com.github.fge.filesystem.exceptions.IsDirectoryException;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
-
 import vavi.nio.file.UploadMonitor;
 import vavi.nio.file.Util;
 
@@ -51,7 +49,7 @@ import static java.lang.System.getLogger;
  * if your file system driver class extends this class,
  * your {@link FileAttributesFactory} should extends {@link ExtendedFileAttributesFactory}.
  * </p>
- *
+ * <p>
  * TODO separate about {@link UploadMonitor}
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
@@ -76,7 +74,7 @@ public abstract class ExtendedFileSystemDriverBase extends UnixLikeFileSystemDri
     protected void setEnv(Map<String, ?> env) throws IOException {
         this.env = env;
         ignoreAppleDouble = isEnabled(ENV_IGNORE_APPLE_DOUBLE);
-logger.log(Level.DEBUG, "ignoreAppleDouble: " + ignoreAppleDouble);
+        logger.log(Level.DEBUG, "ignoreAppleDouble: " + ignoreAppleDouble);
     }
 
     /** utility for env (value is nullable and assumes null as true) */
@@ -96,7 +94,7 @@ logger.log(Level.DEBUG, "ignoreAppleDouble: " + ignoreAppleDouble);
     /** */
     protected ExtendedFileSystemDriverBase(FileStore fileStore, FileSystemFactoryProvider factoryProvider) {
         super(fileStore, factoryProvider);
-        uploadMonitor = newUploadMonitor(); 
+        uploadMonitor = newUploadMonitor();
     }
 
     /** Creates new upload monitor. */
@@ -126,9 +124,9 @@ logger.log(Level.DEBUG, "ignoreAppleDouble: " + ignoreAppleDouble);
                 @Override
                 public SeekableByteChannel position(long pos) throws IOException {
 // TODO ad-hoc
-if (pos < uploadMonitor.entry(path).size()) {
- throw new IOException("{\"@vavi\":" + uploadMonitor.entry(path).size() + "}");
-}
+                    if (pos < uploadMonitor.entry(path).size()) {
+                        throw new IOException("{\"@vavi\":" + uploadMonitor.entry(path).size() + "}");
+                    }
                     return super.position(pos);
                 }
 
@@ -169,16 +167,16 @@ if (pos < uploadMonitor.entry(path).size()) {
      * existence of the path.
      * </p>
      *
-     * @param path the path to check
+     * @param path  the path to check
      * @param modes the modes to check for, if any
      * @throws IOException filesystem level error, or a plain I/O error.
-     *               and you should throw {@link NoSuchFileException} when the file not found.
+     *                     and you should throw {@link NoSuchFileException} when the file not found.
      * @see FileSystemProvider#checkAccess(Path, AccessMode...)
      */
     @Override
     public final void checkAccess(Path path, AccessMode... modes) throws IOException {
         if (uploadMonitor.isUploading(path)) {
-logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(path));
+            logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(path));
             return;
         }
 
@@ -191,7 +189,7 @@ logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(pa
     @Override
     public final Object getPathMetadata(Path path) throws IOException {
         if (uploadMonitor.isUploading(path)) {
-logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(path));
+            logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(path));
             return uploadMonitor.entry(path);
         }
 
@@ -214,6 +212,7 @@ logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(pa
 
     /** */
     public static class ExtendedFileAttributesFactory extends FileAttributesFactory {
+
         @Override
         @SuppressWarnings("unchecked")
         protected <C> C getProviderInstance(Class<C> targetClass, Map<String, Class<?>> map, Object metadata) throws IOException {
@@ -232,7 +231,7 @@ logger.log(Level.DEBUG, "uploading... : " + path + ", " + uploadMonitor.entry(pa
 
 /**
  * DummyFileAttributesProvider.
- *
+ * <p>
  * TODO ugly
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)

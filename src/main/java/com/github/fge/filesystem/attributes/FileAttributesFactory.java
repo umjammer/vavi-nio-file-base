@@ -18,16 +18,6 @@
 
 package com.github.fge.filesystem.attributes;
 
-import com.github.fge.filesystem.attributes.descriptor.AttributesDescriptor;
-import com.github.fge.filesystem.attributes.descriptor.StandardAttributesDescriptor;
-import com.github.fge.filesystem.attributes.provider.BasicFileAttributesProvider;
-import com.github.fge.filesystem.attributes.provider.FileAttributesProvider;
-import com.github.fge.filesystem.driver.FileSystemDriverBase;
-import com.github.fge.filesystem.exceptions.InvalidAttributeProviderException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -44,6 +34,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.attributes.descriptor.AttributesDescriptor;
+import com.github.fge.filesystem.attributes.descriptor.StandardAttributesDescriptor;
+import com.github.fge.filesystem.attributes.provider.BasicFileAttributesProvider;
+import com.github.fge.filesystem.attributes.provider.FileAttributesProvider;
+import com.github.fge.filesystem.driver.FileSystemDriverBase;
+import com.github.fge.filesystem.exceptions.InvalidAttributeProviderException;
+
 
 /**
  * File attributes factory
@@ -73,13 +74,11 @@ import java.util.Objects;
  * @see FileSystemDriverBase
  */
 @ParametersAreNonnullByDefault
-public class FileAttributesFactory
-{
-    private static final MethodHandles.Lookup LOOKUP
-        = MethodHandles.publicLookup();
+public class FileAttributesFactory {
 
-    private final Map<String, AttributesDescriptor> descriptors
-        = new HashMap<>();
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
+
+    private final Map<String, AttributesDescriptor> descriptors = new HashMap<>();
 
     private final Map<String, Class<?>> viewMap = new HashMap<>();
     private final Map<String, Class<?>> attrMap = new HashMap<>();
@@ -91,38 +90,28 @@ public class FileAttributesFactory
     /**
      * Constructor to extend
      */
-    public FileAttributesFactory()
-    {
-        for (AttributesDescriptor descriptor:
-            StandardAttributesDescriptor.values())
+    public FileAttributesFactory() {
+        for (AttributesDescriptor descriptor : StandardAttributesDescriptor.values())
             addDescriptor(descriptor);
     }
 
-    public final boolean supportsFileAttributeView(
-        Class<? extends FileAttributeView> viewClass
-    )
-    {
+    public final boolean supportsFileAttributeView(Class<? extends FileAttributeView> viewClass) {
         Objects.requireNonNull(viewClass);
         return getHandle(viewClass, viewMap) != null;
     }
 
-    public final boolean supportsFileAttributeView(String name)
-    {
-        AttributesDescriptor descriptor
-            = descriptors.get(Objects.requireNonNull(name));
-        return descriptor != null
-            && getHandle(descriptor.getViewClass(), viewMap) != null;
+    public final boolean supportsFileAttributeView(String name) {
+        AttributesDescriptor descriptor = descriptors.get(Objects.requireNonNull(name));
+        return descriptor != null && getHandle(descriptor.getViewClass(), viewMap) != null;
     }
 
     /**
      * Return a list of all attribute descriptors registered with this factory
      *
-     * @return an immutable map (where keys are the names of the views and
-     * values are the descriptors themselves)
+     * @return an immutable map (where keys are the names of the views and values are the descriptors themselves)
      */
     @Nonnull
-    public final Map<String, AttributesDescriptor> getDescriptors()
-    {
+    public final Map<String, AttributesDescriptor> getDescriptors() {
         return Collections.unmodifiableMap(descriptors);
     }
 
@@ -130,21 +119,16 @@ public class FileAttributesFactory
      * Instantiate a new provider for a given attribute view with the given
      * metadata
      *
-     * @param name the attribute view name
+     * @param name     the attribute view name
      * @param metadata the metadata to use to instantiate the provider
      * @return the provider, or {@code null} if this view is not supported
      * @throws IOException failed to generate the provider
-     *
      * @see FileSystemDriverBase#readAttributes(Path, String, LinkOption...)
-     * @see FileSystemDriverBase#setAttribute(Path, String, Object,
-     * LinkOption...)
+     * @see FileSystemDriverBase#setAttribute(Path, String, Object, LinkOption...)
      * @see MethodHandle#invoke(Object...)
      */
     @Nullable
-    public final FileAttributesProvider getProvider(String name,
-                                                    Object metadata)
-        throws IOException
-    {
+    public final FileAttributesProvider getProvider(String name, Object metadata) throws IOException {
         MethodHandle handle = providers.get(Objects.requireNonNull(name));
 
         if (handle == null)
@@ -170,21 +154,15 @@ public class FileAttributesFactory
      * former extends the latter).</p>
      *
      * @param targetClass the target view
-     * @param metadata the metadata to generate the provider with
-     * @param <V> type parameter of the target view
-     * @return a matching provider downcast to the given class, or {@code null}
-     * if this view is not supported
+     * @param metadata    the metadata to generate the provider with
+     * @param <V>         type parameter of the target view
+     * @return a matching provider downcast to the given class, or {@code null} if this view is not supported
      * @throws IOException failed to generate the attribute provider
-     *
-     * @see FileSystemDriverBase#getFileAttributeView(Path, Class,
-     * LinkOption...)
+     * @see FileSystemDriverBase#getFileAttributeView(Path, Class, LinkOption...)
      */
     @Nullable
     public final <V extends FileAttributeView> V getFileAttributeView(
-        Class<V> targetClass, Object metadata
-    )
-        throws IOException
-    {
+            Class<V> targetClass, Object metadata) throws IOException {
         return getProviderInstance(targetClass, viewMap, metadata);
     }
 
@@ -198,20 +176,15 @@ public class FileAttributesFactory
      * former extends the latter).</p>
      *
      * @param targetClass the target attribute class
-     * @param metadata the metadata to generate the provider with
-     * @param <A> type parameter of the target attribute class
-     * @return a matching provider downcast to the given class, or {@code null}
-     * if this attribute class is not supported
+     * @param metadata    the metadata to generate the provider with
+     * @param <A>         type parameter of the target attribute class
+     * @return a matching provider downcast to the given class, or {@code null} if this attribute class is not supported
      * @throws IOException failed to generate the attribute provider
-     *
      * @see FileSystemDriverBase#readAttributes(Path, Class, LinkOption...)
      */
     @Nullable
     public final <A extends BasicFileAttributes> A getFileAttributes(
-        Class<A> targetClass, Object metadata
-    )
-        throws IOException
-    {
+            Class<A> targetClass, Object metadata) throws IOException {
         return getProviderInstance(targetClass, attrMap, metadata);
     }
 
@@ -224,15 +197,12 @@ public class FileAttributesFactory
      *
      * @param metadataClass the class
      * @throws IllegalArgumentException a metadata class has already been set
-     *
      * @see FileSystemDriverBase#getPathMetadata(Path)
      */
-    protected final void setMetadataClass(Class<?> metadataClass)
-    {
+    protected final void setMetadataClass(Class<?> metadataClass) {
         //noinspection VariableNotUsedInsideIf
         if (this.metadataClass != null)
-            throw new IllegalArgumentException("metadata class has already "
-                + "been set");
+            throw new IllegalArgumentException("metadata class has already been set");
         this.metadataClass = Objects.requireNonNull(metadataClass);
     }
 
@@ -240,19 +210,15 @@ public class FileAttributesFactory
      * Add an attribute view descriptor
      *
      * @param descriptor the descriptor to add
-     * @throws IllegalArgumentException a descriptor by that name is already
-     * registered
-     *
+     * @throws IllegalArgumentException a descriptor by that name is already registered
      * @see AttributesDescriptor#getName()
      */
-    protected final void addDescriptor(AttributesDescriptor descriptor)
-    {
+    protected final void addDescriptor(AttributesDescriptor descriptor) {
         Objects.requireNonNull(descriptor);
         String name = descriptor.getName();
 
         if (descriptors.containsKey(name))
-            throw new IllegalArgumentException("a descriptor already exists "
-                + "for view " + name);
+            throw new IllegalArgumentException("a descriptor already exists for view " + name);
         descriptors.put(name, descriptor);
         viewMap.put(name, descriptor.getViewClass());
         if (descriptor.getAttributeClass() != null)
@@ -262,32 +228,26 @@ public class FileAttributesFactory
     /**
      * Add an implementation for a given attribute view
      *
-     * @param name the name of the view
+     * @param name          the name of the view
      * @param providerClass the attribute provider class
-     * @throws IllegalArgumentException no metadata class has been set, or no
-     * descriptor associated with that view
+     * @throws IllegalArgumentException          no metadata class has been set, or no
+     *                                           descriptor associated with that view
      * @throws InvalidAttributeProviderException provided class is not a
-     * concrete class; or no suitable constructor has been found; or it is not a
-     * subclass of the associated view class and (if any) attribute class
-     *
+     *                                           concrete class; or no suitable constructor has been found; or it is not a
+     *                                           subclass of the associated view class and (if any) attribute class
      * @see AttributesDescriptor#getViewClass()
      * @see AttributesDescriptor#getAttributeClass()
      */
-    protected final void addImplementation(String name,
-                                           Class<? extends FileAttributesProvider> providerClass)
-    {
+    protected final void addImplementation(String name, Class<? extends FileAttributesProvider> providerClass) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(providerClass);
         if (metadataClass == null)
-            throw new IllegalArgumentException("metadata class has not been "
-                + "set");
+            throw new IllegalArgumentException("metadata class has not been set");
 
-        AttributesDescriptor descriptor
-            = descriptors.get(Objects.requireNonNull(name));
+        AttributesDescriptor descriptor = descriptors.get(Objects.requireNonNull(name));
 
         if (descriptor == null)
-            throw new IllegalArgumentException("no descriptor for attribute"
-                + " type " + name);
+            throw new IllegalArgumentException("no descriptor for attribute type " + name);
 
         checkCasts(providerClass, descriptor);
         providers.put(name, getConstructor(providerClass));
@@ -295,10 +255,7 @@ public class FileAttributesFactory
 
     /** must call this from sub class */
     @Nullable
-    protected <C> C getProviderInstance(Class<C> targetClass,
-                                        Map<String, Class<?>> map, Object metadata)
-        throws IOException
-    {
+    protected <C> C getProviderInstance(Class<C> targetClass, Map<String, Class<?>> map, Object metadata) throws IOException {
         MethodHandle handle = getHandle(targetClass, map);
 
         if (handle == null)
@@ -315,27 +272,21 @@ public class FileAttributesFactory
     }
 
     @Nullable
-    private MethodHandle getHandle(Class<?> c,
-                                   Map<String, Class<?>> map)
-    {
+    private MethodHandle getHandle(Class<?> c, Map<String, Class<?>> map) {
         MethodHandle ret = null;
         Class<?> candidate, bestFit = null;
         String name;
 
-        for (Map.Entry<String, Class<?>> entry: map.entrySet()) {
+        for (Map.Entry<String, Class<?>> entry : map.entrySet()) {
             name = entry.getKey();
             candidate = entry.getValue();
-            /*
-             * Test if the candidate is a subclass of the requested class;
-             * if not, no luck, try next.
-             */
+            // Test if the candidate is a subclass of the requested class;
+            // if not, no luck, try next.
             if (!c.isAssignableFrom(candidate))
                 continue;
-            /*
-             * OK, it is a subclass. Test this against the best candidate we
-             * have found for now, if any: if the new candidate is a superclass
-             * of our current best, it is our new current best.
-             */
+            // OK, it is a subclass. Test this against the best candidate we
+            // have found for now, if any: if the new candidate is a superclass
+            // of our current best, it is our new current best.
             if (bestFit == null || candidate.isAssignableFrom(bestFit)) {
                 if (!providers.containsKey(name))
                     continue;
@@ -347,47 +298,35 @@ public class FileAttributesFactory
         return ret;
     }
 
-    private static void checkCasts(
-        Class<? extends FileAttributesProvider> providerClass,
-        AttributesDescriptor descriptor)
-    {
+    private static void checkCasts(Class<? extends FileAttributesProvider> providerClass, AttributesDescriptor descriptor) {
         int modifiers = providerClass.getModifiers();
 
         if (!Modifier.isPublic(modifiers))
-            throw new InvalidAttributeProviderException("provider class must "
-                + "be public");
+            throw new InvalidAttributeProviderException("provider class must be public");
 
         if (Modifier.isAbstract(modifiers))
-            throw new InvalidAttributeProviderException("provider class must "
-                + "not be abstract");
+            throw new InvalidAttributeProviderException("provider class must not be abstract");
 
         Class<?> c = descriptor.getViewClass();
 
         if (!c.isAssignableFrom(providerClass))
-            throw new InvalidAttributeProviderException("provider class "
-                + providerClass + " is not a subclass of " + c);
+            throw new InvalidAttributeProviderException("provider class " + providerClass + " is not a subclass of " + c);
 
         //noinspection ReuseOfLocalVariable
         c = descriptor.getAttributeClass();
 
         if (c != null && !c.isAssignableFrom(providerClass))
-            throw new InvalidAttributeProviderException("provider class "
-                + providerClass + " is not a subclass of " + c);
+            throw new InvalidAttributeProviderException("provider class " + providerClass + " is not a subclass of " + c);
     }
 
     @Nonnull
-    private MethodHandle getConstructor(
-        Class<? extends FileAttributesProvider> providerClass
-    )
-    {
+    private MethodHandle getConstructor(Class<? extends FileAttributesProvider> providerClass) {
         MethodHandle handle;
         try {
-            handle = LOOKUP.findConstructor(providerClass,
-                MethodType.methodType(void.class, metadataClass));
+            handle = LOOKUP.findConstructor(providerClass, MethodType.methodType(void.class, metadataClass));
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new InvalidAttributeProviderException("no constructor found"
-                + " for class " + providerClass + " with parameter "
-                + metadataClass, e);
+            throw new InvalidAttributeProviderException("no constructor found for class " + providerClass +
+                    " with parameter " + metadataClass, e);
         }
 
         MethodType type = handle.type().changeReturnType(providerClass);

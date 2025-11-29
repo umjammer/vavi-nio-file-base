@@ -27,103 +27,87 @@ import org.assertj.core.api.AbstractObjectAssert;
 
 @ParametersAreNonnullByDefault
 // cannot be final, see CustomSoftAssertions
-public class PathElementsAssert
-    extends AbstractObjectAssert<PathElementsAssert, PathElements>
-{
-    public PathElementsAssert(PathElements actual)
-    {
+public class PathElementsAssert extends AbstractObjectAssert<PathElementsAssert, PathElements> {
+
+    public PathElementsAssert(PathElements actual) {
         super(actual, PathElementsAssert.class);
     }
 
-    public static PathElementsAssert assertElements(
-        PathElements actual)
-    {
+    public static PathElementsAssert assertElements(PathElements actual) {
         return new PathElementsAssert(actual);
     }
 
-    /*
-     * root checks
-     */
+    //
+    // root checks
+    //
 
-    public final PathElementsAssert hasNullRoot()
-    {
+    public final PathElementsAssert hasNullRoot() {
         if (actual.root != null)
-            failWithMessage("root component is not null\n (is: <%s>)",
-                actual.root);
+            failWithMessage("root component is not null\n (is: <%s>)", actual.root);
         return this;
     }
 
-    public final PathElementsAssert hasRoot(String expected)
-    {
+    public final PathElementsAssert hasRoot(String expected) {
         if (!Objects.equals(actual.root, expected))
-            failWithMessage(
-                    """
+            failWithMessage("""
                             root component is not what is expected
                             expected: <%s>
                             actual: <%s>
                             """,
-                expected, actual.root
+                    expected, actual.root
             );
         return this;
     }
 
-    public final PathElementsAssert hasSameRootAs(PathElements other)
-    {
+    public final PathElementsAssert hasSameRootAs(PathElements other) {
         if (!Objects.equals(actual.root, other.root))
-            failWithMessage(
-                    """
+            failWithMessage("""
                             root component is not the same as other
                             expected: <%s>
                             actual  : <%s>
                             """,
-                other.root, actual.root
+                    other.root, actual.root
             );
         return this;
     }
 
-    /*
-     * names check
-     */
+    //
+    // names check
+    //
 
-    public final PathElementsAssert hasNoNames()
-    {
+    public final PathElementsAssert hasNoNames() {
         if (actual.names.length != 0)
-            failWithMessage("names array (%s) is not empty",
-                Arrays.toString(actual.names));
+            failWithMessage("names array (%s) is not empty", Arrays.toString(actual.names));
         return this;
     }
 
-    public final PathElementsAssert hasNames(String... expected)
-    {
+    public final PathElementsAssert hasNames(String... expected) {
         if (!Arrays.equals(actual.names, expected))
             failWithMessage("""
                             names array is not what is expected
                             expected: <%s>
                             actual  : <%s>
                             """,
-                Arrays.toString(expected), Arrays.toString(actual.names));
+                    Arrays.toString(expected), Arrays.toString(actual.names));
         return this;
     }
 
-    public final PathElementsAssert hasSameNamesAs(PathElements other)
-    {
+    public final PathElementsAssert hasSameNamesAs(PathElements other) {
         if (!Arrays.equals(actual.names, other.names))
-            failWithMessage(
-                    """
+            failWithMessage("""
                             names differ from provided elements instance
                             expected: <%s>
                             actual  : <%s>
                             """,
-                Arrays.toString(other.names), Arrays.toString(actual.names));
+                    Arrays.toString(other.names), Arrays.toString(actual.names));
         return this;
     }
 
-    /*
-     * PathElements check
-     */
+    //
+    // PathElements check
+    //
 
-    public final PathElementsAssert hasSameContentsAs(PathElements other)
-    {
+    public final PathElementsAssert hasSameContentsAs(PathElements other) {
         return hasSameRootAs(other).hasSameNamesAs(other);
     }
 }

@@ -18,12 +18,6 @@
 
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.attribute.AclEntry;
 import java.nio.file.attribute.AclFileAttributeView;
@@ -33,6 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Provider for the {@code "acl"} file attribute view
@@ -43,42 +44,32 @@ import java.util.Objects;
  */
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
-public abstract class AclFileAttributesProvider
-    extends FileAttributesProvider
-    implements AclFileAttributeView
-{
-    protected AclFileAttributesProvider()
-        throws IOException
-    {
+public abstract class AclFileAttributesProvider extends FileAttributesProvider implements AclFileAttributeView {
+
+    protected AclFileAttributesProvider() throws IOException {
         super("acl");
     }
 
     @Override
-    public List<AclEntry> getAcl()
-        throws IOException
-    {
+    public List<AclEntry> getAcl() throws IOException {
         return Collections.emptyList();
     }
 
-    /*
-     * read
-     */
+    //
+    // read
+    //
 
-    /*
-     * write
-     */
+    //
+    // write
+    //
 
     @Override
-    public void setOwner(UserPrincipal owner)
-        throws IOException
-    {
+    public void setOwner(UserPrincipal owner) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setAcl(List<AclEntry> acl)
-        throws IOException
-    {
+    public void setAcl(List<AclEntry> acl) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
@@ -86,30 +77,19 @@ public abstract class AclFileAttributesProvider
      * by name
      */
     @Override
-    public final void setAttributeByName(String name, Object value)
-        throws IOException
-    {
+    @SuppressWarnings("unchecked")
+    public final void setAttributeByName(String name, Object value) throws IOException {
         Objects.requireNonNull(value);
         switch (Objects.requireNonNull(name)) {
-            /* owner */
-            case "owner":
-                setOwner((UserPrincipal) value);
-                break;
-            /* acl */
-            case "acl":
-                //noinspection unchecked
-                setAcl((List<AclEntry>) value);
-                break;
-            default:
-                throw new NoSuchAttributeException(name);
+            case "owner" -> setOwner((UserPrincipal) value); // owner
+            case "acl" -> setAcl((List<AclEntry>) value); // acl
+            default -> throw new NoSuchAttributeException(name);
         }
     }
 
     @Nullable
     @Override
-    public final Object getAttributeByName(String name)
-        throws IOException
-    {
+    public final Object getAttributeByName(String name) throws IOException {
         return switch (Objects.requireNonNull(name)) {
             case "owner" -> getOwner(); // owner
             case "acl" -> getAcl(); // acl
@@ -119,9 +99,7 @@ public abstract class AclFileAttributesProvider
 
     @Nonnull
     @Override
-    public final Map<String, Object> getAllAttributes()
-        throws IOException
-    {
+    public final Map<String, Object> getAllAttributes() throws IOException {
         Map<String, Object> map = new HashMap<>();
 
         map.put("owner", getOwner());

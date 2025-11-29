@@ -18,15 +18,16 @@
 
 package com.github.fge.filesystem.driver;
 
-import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
-import com.github.fge.filesystem.path.UnixPathElementsFactory;
-import com.github.fge.filesystem.path.matchers.PathMatcherFactory;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.path.UnixPathElementsFactory;
+import com.github.fge.filesystem.path.matchers.PathMatcherFactory;
+import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
+
 
 /**
  * A base abstract implementation of a {@link FileSystemDriver} for Unix-like
@@ -40,21 +41,15 @@ import java.nio.file.PathMatcher;
  * last name element begin with a dot are hidden (overridable).</p>
  */
 @ParametersAreNonnullByDefault
-public abstract class UnixLikeFileSystemDriverBase
-    extends FileSystemDriverBase
-{
-    protected UnixLikeFileSystemDriverBase(FileStore fileStore,
-                                           FileSystemFactoryProvider factoryProvider)
-    {
+public abstract class UnixLikeFileSystemDriverBase extends FileSystemDriverBase {
+
+    protected UnixLikeFileSystemDriverBase(FileStore fileStore, FileSystemFactoryProvider factoryProvider) {
         super(fileStore, factoryProvider);
     }
 
     @SuppressWarnings("DesignForExtension")
     @Override
-    public boolean isHidden(Path path)
-        throws IOException
-    {
-        return path.getNameCount() > 0
-            && path.getFileName().toString().charAt(0) == '.';
+    public boolean isHidden(Path path) throws IOException {
+        return path.getNameCount() > 0 && path.getFileName().toString().charAt(0) == '.';
     }
 }

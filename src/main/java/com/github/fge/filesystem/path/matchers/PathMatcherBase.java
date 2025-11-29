@@ -18,11 +18,12 @@
 
 package com.github.fge.filesystem.path.matchers;
 
-import javax.annotation.Nonnull;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+
 
 /**
  * A base implementation of {@link PathMatcher} which delegates matching to a
@@ -30,9 +31,8 @@ import java.util.Objects;
  *
  * @see FileSystem#getPathMatcher(String)
  */
-public abstract class PathMatcherBase
-    implements PathMatcher
-{
+public abstract class PathMatcherBase implements PathMatcher {
+
     protected abstract boolean match(String input);
 
     /**
@@ -43,8 +43,7 @@ public abstract class PathMatcherBase
      * matcher's pattern
      */
     @Override
-    public final boolean matches(@Nonnull Path path)
-    {
+    public final boolean matches(@Nonnull Path path) {
         return match(Objects.requireNonNull(path).toString());
     }
 }

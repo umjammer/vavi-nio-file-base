@@ -18,19 +18,17 @@
 
 package com.github.fge.filesystem.path.matchers;
 
-public final class GlobPathMatcher
-    extends PathMatcherBase
-{
+
+public final class GlobPathMatcher extends PathMatcherBase {
+
     private final RegexPathMatcher matcher;
 
-    public GlobPathMatcher(String glob)
-    {
+    public GlobPathMatcher(String glob) {
         matcher = new RegexPathMatcher(Globs.toUnixRegexPattern(glob));
     }
 
     @Override
-    protected boolean match(String input)
-    {
+    protected boolean match(String input) {
         return matcher.match(input);
     }
 }

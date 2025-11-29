@@ -24,13 +24,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.github.fge.filesystem.driver.FileSystemDriver;
 import com.github.fge.filesystem.exceptions.IllegalOptionSetException;
 import com.github.fge.filesystem.exceptions.UnsupportedOptionException;
 import com.github.fge.filesystem.options.FileSystemOptionsFactory;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,8 +42,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public final class FileSystemProviderBaseTest
-{
+
+public final class FileSystemProviderBaseTest {
+
     private FileSystemFactoryProvider factoryProvider;
     private FileSystemOptionsFactory optionsFactory;
     private FileSystemDriver driver;
@@ -51,10 +52,8 @@ public final class FileSystemProviderBaseTest
     private Path path;
 
     @BeforeEach
-    public void initMocks()
-    {
-        FileSystemRepository repository
-            = mock(FileSystemRepository.class);
+    public void initMocks() {
+        FileSystemRepository repository = mock(FileSystemRepository.class);
 
         driver = mock(FileSystemDriver.class);
         when(repository.getDriver(any(Path.class))).thenReturn(driver);
@@ -62,36 +61,24 @@ public final class FileSystemProviderBaseTest
 
         optionsFactory = spy(new FileSystemOptionsFactory());
 
-        factoryProvider = new FileSystemFactoryProvider()
-        {
-            {
-                setOptionsFactory(optionsFactory);
-            }
-        };
+        factoryProvider = new FileSystemFactoryProvider() {{ setOptionsFactory(optionsFactory); }};
         when(repository.getFactoryProvider()).thenReturn(factoryProvider);
 
-        provider = new FileSystemProviderBase(repository)
-        {
-        };
+        provider = new FileSystemProviderBase(repository) {};
 
         path = mock(Path.class);
     }
 
     @Test
-    public void writeOptionsAreRejectedOnNewInputStream()
-        throws IOException
-    {
+    public void writeOptionsAreRejectedOnNewInputStream() throws IOException {
         assertThrows(IllegalOptionSetException.class, () -> provider.newInputStream(path, StandardOpenOption.WRITE));
 
         //noinspection unchecked
-        verify(driver, never())
-            .newInputStream(any(Path.class), anySet());
+        verify(driver, never()).newInputStream(any(Path.class), anySet());
     }
 
     @Test
-    public void unknownReadOptionsAreRejectedOnNewInputStream()
-        throws IOException
-    {
+    public void unknownReadOptionsAreRejectedOnNewInputStream() throws IOException {
         OpenOption myopt = mock(OpenOption.class);
         when(myopt.toString()).thenReturn("foo");
 
@@ -99,25 +86,19 @@ public final class FileSystemProviderBaseTest
         assertEquals("foo", e.getMessage());
 
         //noinspection unchecked
-        verify(driver, never())
-            .newInputStream(any(Path.class), anySet());
+        verify(driver, never()).newInputStream(any(Path.class), anySet());
     }
 
     @Test
-    public void readOptionsAreRejectedOnNewOutputStream()
-        throws IOException
-    {
+    public void readOptionsAreRejectedOnNewOutputStream() throws IOException {
         assertThrows(IllegalOptionSetException.class, () -> provider.newOutputStream(path, StandardOpenOption.READ));
 
         //noinspection unchecked
-        verify(driver, never())
-            .newOutputStream(any(Path.class), anySet());
+        verify(driver, never()).newOutputStream(any(Path.class), anySet());
     }
 
     @Test
-    public void unknownWriteOptionsAreRejectedOnNewOutputStream()
-        throws IOException
-    {
+    public void unknownWriteOptionsAreRejectedOnNewOutputStream() throws IOException {
         OpenOption myopt = mock(OpenOption.class);
         when(myopt.toString()).thenReturn("foo");
 
@@ -125,7 +106,6 @@ public final class FileSystemProviderBaseTest
         assertEquals("foo", e.getMessage());
 
         //noinspection unchecked
-        verify(driver, never())
-            .newOutputStream(any(Path.class), anySet());
+        verify(driver, never()).newOutputStream(any(Path.class), anySet());
     }
 }

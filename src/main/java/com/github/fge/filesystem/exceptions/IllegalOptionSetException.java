@@ -18,26 +18,21 @@
 
 package com.github.fge.filesystem.exceptions;
 
-public final class IllegalOptionSetException
-    extends IllegalArgumentException
-{
-    public IllegalOptionSetException()
-    {
+
+public final class IllegalOptionSetException extends IllegalArgumentException {
+
+    public IllegalOptionSetException() {
     }
 
-    public IllegalOptionSetException(String s)
-    {
+    public IllegalOptionSetException(String s) {
         super(s);
     }
 
-    public IllegalOptionSetException(String message,
-                                     Throwable cause)
-    {
+    public IllegalOptionSetException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public IllegalOptionSetException(Throwable cause)
-    {
+    public IllegalOptionSetException(Throwable cause) {
         super(cause);
     }
 }

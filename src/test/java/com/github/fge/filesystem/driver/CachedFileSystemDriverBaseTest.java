@@ -16,9 +16,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
-
 import vavi.util.Debug;
+
+import org.junit.jupiter.api.Test;
 
 import static com.github.fge.filesystem.driver.ExtendedFileSystemDriverBase.ENV_IGNORE_APPLE_DOUBLE;
 import static com.github.fge.filesystem.driver.ExtendedFileSystemDriverBase.isEnabled;
@@ -46,7 +46,7 @@ class CachedFileSystemDriverBaseTest {
             Path parent = sub.getParent() != null ? sub.getParent() : path.getFileSystem().getPath("/");
             List<Path> bros = getDirectoryEntries(parent);
             Optional<Path> found = bros.stream().filter(p -> p.getFileName().equals(name)).findFirst();
-System.err.println("name: " + name + ", sub: " + sub + ", parent: " + parent + ", found: " + found + ", list: " + bros);
+            System.err.println("name: " + name + ", sub: " + sub + ", parent: " + parent + ", found: " + found + ", list: " + bros);
             if (found.isPresent()) {
                 continue;
             } else {
@@ -59,7 +59,7 @@ System.err.println("name: " + name + ", sub: " + sub + ", parent: " + parent + "
 
     List<Path> getDirectoryEntries(Path parent) {
         String p = parent.toString().charAt(0) != '/' ? "/" + parent : "/";
-System.err.println("get dir list: " + p);
+        System.err.println("get dir list: " + p);
         return switch (p) {
             case "/" -> Stream.of("a1", "a2", "aa", "a3").map(Paths::get).collect(Collectors.toList());
             case "/aa" -> Stream.of("b1", "bb").map(Paths::get).collect(Collectors.toList());

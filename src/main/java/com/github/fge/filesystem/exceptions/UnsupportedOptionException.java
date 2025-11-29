@@ -18,26 +18,21 @@
 
 package com.github.fge.filesystem.exceptions;
 
-public final class UnsupportedOptionException
-    extends UnsupportedOperationException
-{
-    public UnsupportedOptionException()
-    {
+
+public final class UnsupportedOptionException extends UnsupportedOperationException {
+
+    public UnsupportedOptionException() {
     }
 
-    public UnsupportedOptionException(String message)
-    {
+    public UnsupportedOptionException(String message) {
         super(message);
     }
 
-    public UnsupportedOptionException(String message,
-                                      Throwable cause)
-    {
+    public UnsupportedOptionException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public UnsupportedOptionException(Throwable cause)
-    {
+    public UnsupportedOptionException(Throwable cause) {
         super(cause);
     }
 }

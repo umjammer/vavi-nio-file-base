@@ -21,32 +21,27 @@ package com.github.fge.filesystem.exceptions;
 import com.github.fge.filesystem.attributes.FileAttributesFactory;
 import com.github.fge.filesystem.attributes.provider.FileAttributesProvider;
 
+
 /**
  * Exception thrown when an invalid {@link FileAttributesProvider} is found
  *
  * @see FileAttributesFactory
  */
 @SuppressWarnings("UncheckedExceptionClass")
-public final class InvalidAttributeProviderException
-    extends IllegalArgumentException
-{
-    public InvalidAttributeProviderException()
-    {
+public final class InvalidAttributeProviderException extends IllegalArgumentException {
+
+    public InvalidAttributeProviderException() {
     }
 
-    public InvalidAttributeProviderException(String s)
-    {
+    public InvalidAttributeProviderException(String s) {
         super(s);
     }
 
-    public InvalidAttributeProviderException(String message,
-                                             Throwable cause)
-    {
+    public InvalidAttributeProviderException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public InvalidAttributeProviderException(Throwable cause)
-    {
+    public InvalidAttributeProviderException(Throwable cause) {
         super(cause);
     }
 }

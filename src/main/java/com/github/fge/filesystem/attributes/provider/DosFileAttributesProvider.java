@@ -18,12 +18,6 @@
 
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.attribute.DosFileAttributeView;
 import java.nio.file.attribute.DosFileAttributes;
@@ -32,6 +26,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Provider for the {@code "dos"} file attribute view
@@ -44,158 +45,117 @@ import java.util.Objects;
  */
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
-public abstract class DosFileAttributesProvider
-    extends FileAttributesProvider
-    implements DosFileAttributeView, DosFileAttributes
-{
+public abstract class DosFileAttributesProvider extends FileAttributesProvider
+        implements DosFileAttributeView, DosFileAttributes {
+
     protected static final FileTime UNIX_EPOCH = FileTime.fromMillis(0L);
 
-    protected DosFileAttributesProvider()
-        throws IOException
-    {
+    protected DosFileAttributesProvider() throws IOException {
         super("dos");
     }
 
     @Override
-    public final DosFileAttributes readAttributes()
-        throws IOException
-    {
+    public final DosFileAttributes readAttributes() throws IOException {
         return this;
     }
 
-    /*
-     * read
-     */
+    //
+    // read
+    //
 
     @Override
-    public FileTime lastModifiedTime()
-    {
+    public FileTime lastModifiedTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public FileTime lastAccessTime()
-    {
+    public FileTime lastAccessTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public FileTime creationTime()
-    {
+    public FileTime creationTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public boolean isSymbolicLink()
-    {
+    public boolean isSymbolicLink() {
         return false;
     }
 
     @Override
-    public boolean isOther()
-    {
+    public boolean isOther() {
         return false;
     }
 
     @Override
-    public Object fileKey()
-    {
+    public Object fileKey() {
         return null;
     }
 
-    /*
-     * write
-     */
+    //
+    // write
+    //
 
     @Override
     public void setTimes(@Nullable FileTime lastModifiedTime,
-        @Nullable FileTime lastAccessTime,
-        @Nullable FileTime createTime)
-        throws IOException
-    {
+                         @Nullable FileTime lastAccessTime,
+                         @Nullable FileTime createTime) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setArchive(boolean value)
-        throws IOException
-    {
+    public void setArchive(boolean value) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setSystem(boolean value)
-        throws IOException
-    {
+    public void setSystem(boolean value) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setHidden(boolean value)
-        throws IOException
-    {
+    public void setHidden(boolean value) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void setReadOnly(boolean value)
-        throws IOException
-    {
+    public void setReadOnly(boolean value) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
-    /*
-     * by name
-     */
+    //
+    // by name
+    //
 
     @SuppressWarnings("OverlyLongMethod")
     @Override
-    public final void setAttributeByName(String name, Object value)
-        throws IOException
-    {
+    public final void setAttributeByName(String name, Object value) throws IOException {
         Objects.requireNonNull(value);
         switch (Objects.requireNonNull(name)) {
             /* basic */
-            case "lastModifiedTime":
-                setTimes((FileTime) value, null, null);
-                break;
-            case "lastAccessTime":
-                setTimes(null, (FileTime) value, null);
-                break;
-            case "creationTime":
-                setTimes(null, null, (FileTime) value);
-                break;
+            case "lastModifiedTime" -> setTimes((FileTime) value, null, null);
+            case "lastAccessTime" -> setTimes(null, (FileTime) value, null);
+            case "creationTime" -> setTimes(null, null, (FileTime) value);
             /* dos */
-            case "readonly":
-                setReadOnly((Boolean) value);
-                break;
-            case "hidden":
-                setReadOnly((Boolean) value);
-                break;
-            case "system":
-                setSystem((Boolean) value);
-                break;
-            case "archive":
-                setArchive((Boolean) value);
-                break;
-            case "size":
-            case "isRegularFile":
-            case "isDirectory":
-            case "isSymbolicLink":
-            case "isOther":
-            case "fileKey":
-                throw new ReadOnlyAttributeException(name);
-            default:
-                throw new NoSuchAttributeException(name);
+            case "readonly" -> setReadOnly((Boolean) value);
+            case "hidden" -> setReadOnly((Boolean) value);
+            case "system" -> setSystem((Boolean) value);
+            case "archive" -> setArchive((Boolean) value);
+            case "size",
+                 "isRegularFile",
+                 "isDirectory",
+                 "isSymbolicLink",
+                 "isOther",
+                 "fileKey" -> throw new ReadOnlyAttributeException(name);
+            default -> throw new NoSuchAttributeException(name);
         }
     }
 
     @SuppressWarnings("OverlyComplexMethod")
     @Nonnull
     @Override
-    public final Object getAttributeByName(String name)
-        throws IOException
-    {
+    public final Object getAttributeByName(String name) throws IOException {
         return switch (Objects.requireNonNull(name)) {
             /* basic */
             case "lastModifiedTime" -> lastModifiedTime();
@@ -218,9 +178,7 @@ public abstract class DosFileAttributesProvider
 
     @Nonnull
     @Override
-    public final Map<String, Object> getAllAttributes()
-        throws IOException
-    {
+    public final Map<String, Object> getAllAttributes() throws IOException {
         Map<String, Object> map = new HashMap<>();
 
         map.put("lastModifiedTime", lastModifiedTime());

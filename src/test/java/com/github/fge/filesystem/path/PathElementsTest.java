@@ -20,49 +20,47 @@ package com.github.fge.filesystem.path;
 
 import java.util.stream.Stream;
 
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import com.github.fge.filesystem.CustomSoftAssertions;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import com.github.fge.filesystem.CustomSoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 
 import static com.github.fge.filesystem.path.PathElementsAssert.assertElements;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+
 @ExtendWith(SoftAssertionsExtension.class)
-public final class PathElementsTest
-{
+public final class PathElementsTest {
+
     @InjectSoftAssertions
     CustomSoftAssertions soft;
 
     private static final String[] NO_NAMES = new String[0];
 
     @Test
-    public void singletonHasNoRoot()
-    {
+    public void singletonHasNoRoot() {
         PathElements elements = PathElements.singleton("foo");
         assertElements(elements).hasNullRoot();
     }
 
-    static Stream<Arguments> variousNameArrays()
-    {
+    static Stream<Arguments> variousNameArrays() {
         return Stream.of(
-            arguments(new Object[] { NO_NAMES }),
-            arguments(new Object[] { stringArray("foo") }),
-            arguments(new Object[] { stringArray("foo", "bar") }),
-            arguments(new Object[] { stringArray("foo", "bar", "baz") })
+                arguments(new Object[] {NO_NAMES}),
+                arguments(new Object[] {stringArray("foo")}),
+                arguments(new Object[] {stringArray("foo", "bar")}),
+                arguments(new Object[] {stringArray("foo", "bar", "baz")})
         );
     }
 
     @ParameterizedTest
     @MethodSource("variousNameArrays")
-    public void pathElementsWithNoRootReturnsNullRootPath(String[] names)
-    {
+    public void pathElementsWithNoRootReturnsNullRootPath(String[] names) {
         PathElements elements = new PathElements(null, names);
 
         assertElements(elements).hasNullRoot();
@@ -70,8 +68,7 @@ public final class PathElementsTest
 
     @ParameterizedTest
     @MethodSource("variousNameArrays")
-    public void pathElementsWithRootRetunsRootOnlyRootPath(String[] names)
-    {
+    public void pathElementsWithRootRetunsRootOnlyRootPath(String[] names) {
         final String root = "foo";
         PathElements elements = new PathElements(root, names);
         PathElements rootElements = elements.rootPathElement();
@@ -80,42 +77,39 @@ public final class PathElementsTest
     }
 
     @Test
-    public void pathElementsWithNoNamesHasNullParent()
-    {
+    public void pathElementsWithNoNamesHasNullParent() {
         PathElements elements1 = new PathElements(null, NO_NAMES);
         PathElements elements2 = new PathElements("foo", NO_NAMES);
 
         soft.assertThat(elements1.parent()).as(
-            "a PathElements with no names must have a null parent").isNull();
+                "a PathElements with no names must have a null parent").isNull();
         soft.assertThat(elements2.parent()).as(
-            "a PathElements with no names must have a null parent").isNull();
+                "a PathElements with no names must have a null parent").isNull();
     }
 
     @Test
-    public void singleNamePathElementParentIsCorrect()
-    {
+    public void singleNamePathElementParentIsCorrect() {
         PathElements elements, parent;
 
         elements = new PathElements(null, stringArray("foo"));
         parent = elements.parent();
 
         soft.assertThat(parent)
-            .as("path element with single name and no root has null parent")
-            .isNull();
+                .as("path element with single name and no root has null parent")
+                .isNull();
 
         elements = new PathElements("/", stringArray("foo"));
         parent = elements.parent();
 
         soft.assertThat(parent)
-            .as("path element with single name and a root has a parent")
-            .isNotNull();
+                .as("path element with single name and a root has a parent")
+                .isNotNull();
 
         soft.assertThat(parent).hasSameRootAs(elements).hasNoNames();
     }
 
     @Test
-    public void pathNameParentHasRelevantNamesAndPreservesRoot()
-    {
+    public void pathNameParentHasRelevantNamesAndPreservesRoot() {
         String[] before = stringArray("foo", "bar", "baz");
         String[] after = stringArray("foo", "bar");
 
@@ -136,22 +130,20 @@ public final class PathElementsTest
     }
 
     @Test
-    public void pathNameWithNoNamesHasNoLastName()
-    {
+    public void pathNameWithNoNamesHasNoLastName() {
         PathElements elements1 = new PathElements(null, NO_NAMES);
         PathElements elements2 = new PathElements("foo", NO_NAMES);
 
         soft.assertThat(elements1.lastName()).overridingErrorMessage(
-            "a PathElements with no names must not have a last name"
+                "a PathElements with no names must not have a last name"
         ).isNull();
         soft.assertThat(elements2.parent()).overridingErrorMessage(
-            "a PathElements with no names must not have a last name"
+                "a PathElements with no names must not have a last name"
         ).isNull();
     }
 
     @Test
-    public void pathNameLastNameWorksAndHasNoRoot()
-    {
+    public void pathNameLastNameWorksAndHasNoRoot() {
         String[] names1 = stringArray("foo", "bar", "baz");
         String[] names2 = stringArray("foo", "bar");
 
@@ -169,8 +161,7 @@ public final class PathElementsTest
     }
 
     @Test
-    public void equalsHashCodeWorks()
-    {
+    public void equalsHashCodeWorks() {
         PathElements p1 = PathElements.EMPTY;
         String[] names = stringArray("foo");
         PathElements p2 = new PathElements(null, names);
@@ -194,10 +185,9 @@ public final class PathElementsTest
     }
 
     private static String[] stringArray(String first,
-                                        String... other)
-    {
+                                        String... other) {
         if (other.length == 0)
-            return new String[] { first };
+            return new String[] {first};
         String[] ret = new String[other.length + 1];
         ret[0] = first;
         System.arraycopy(other, 0, ret, 1, other.length);

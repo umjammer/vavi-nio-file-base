@@ -18,11 +18,6 @@
 
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
@@ -30,6 +25,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Provider for the {@code "user"} file attribute view
@@ -38,46 +39,37 @@ import java.util.Objects;
  */
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
-public abstract class UserDefinedFileAttributesProvider
-    extends FileAttributesProvider
-    implements UserDefinedFileAttributeView
-{
-    protected UserDefinedFileAttributesProvider()
-        throws IOException
-    {
+public abstract class UserDefinedFileAttributesProvider extends FileAttributesProvider
+        implements UserDefinedFileAttributeView {
+
+    protected UserDefinedFileAttributesProvider() throws IOException {
         super("user");
     }
 
-    /*
-     * read
-     */
+    //
+    // read
+    //
 
-    /*
-     * write
-     */
+    //
+    // write
+    //
 
     @Override
-    public int write(String name, ByteBuffer src)
-        throws IOException
-    {
+    public int write(String name, ByteBuffer src) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
     @Override
-    public void delete(String name)
-        throws IOException
-    {
+    public void delete(String name) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
-    /*
-     * by name
-     */
+    //
+    // by name
+    //
 
     @Override
-    public final void setAttributeByName(String name, Object value)
-        throws IOException
-    {
+    public final void setAttributeByName(String name, Object value) throws IOException {
         Objects.requireNonNull(name);
         Objects.requireNonNull(value);
 
@@ -88,18 +80,16 @@ public abstract class UserDefinedFileAttributesProvider
          * Since ClassCastException can be thrown by .setAttribute(), we can
          * take the risk of the instanceof test and subsequent cast.
          */
-        ByteBuffer buf = value instanceof  ByteBuffer
-            ? (ByteBuffer) value
-            : ByteBuffer.wrap((byte[]) value);
+        ByteBuffer buf = value instanceof ByteBuffer
+                ? (ByteBuffer) value
+                : ByteBuffer.wrap((byte[]) value);
 
         write(name, buf);
     }
 
     @Nullable
     @Override
-    public final Object getAttributeByName(String name)
-        throws IOException
-    {
+    public final Object getAttributeByName(String name) throws IOException {
         if (!list().contains(Objects.requireNonNull(name)))
             throw new IllegalArgumentException(name + " is undefined");
 
@@ -110,14 +100,12 @@ public abstract class UserDefinedFileAttributesProvider
 
     @Nonnull
     @Override
-    public Map<String, Object> getAllAttributes()
-        throws IOException
-    {
+    public Map<String, Object> getAllAttributes() throws IOException {
         Map<String, Object> map = new HashMap<>();
 
         ByteBuffer buf;
 
-        for (String name: list()) {
+        for (String name : list()) {
             buf = ByteBuffer.allocate(size(name));
             write(name, buf);
             map.put(name, buf.array());

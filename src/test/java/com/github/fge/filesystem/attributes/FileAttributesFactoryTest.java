@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.FileOwnerAttributeView;
 
-import org.junit.jupiter.api.Test;
-
 import com.github.fge.filesystem.attributes.testclasses.ArgType1;
 import com.github.fge.filesystem.attributes.testclasses.DummyPosix;
 import com.github.fge.filesystem.attributes.testclasses.ProtectedAcl;
@@ -31,18 +29,19 @@ import com.github.fge.filesystem.attributes.testclasses.PublicAcl;
 import com.github.fge.filesystem.attributes.testclasses.PublicAclNonPublicConstructor;
 import com.github.fge.filesystem.exceptions.InvalidAttributeProviderException;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public final class FileAttributesFactoryTest
-{
+
+public final class FileAttributesFactoryTest {
+
     @Test
-    public void cannotRegisterProviderWithoutMetadataClass()
-    {
-        assertThrows(IllegalArgumentException.class, () -> new FileAttributesFactory()
-        {
+    public void cannotRegisterProviderWithoutMetadataClass() {
+        assertThrows(IllegalArgumentException.class, () -> new FileAttributesFactory() {
             {
                 addImplementation("acl", PublicAcl.class);
             }
@@ -51,10 +50,8 @@ public final class FileAttributesFactoryTest
 
 
     @Test
-    public void registeringNewProviderWorksWhenClassIsCorrect()
-    {
-        new FileAttributesFactory()
-        {
+    public void registeringNewProviderWorksWhenClassIsCorrect() {
+        new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
                 addImplementation("acl", PublicAcl.class);
@@ -65,10 +62,8 @@ public final class FileAttributesFactoryTest
     }
 
     @Test
-    public void registeringAbstractProviderFails()
-    {
-        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
-        {
+    public void registeringAbstractProviderFails() {
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
                 addImplementation("acl", ProtectedAcl.class);
@@ -77,10 +72,8 @@ public final class FileAttributesFactoryTest
     }
 
     @Test
-    public void registeringPackageLocalProviderFails()
-    {
-        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
-        {
+    public void registeringPackageLocalProviderFails() {
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
                 addImplementation("acl", PackageLocalAcl.class);
@@ -89,23 +82,18 @@ public final class FileAttributesFactoryTest
     }
 
     @Test
-    public void registeringPublicClassWithNonPublicConstructorFails()
-    {
-        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
-        {
+    public void registeringPublicClassWithNonPublicConstructorFails() {
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
-                addImplementation("acl",
-                    PublicAclNonPublicConstructor.class);
+                addImplementation("acl", PublicAclNonPublicConstructor.class);
             }
         }, "no constructor found for class ");
     }
 
     @Test
-    public void registeringConstructorWithBadArgumentTypesFails()
-    {
-        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory()
-        {
+    public void registeringConstructorWithBadArgumentTypesFails() {
+        assertThrows(InvalidAttributeProviderException.class, () -> new FileAttributesFactory() {
             {
                 setMetadataClass(Object.class);
                 addImplementation("acl", PublicAcl.class);
@@ -115,21 +103,15 @@ public final class FileAttributesFactoryTest
 
     @Test
     // registeringNewProviderWorksWhenClass should be pass
-    public void canGenerateProviderInstanceOfExactAttributeClassName()
-        throws IOException
-    {
-        FileAttributesFactory factory
-            = new FileAttributesFactory()
-        {
+    public void canGenerateProviderInstanceOfExactAttributeClassName() throws IOException {
+        FileAttributesFactory factory = new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
                 addImplementation("acl", PublicAcl.class);
             }
         };
 
-        AclFileAttributeView view
-            = factory.getFileAttributeView(AclFileAttributeView.class,
-                mock(ArgType1.class));
+        AclFileAttributeView view = factory.getFileAttributeView(AclFileAttributeView.class, mock(ArgType1.class));
 
         assertNotNull(view);
         assertTrue(PublicAcl.class.isInstance(view));
@@ -137,32 +119,23 @@ public final class FileAttributesFactoryTest
 
     @Test
     // registeringNewProviderWorksWhenClass should be pass
-    public void canReturnSubclassOfRequiredAttributeViewClass()
-        throws IOException
-    {
-        FileAttributesFactory factory
-            = new FileAttributesFactory()
-        {
+    public void canReturnSubclassOfRequiredAttributeViewClass() throws IOException {
+        FileAttributesFactory factory = new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
                 addImplementation("acl", PublicAcl.class);
             }
         };
 
-        FileOwnerAttributeView view
-            = factory.getFileAttributeView(FileOwnerAttributeView.class,
-                mock(ArgType1.class));
+        FileOwnerAttributeView view = factory.getFileAttributeView(FileOwnerAttributeView.class, mock(ArgType1.class));
 
         assertNotNull(view);
         assertTrue(PublicAcl.class.isInstance(view));
     }
 
     @Test
-    public void attributeProviderExtendingBasicReportsBasicViewSupported()
-    {
-        FileAttributesFactory factory
-            = new FileAttributesFactory()
-        {
+    public void attributeProviderExtendingBasicReportsBasicViewSupported() {
+        FileAttributesFactory factory = new FileAttributesFactory() {
             {
                 setMetadataClass(ArgType1.class);
                 addImplementation("posix", DummyPosix.class);

@@ -27,14 +27,16 @@ import com.github.fge.filesystem.driver.FileSystemDriver;
 import com.github.fge.filesystem.fs.GenericFileSystem;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
 import com.github.fge.filesystem.provider.FileSystemRepository;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.platform.commons.function.Try;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 
 import static com.github.fge.filesystem.path.PathAssert.assertPath;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,8 +49,8 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(SoftAssertionsExtension.class)
-public final class GenericPathTest
-{
+public final class GenericPathTest {
+
     @InjectSoftAssertions
     CustomSoftAssertions soft;
 
@@ -63,10 +65,8 @@ public final class GenericPathTest
     private PathElementsFactory factory;
 
     @BeforeEach
-    public void initMocks()
-    {
-        FileSystemFactoryProvider factoryProvider
-            = new FileSystemFactoryProvider();
+    public void initMocks() {
+        FileSystemFactoryProvider factoryProvider = new FileSystemFactoryProvider();
         provider = mock(FileSystemProvider.class);
         repository = mock(FileSystemRepository.class);
         when(repository.getFactoryProvider()).thenReturn(factoryProvider);
@@ -76,8 +76,7 @@ public final class GenericPathTest
     }
 
     @Test
-    public void isAbsoluteDelegatesToPathElementsFactory()
-    {
+    public void isAbsoluteDelegatesToPathElementsFactory() {
         PathElements elements1 = new PathElements("/", NO_NAMES);
         PathElements elements2 = PathElements.EMPTY;
 
@@ -96,16 +95,14 @@ public final class GenericPathTest
     }
 
     @Test
-    public void getRootWihtoutRootReturnsNull()
-    {
+    public void getRootWihtoutRootReturnsNull() {
         Path path = new GenericPath(fs, factory, PathElements.EMPTY);
 
         assertPath(path.getRoot()).isNull();
     }
 
     @Test
-    public void getRootWithRootDoesNotReturnNull()
-    {
+    public void getRootWithRootDoesNotReturnNull() {
         PathElements elements = new PathElements("/", NO_NAMES);
         Path path = new GenericPath(fs, factory, elements);
 
@@ -113,18 +110,15 @@ public final class GenericPathTest
     }
 
     @Test
-    public void getFileNameWithNoNamesReturnsNull()
-    {
+    public void getFileNameWithNoNamesReturnsNull() {
         Path path = new GenericPath(fs, factory, PathElements.EMPTY);
 
         assertPath(path.getFileName()).isNull();
     }
 
     @Test
-    public void getFileNameWithNameElementsDoesNotReturnNull()
-    {
-        PathElements elements
-            = new PathElements(null, new String[] { "foo", "bar" });
+    public void getFileNameWithNameElementsDoesNotReturnNull() {
+        PathElements elements = new PathElements(null, new String[] {"foo", "bar"});
 
         Path path = new GenericPath(fs, factory, elements);
 
@@ -151,90 +145,83 @@ public final class GenericPathTest
      */
     @Test
     @Disabled
-    public void relativizeResolveRoundRobinWorks()
-    {
-        /*
-         * In order to set up the environment we define a mock
-         * FileSystemProvider which both our mock filesystems will return when
-         * .provider() is called.
-         *
-         * We also suppose that the same PathElementsFactory is used; while this
-         * code is not written yet, there should be only one such factory per
-         * FileSystemProvider anyway (which is fed into all generated FileSystem
-         * instances -- at least that's the plan).
-         *
-         * Note that this test method assumes that .equals() and .hashCode() are
-         * not implemented on GenericPath. As such we check that the FileSystem
-         * is the same (this is required by Path's equals()) and that the path
-         * elements are the same (this is this package's requirements).
-         */
+    public void relativizeResolveRoundRobinWorks() {
+        //
+        // In order to set up the environment we define a mock
+        // FileSystemProvider which both our mock filesystems will return when
+        // .provider() is called.
+        //
+        // We also suppose that the same PathElementsFactory is used; while this
+        // code is not written yet, there should be only one such factory per
+        // FileSystemProvider anyway (which is fed into all generated FileSystem
+        // instances -- at least that's the plan).
+        //
+        // Note that this test method assumes that .equals() and .hashCode() are
+        // not implemented on GenericPath. As such we check that the FileSystem
+        // is the same (this is required by Path's equals()) and that the path
+        // elements are the same (this is this package's requirements).
+        //
         FileSystemProvider fsProvider = mock(FileSystemProvider.class);
-        PathElementsFactory elementsFactory
-            = new UnixPathElementsFactory();
+        PathElementsFactory elementsFactory = new UnixPathElementsFactory();
         GenericFileSystem fsForP = mock(GenericFileSystem.class);
         GenericFileSystem fsForQ = mock(GenericFileSystem.class);
 
         when(fsForP.provider()).thenReturn(fsProvider);
         when(fsForQ.provider()).thenReturn(fsProvider);
 
-        /*
-         * The path to be operated. As the contract says, it has no root
-         * component.
-         */
+        //
+        // The path to be operated. As the contract says, it has no root
+        // component.
+        //
         GenericPath q = new GenericPath(fsForQ, elementsFactory,
-            new PathElements(null, new String[] { "q1", "q2" }));
+                new PathElements(null, new String[] {"q1", "q2"}));
 
-        /*
-         * The path against which both resolution and relativization are
-         * performed. We take two versions of it: a non absolute one and an
-         * absolute one.
-         *
-         * Note that since we use a UnixPathElementsFactory, we equate an
-         * absolute path (or not) to a path which has a root component (or not).
-         */
+        //
+        // The path against which both resolution and relativization are
+        // performed. We take two versions of it: a non absolute one and an
+        // absolute one.
+        //
+        // Note that since we use a UnixPathElementsFactory, we equate an
+        // absolute path (or not) to a path which has a root component (or not).
+        //
         GenericPath p;
         // "rr" as in "resolved, relativized"
         GenericPath rr;
 
-        /*
-         * Try with the absolute version first...
-         */
-        p = new GenericPath(fsForP, elementsFactory,
-            new PathElements("/", new String[] { "p1", "p2" }));
+        //
+        // Try with the absolute version first...
+        //
+        p = new GenericPath(fsForP, elementsFactory, new PathElements("/", new String[] {"p1", "p2"}));
         rr = (GenericPath) p.relativize(p.resolve(q));
 
         assertThat(rr.getFileSystem())
-            .as("rr and q filesystems should be the same (p absolute)")
-            .isSameAs(q.getFileSystem());
+                .as("rr and q filesystems should be the same (p absolute)")
+                .isSameAs(q.getFileSystem());
         soft.assertThat(rr.elements).hasSameContentsAs(q.elements);
 
-        /*
-         * Now with the non absolute version
-         */
-        p = new GenericPath(fsForP, elementsFactory,
-            new PathElements(null, new String[] { "p1", "p2" }));
+        //
+        // Now with the non absolute version
+        //
+        p = new GenericPath(fsForP, elementsFactory, new PathElements(null, new String[] {"p1", "p2"}));
         rr = (GenericPath) p.relativize(p.resolve(q));
 
         assertThat(rr.getFileSystem())
-            .as("rr and q filesystems should be the same (p not absolute)")
-            .isSameAs(q.getFileSystem());
+                .as("rr and q filesystems should be the same (p not absolute)")
+                .isSameAs(q.getFileSystem());
         soft.assertThat(rr.elements).hasSameContentsAs(q.elements);
     }
 
     @ParameterizedTest
     @CsvSource({
-        "foo://bar,/,foo://bar",
-        "foo://bar/x,/,foo://bar/x",
-        "foo://bar/x,/../a,foo://bar/x/a",
-        "foo://bar,/a v,foo://bar/a%20v",
+            "foo://bar,/,foo://bar",
+            "foo://bar/x,/,foo://bar/x",
+            "foo://bar/x,/../a,foo://bar/x/a",
+            "foo://bar,/a v,foo://bar/a%20v",
     })
-    public void toUriPathReturnsCorrectURI(String s, String path,
-                                           String expected)
-    {
+    public void toUriPathReturnsCorrectURI(String s, String path, String expected) {
         PathElementsFactory unixFactory = new UnixPathElementsFactory();
         URI uri2 = URI.create(s);
-        GenericFileSystem fs2
-            = new GenericFileSystem(uri2, repository, driver, provider);
+        GenericFileSystem fs2 = new GenericFileSystem(uri2, repository, driver, provider);
         PathElements elements = unixFactory.toPathElements(path);
         Path p = new GenericPath(fs2, unixFactory, elements);
 

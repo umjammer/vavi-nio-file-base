@@ -18,24 +18,20 @@
 
 package com.github.fge.filesystem.attributes;
 
-import com.github.fge.filesystem.attributes.provider.AclFileAttributesProvider;
-import com.github.fge.filesystem.attributes.testclasses.ArgType1;
-
 import java.io.IOException;
 import java.nio.file.attribute.UserPrincipal;
 
-final class PackageLocalAcl
-    extends AclFileAttributesProvider
-{
-    public PackageLocalAcl(ArgType1 arg)
-        throws IOException
-    {
+import com.github.fge.filesystem.attributes.provider.AclFileAttributesProvider;
+import com.github.fge.filesystem.attributes.testclasses.ArgType1;
+
+
+final class PackageLocalAcl extends AclFileAttributesProvider {
+
+    public PackageLocalAcl(ArgType1 arg) throws IOException {
     }
 
     @Override
-    public UserPrincipal getOwner()
-        throws IOException
-    {
+    public UserPrincipal getOwner() throws IOException {
         return null;
     }
 }

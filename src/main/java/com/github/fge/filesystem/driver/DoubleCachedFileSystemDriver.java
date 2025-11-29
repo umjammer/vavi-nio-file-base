@@ -68,22 +68,22 @@ public abstract class DoubleCachedFileSystemDriver<T> extends CachedFileSystemDr
         this.isFileCacheDisabled = isEnabled(ENV_DISABLED_FILE_CACHE);
         if (!isFileCacheDisabled) {
             cacheRoot = Files.createTempDirectory("java7-fs-base");
-logger.log(Level.DEBUG, "files cache is created: " + cacheRoot);
+            logger.log(Level.DEBUG, "files cache is created: " + cacheRoot);
             Runtime.getRuntime().addShutdownHook(new Thread(this::dispose));
         } else {
-logger.log(Level.DEBUG, "files cache is disabled");
+            logger.log(Level.DEBUG, "files cache is disabled");
         }
     }
 
     /** clean up cache */
     private void dispose() {
         try {
-logger.log(Level.DEBUG, "cleaning downloaded files cache: " + cacheRoot);
+            logger.log(Level.DEBUG, "cleaning downloaded files cache: " + cacheRoot);
             Files.walk(cacheRoot)
                     .sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
-logger.log(Level.DEBUG, "done cleaning cache: " + cacheRoot);
+            logger.log(Level.DEBUG, "done cleaning cache: " + cacheRoot);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -102,10 +102,10 @@ logger.log(Level.DEBUG, "done cleaning cache: " + cacheRoot);
         }
         os.close();
         if (Files.size(localCache) != Files.size(source)) {
-logger.log(Level.DEBUG, "CACHE failed, delete: " + localCache.getFileName() + ", local: " + Files.size(localCache) + ", source: " + Files.size(source));
+            logger.log(Level.DEBUG, "CACHE failed, delete: " + localCache.getFileName() + ", local: " + Files.size(localCache) + ", source: " + Files.size(source));
             Files.delete(localCache);
         } else {
-logger.log(Level.DEBUG, "CACHE created: " + localCache.getFileName() + ", local: " + Files.size(localCache) + ", source: " + Files.size(source));
+            logger.log(Level.DEBUG, "CACHE created: " + localCache.getFileName() + ", local: " + Files.size(localCache) + ", source: " + Files.size(source));
         }
     }
 
@@ -123,23 +123,24 @@ logger.log(Level.DEBUG, "CACHE created: " + localCache.getFileName() + ", local:
     @Override
     protected final InputStream downloadEntry(T entry, Path path, Set<? extends OpenOption> options) throws IOException {
         if (isFileCacheDisabled) {
-logger.log(Level.DEBUG, "downloading and caching ignored: " + path);
+            logger.log(Level.DEBUG, "downloading and caching ignored: " + path);
             return downloadEntryImpl(entry, path, options);
         }
 
         Path localCache = cacheRoot.resolve(getUniqueKey(path));
         if (!Files.exists(localCache)) {
-logger.log(Level.DEBUG, "downloading and caching: " + path + ", " + localCache.getFileName());
+            logger.log(Level.DEBUG, "downloading and caching: " + path + ", " + localCache.getFileName());
             downloadAsCache(localCache, path, downloadEntryImpl(entry, path, options));
         } else {
-logger.log(Level.DEBUG, "CACHE hit for: " + path + ", " + localCache.getFileName());
+            logger.log(Level.DEBUG, "CACHE hit for: " + path + ", " + localCache.getFileName());
         }
         // see vavi.nio.file.Util.SeekableByteChannelForReading
         return new SeekableDataInputStream(Files.newByteChannel(localCache));
     }
 
     /**
-     * implement driver depends code
+     * implement driver depends on code
+     *
      * @see #newInputStream(Path, Set), {@link #downloadEntry(Object, Path, Set)}
      */
     protected abstract InputStream downloadEntryImpl(T sourceEntry, Path path, Set<? extends OpenOption> options) throws IOException;

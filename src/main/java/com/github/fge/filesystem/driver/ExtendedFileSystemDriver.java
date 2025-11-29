@@ -27,13 +27,11 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.github.fge.filesystem.exceptions.IsDirectoryException;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
-
 import vavi.nio.file.Util;
 
 import static java.lang.System.getLogger;
@@ -45,6 +43,7 @@ import static java.lang.System.getLogger;
  * Wrapping same processing for each different type of file system driver's file object as <code>T</code>
  * You need to implement minimum abstract methods only.
  * </p>
+ *
  * @param <T> different type of file system driver's file object
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/06/10 umjammer initial version <br>
@@ -73,7 +72,7 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
      * @throws NoSuchFileException when an entry for the path not found
      */
     @Nonnull
-    protected abstract T getEntry(Path path)throws IOException;
+    protected abstract T getEntry(Path path) throws IOException;
 
     @Override
     public final InputStream newInputStream(Path path, Set<? extends OpenOption> options) throws IOException {
@@ -88,8 +87,9 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
 
     /**
      * implement driver depends code
+     *
      * @param entry source
-     * @param path source
+     * @param path  source
      * @see #newInputStream(Path, Set)
      */
     protected abstract InputStream downloadEntry(T entry, Path path, Set<? extends OpenOption> options) throws IOException;
@@ -106,9 +106,9 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
                     whenUploadEntryExists(entry, path, options);
                 }
             }
-logger.log(Level.DEBUG, "newOutputStream: cause target not exists");
+            logger.log(Level.DEBUG, "newOutputStream: cause target not exists");
         } catch (NoSuchFileException e) {
-logger.log(Level.DEBUG, "newOutputStream: cause target not found, " + e.getMessage());
+            logger.log(Level.DEBUG, "newOutputStream: cause target not found, " + e.getMessage());
         }
 
         T parent = getEntry(path.toAbsolutePath().getParent());
@@ -117,6 +117,7 @@ logger.log(Level.DEBUG, "newOutputStream: cause target not found, " + e.getMessa
 
     /**
      * Overrides this method if you want to do special action when the target file exists.
+     *
      * @throws FileAlreadyExistsException if you don't override this method.
      * @see #newOutputStream(Path, Set), {@link #uploadEntry(Object, Path, Set)}
      */
@@ -126,26 +127,29 @@ logger.log(Level.DEBUG, "newOutputStream: cause target not found, " + e.getMessa
 
     /**
      * you must implement `cache.addEntry(path, newEntry)` after async upload is done.
+     *
      * @param parentEntry dest parent
-     * @param path dest
+     * @param path        dest
      * @see #newOutputStream(Path, Set)
      */
     protected abstract OutputStream uploadEntry(T parentEntry, Path path, Set<? extends OpenOption> options) throws IOException;
 
     @Override
-    public final DirectoryStream<Path> newDirectoryStream(Path dir,
-                                                    DirectoryStream.Filter<? super Path> filter) throws IOException {
+    public final DirectoryStream<Path> newDirectoryStream(
+            Path dir, DirectoryStream.Filter<? super Path> filter) throws IOException {
         return Util.newDirectoryStream(getDirectoryEntries(dir, false), filter);
     }
 
     /**
      * implement driver depends code
+     *
      * @see #newDirectoryStream(Path, DirectoryStream.Filter), {@link #getDirectoryEntries(Path, boolean)}}
      */
     protected abstract List<T> getDirectoryEntries(T dirEntry, Path dir) throws IOException;
 
     /**
      * common process
+     *
      * @see #getDirectoryEntries(Path, boolean)
      */
     protected List<Path> getDirectoryEntries(Path dir, boolean dummy) throws IOException {
@@ -165,11 +169,11 @@ logger.log(Level.DEBUG, "newOutputStream: cause target not found, " + e.getMessa
         try {
             T dirEntry = getEntry(dir);
             if (exists(dirEntry)) {
-                throw new FileAlreadyExistsException("dir: "+ dir);
+                throw new FileAlreadyExistsException("dir: " + dir);
             }
-logger.log(Level.DEBUG, "createDirectory: target cause not exists");
+            logger.log(Level.DEBUG, "createDirectory: target cause not exists");
         } catch (NoSuchFileException e) {
-logger.log(Level.DEBUG, "createDirectory: target cause not found, " + e.getMessage());
+            logger.log(Level.DEBUG, "createDirectory: target cause not found, " + e.getMessage());
         }
 
         createDirectoryEntry(dir);
@@ -177,12 +181,14 @@ logger.log(Level.DEBUG, "createDirectory: target cause not found, " + e.getMessa
 
     /**
      * implement driver depends code
+     *
      * @see #createDirectory(Path, FileAttribute[]), {@link #createDirectoryEntry(Path)}
      */
     protected abstract T createDirectoryEntry(T parentEntry, Path dir) throws IOException;
 
     /**
      * common process
+     *
      * @see #createDirectoryEntry(Object, Path)
      */
     protected void createDirectoryEntry(Path dir) throws IOException {
@@ -205,18 +211,21 @@ logger.log(Level.DEBUG, "createDirectory: target cause not found, " + e.getMessa
 
     /**
      * should implement light-weight-ly.
+     *
      * @see #delete(Path)
      */
     protected abstract boolean hasChildren(T dirEntry, Path dir) throws IOException;
 
     /**
      * implement driver depends code
+     *
      * @see #delete(Path), {@link #removeEntry(Path)}
      */
     protected abstract void removeEntry(T entry, Path path) throws IOException;
 
     /**
      * common process
+     *
      * @see #removeEntry(Object, Path)
      */
     protected void removeEntry(Path path) throws IOException {
@@ -235,9 +244,9 @@ logger.log(Level.DEBUG, "createDirectory: target cause not found, " + e.getMessa
                     throw new FileAlreadyExistsException("path: " + target);
                 }
             }
-logger.log(Level.DEBUG, "copy: cause target not exists");
+            logger.log(Level.DEBUG, "copy: cause target not exists");
         } catch (NoSuchFileException e) {
-logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
+            logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
         }
 
         copyEntry(source, target, options);
@@ -245,6 +254,7 @@ logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
 
     /**
      * implement driver depends code
+     *
      * @return null means that copy is async, after process like cache by your self.
      * @see #copyEntry(Object, Object, Path, Path, Set)
      */
@@ -252,6 +262,7 @@ logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
 
     /**
      * common process
+     *
      * @see #copyEntry(Object, Object, Path, Path, Set)
      */
     protected void copyEntry(Path source, Path target, Set<CopyOption> options) throws IOException {
@@ -296,7 +307,7 @@ logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
             }
             logger.log(Level.DEBUG, "move: cause target not exists");
         } catch (NoSuchFileException e) {
-logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
+            logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
         }
 
         if (source.toAbsolutePath().getParent().equals(target.toAbsolutePath().getParent())) {
@@ -309,17 +320,21 @@ logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
 
     /**
      * implement driver depends code
+     *
      * @see #move(Path, Path, Set)
      */
     protected abstract T moveEntry(T sourceEntry, T targetParentEntry, Path source, Path target, boolean targetIsParent) throws IOException;
+
     /**
      * implement driver depends code
+     *
      * @see #move(Path, Path, Set)
      */
     protected abstract T moveFolderEntry(T sourceEntry, T targetParentEntry, Path source, Path target, boolean targetIsParent) throws IOException;
 
     /**
      * common process
+     *
      * @param targetIsParent if the target is folder
      * @see #moveEntry(Object, Object, Path, Path, boolean), {@link #moveFolderEntry(Object, Object, Path, Path, boolean)}
      */
@@ -335,12 +350,14 @@ logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
 
     /**
      * implement driver depends code
+     *
      * @see #renameEntry(Path, Path)
      */
     protected abstract T renameEntry(T sourceEntry, T targetParentEntry, Path source, Path target) throws IOException;
 
     /**
      * common process
+     *
      * @see #renameEntry(Object, Object, Path, Path)
      */
     protected void renameEntry(Path source, Path target) throws IOException {
@@ -351,6 +368,7 @@ logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
 
     /**
      * to ignore check, override me
+     *
      * @see #checkAccessEntry(Object, Path, AccessMode...)
      */
     @Override
@@ -366,6 +384,7 @@ logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
 
     /**
      * to check original access mode, override me
+     *
      * @see #checkAccessImpl(Path, AccessMode...)
      */
     protected void checkAccessEntry(T entry, Path path, AccessMode... modes) throws IOException {
@@ -385,10 +404,11 @@ logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
 
     /**
      * if you pass your own object, override me
+     *
      * @see #getPathMetadata(Path)
      */
     protected Object getPathMetadata(T entry) throws IOException {
-        return entry; 
+        return entry;
     }
 
     /** do nothing, cause most fs need not close, if it's needed override this */

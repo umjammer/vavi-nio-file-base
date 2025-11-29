@@ -24,14 +24,15 @@ import java.util.stream.IntStream;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import vavi.io.Seekable;
+import vavi.nio.file.Base;
+import vavi.nio.file.Util;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import vavi.io.Seekable;
-import vavi.nio.file.Base;
-import vavi.nio.file.Util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -161,6 +162,7 @@ class TestCase {
     }
 
     static class SeekableByteArrayInputStream extends InputStream implements Seekable {
+
         byte[] buf;
         int pos;
 
@@ -198,6 +200,7 @@ class TestCase {
     }
 
     static class SeekableByteArrayOutputStream extends OutputStream implements Seekable {
+
         List<Byte> buf;
         int capacity;
         int pos;
@@ -250,7 +253,8 @@ class TestCase {
         }
         InputStream is = new SeekableByteArrayInputStream(b);
         SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(is) {
-            @Override protected long getSize() {
+            @Override
+            protected long getSize() {
                 return b.length;
             }
         };
@@ -270,7 +274,8 @@ class TestCase {
         Files.write(tmp, b, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
         FileInputStream fis = new FileInputStream(tmp.toFile());
         SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(fis) {
-            @Override protected long getSize() {
+            @Override
+            protected long getSize() {
                 return b.length;
             }
         };
@@ -293,14 +298,14 @@ class TestCase {
         };
 
         sbc.position(99);
-        byte[] rb = new byte[] { 100 };
+        byte[] rb = new byte[] {100};
         sbc.write(ByteBuffer.wrap(rb));
 
         assertEquals(100, sbaos.toByteArray().length);
         assertEquals(100, sbaos.toByteArray()[99]);
 
         sbc.position(49);
-        rb = new byte[] { 50 };
+        rb = new byte[] {50};
         sbc.write(ByteBuffer.wrap(rb));
 
         assertEquals(100, sbaos.toByteArray().length);
@@ -319,11 +324,11 @@ class TestCase {
         };
 
         sbc.position(99);
-        byte[] rb = new byte[] { 100 };
+        byte[] rb = new byte[] {100};
         sbc.write(ByteBuffer.wrap(rb));
 
         sbc.position(49);
-        rb = new byte[] { 50 };
+        rb = new byte[] {50};
         sbc.write(ByteBuffer.wrap(rb));
 
         byte[] b = Files.readAllBytes(tmp);

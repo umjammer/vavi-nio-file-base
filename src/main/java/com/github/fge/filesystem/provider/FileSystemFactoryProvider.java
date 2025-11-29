@@ -18,96 +18,74 @@
 
 package com.github.fge.filesystem.provider;
 
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import com.github.fge.filesystem.attributes.FileAttributesFactory;
 import com.github.fge.filesystem.options.FileSystemOptionsFactory;
 import com.github.fge.filesystem.path.PathElementsFactory;
 import com.github.fge.filesystem.path.UnixPathElementsFactory;
 import com.github.fge.filesystem.path.matchers.PathMatcherFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Objects;
 
 @ParametersAreNonnullByDefault
-public class FileSystemFactoryProvider
-{
-    private static final PathElementsFactory PATH_ELEMENTS_FACTORY
-        = new UnixPathElementsFactory();
-    private static final PathMatcherFactory PATH_MATCHER_FACTORY
-        = new PathMatcherFactory();
-    private static final FileSystemOptionsFactory OPTIONS_FACTORY
-        = new FileSystemOptionsFactory();
+public class FileSystemFactoryProvider {
+
+    private static final PathElementsFactory PATH_ELEMENTS_FACTORY = new UnixPathElementsFactory();
+    private static final PathMatcherFactory PATH_MATCHER_FACTORY = new PathMatcherFactory();
+    private static final FileSystemOptionsFactory OPTIONS_FACTORY = new FileSystemOptionsFactory();
 
     private PathElementsFactory pathElementsFactory;
     private PathMatcherFactory pathMatcherFactory;
     private FileAttributesFactory attributesFactory;
     private FileSystemOptionsFactory optionsFactory;
 
-    public FileSystemFactoryProvider()
-    {
+    public FileSystemFactoryProvider() {
         setPathElementsFactory(PATH_ELEMENTS_FACTORY);
         setPathMatcherFactory(PATH_MATCHER_FACTORY);
         setOptionsFactory(OPTIONS_FACTORY);
     }
 
     @Nonnull
-    public final PathElementsFactory getPathElementsFactory()
-    {
+    public final PathElementsFactory getPathElementsFactory() {
         return pathElementsFactory;
     }
 
     @Nonnull
-    public final PathMatcherFactory getPathMatcherFactory()
-    {
+    public final PathMatcherFactory getPathMatcherFactory() {
         return pathMatcherFactory;
     }
 
     @Nonnull
-    public final FileAttributesFactory getAttributesFactory()
-    {
+    public final FileAttributesFactory getAttributesFactory() {
         return attributesFactory;
     }
 
     @Nonnull
-    public final FileSystemOptionsFactory getOptionsFactory()
-    {
+    public final FileSystemOptionsFactory getOptionsFactory() {
         return optionsFactory;
     }
 
-    public final void validate()
-    {
-        Objects.requireNonNull(attributesFactory,
-            "attributes factory must not be null");
+    public final void validate() {
+        Objects.requireNonNull(attributesFactory, "attributes factory must not be null");
         if (!attributesFactory.supportsFileAttributeView("basic"))
-            throw new IllegalArgumentException("\"basic\" file attribute view"
-                + " must be supported");
+            throw new IllegalArgumentException("\"basic\" file attribute view must be supported");
     }
 
-    protected final void setPathElementsFactory(
-        PathElementsFactory pathElementsFactory
-    )
-    {
+    protected final void setPathElementsFactory(PathElementsFactory pathElementsFactory) {
         this.pathElementsFactory = Objects.requireNonNull(pathElementsFactory);
     }
 
-    protected final void setPathMatcherFactory(
-        PathMatcherFactory pathMatcherFactory
-    )
-    {
+    protected final void setPathMatcherFactory(PathMatcherFactory pathMatcherFactory) {
         this.pathMatcherFactory = Objects.requireNonNull(pathMatcherFactory);
     }
 
-    protected final void setAttributesFactory(
-        FileAttributesFactory attributesFactory
-    )
-    {
+    protected final void setAttributesFactory(FileAttributesFactory attributesFactory) {
         this.attributesFactory = Objects.requireNonNull(attributesFactory);
     }
 
-    protected final void setOptionsFactory(
-        FileSystemOptionsFactory optionsFactory
-    )
-    {
+    protected final void setOptionsFactory(FileSystemOptionsFactory optionsFactory) {
         this.optionsFactory = Objects.requireNonNull(optionsFactory);
     }
 }

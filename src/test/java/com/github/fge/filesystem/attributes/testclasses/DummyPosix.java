@@ -18,55 +18,46 @@
 
 package com.github.fge.filesystem.attributes.testclasses;
 
-import com.github.fge.filesystem.attributes.provider
-    .PosixFileAttributesProvider;
-
 import java.io.IOException;
 import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.UserPrincipal;
 
-public final class DummyPosix
-    extends PosixFileAttributesProvider
-{
+import com.github.fge.filesystem.attributes.provider.PosixFileAttributesProvider;
+
+
+public final class DummyPosix extends PosixFileAttributesProvider {
+
     public DummyPosix(ArgType1 arg)
-        throws IOException
-    {
+            throws IOException {
     }
 
     @Override
-    public UserPrincipal getOwner()
-        throws IOException
-    {
+    public UserPrincipal getOwner() throws IOException {
         return null;
     }
 
     @Override
-    public UserPrincipal owner()
-    {
+    public UserPrincipal owner() {
         return null;
     }
 
     @Override
-    public GroupPrincipal group()
-    {
+    public GroupPrincipal group() {
         return null;
     }
 
     @Override
-    public boolean isRegularFile()
-    {
+    public boolean isRegularFile() {
         return false;
     }
 
     @Override
-    public boolean isDirectory()
-    {
+    public boolean isDirectory() {
         return false;
     }
 
     @Override
-    public long size()
-    {
+    public long size() {
         return 0;
     }
 }

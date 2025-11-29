@@ -42,17 +42,14 @@ import com.github.fge.filesystem.fs.GenericFileSystem;
 
 
 @ParametersAreNonnullByDefault
-public abstract class FileSystemRepositoryBase
-    implements FileSystemRepository
-{
+public abstract class FileSystemRepositoryBase implements FileSystemRepository {
+
     private final String scheme;
     private final Map<URI, GenericFileSystem> filesystems = new HashMap<>();
 
     protected final FileSystemFactoryProvider factoryProvider;
 
-    protected FileSystemRepositoryBase(String scheme,
-                                       FileSystemFactoryProvider factoryProvider)
-    {
+    protected FileSystemRepositoryBase(String scheme, FileSystemFactoryProvider factoryProvider) {
         this.scheme = Objects.requireNonNull(scheme);
         this.factoryProvider = Objects.requireNonNull(factoryProvider);
         factoryProvider.validate();
@@ -60,29 +57,23 @@ public abstract class FileSystemRepositoryBase
 
     @Override
     @Nonnull
-    public final String getScheme()
-    {
+    public final String getScheme() {
         return scheme;
     }
 
     @Nonnull
     @Override
-    public final FileSystemFactoryProvider getFactoryProvider()
-    {
+    public final FileSystemFactoryProvider getFactoryProvider() {
         return factoryProvider;
     }
 
     @Nonnull
-    protected abstract FileSystemDriver createDriver(URI uri,
-        Map<String, ?> env)
-        throws IOException;
+    protected abstract FileSystemDriver createDriver(URI uri, Map<String, ?> env) throws IOException;
 
     @Override
     @Nonnull
-    public final FileSystem createFileSystem(FileSystemProvider provider,
-                                             URI uri, Map<String, ?> env)
-        throws IOException
-    {
+    public final FileSystem createFileSystem(FileSystemProvider provider, URI uri, Map<String, ?> env)
+            throws IOException {
         Objects.requireNonNull(provider);
         Objects.requireNonNull(env);
         checkURI(uri);
@@ -91,8 +82,7 @@ public abstract class FileSystemRepositoryBase
             if (filesystems.containsKey(uri))
                 throw new FileSystemAlreadyExistsException();
             FileSystemDriver driver = createDriver(uri, env);
-            GenericFileSystem fs
-                = new GenericFileSystem(uri, this, driver, provider);
+            GenericFileSystem fs = new GenericFileSystem(uri, this, driver, provider);
             filesystems.put(uri, fs);
             return fs;
         }
@@ -100,8 +90,7 @@ public abstract class FileSystemRepositoryBase
 
     @Override
     @Nonnull
-    public final FileSystem getFileSystem(URI uri)
-    {
+    public final FileSystem getFileSystem(URI uri) {
         checkURI(uri);
 
         FileSystem fs;
@@ -119,8 +108,7 @@ public abstract class FileSystemRepositoryBase
     // Note: fs never created automatically
     @Override
     @Nonnull
-    public final Path getPath(URI uri)
-    {
+    public final Path getPath(URI uri) {
         checkURI(uri);
 
         URI tmp;
@@ -128,8 +116,7 @@ public abstract class FileSystemRepositoryBase
         String path;
 
         synchronized (filesystems) {
-            for (Map.Entry<URI, GenericFileSystem> entry:
-                filesystems.entrySet()) {
+            for (Map.Entry<URI, GenericFileSystem> entry : filesystems.entrySet()) {
                 tmp = uri.relativize(entry.getKey());
                 if (tmp.isAbsolute())
                     continue;
@@ -149,12 +136,11 @@ public abstract class FileSystemRepositoryBase
 
     @Nonnull
     @Override
-    public final FileSystemDriver getDriver(Path path)
-    {
+    public final FileSystemDriver getDriver(Path path) {
         FileSystem fs = Objects.requireNonNull(path).getFileSystem();
 
         synchronized (filesystems) {
-            for (GenericFileSystem gfs: filesystems.values()) {
+            for (GenericFileSystem gfs : filesystems.values()) {
                 //noinspection ObjectEquality
                 if (gfs != fs)
                     continue;
@@ -170,8 +156,7 @@ public abstract class FileSystemRepositoryBase
     // Called ONLY after the driver and fs have been successfully closed
     // uri is guaranteed to exist
     @Override
-    public final void unregister(URI uri)
-    {
+    public final void unregister(URI uri) {
         Objects.requireNonNull(uri);
         synchronized (filesystems) {
             filesystems.remove(uri);
@@ -179,14 +164,12 @@ public abstract class FileSystemRepositoryBase
     }
 
     /** if you want to check at the provider level, override */
-    protected void checkURI(@Nullable URI uri)
-    {
+    protected void checkURI(@Nullable URI uri) {
         Objects.requireNonNull(uri);
         if (!uri.isAbsolute())
             throw new IllegalArgumentException("uri is not absolute");
         if (uri.isOpaque())
-            throw new IllegalArgumentException("uri is not hierarchical "
-                + "(.isOpaque() returns true)");
+            throw new IllegalArgumentException("uri is not hierarchical (.isOpaque() returns true)");
         if (!scheme.equals(uri.getScheme()))
             throw new IllegalArgumentException("bad scheme");
     }
@@ -216,9 +199,9 @@ public abstract class FileSystemRepositoryBase
                 String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8) : pair;
                 String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
                 if (!queryPairs.containsKey(key)) {
-                    queryPairs.put(key, new String[] { value });
+                    queryPairs.put(key, new String[] {value});
                 } else {
-                    queryPairs.put(key, Stream.concat(Arrays.stream(queryPairs.get(key)), Arrays.stream(new String[] { value })).toArray(String[]::new));
+                    queryPairs.put(key, Stream.concat(Arrays.stream(queryPairs.get(key)), Arrays.stream(new String[] {value})).toArray(String[]::new));
                 }
             }
         }

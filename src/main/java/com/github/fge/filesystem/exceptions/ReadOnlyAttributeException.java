@@ -18,13 +18,14 @@
 
 package com.github.fge.filesystem.exceptions;
 
-import com.github.fge.filesystem.driver.FileSystemDriver;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
+
+import com.github.fge.filesystem.driver.FileSystemDriver;
+
 
 /**
  * An {@link IOException} defined when a file attribute is read only
@@ -40,26 +41,20 @@ import java.nio.file.spi.FileSystemProvider;
  * @see FileSystemDriver#setAttribute(Path, String, Object, LinkOption...)
  * @see FileSystemProvider#setAttribute(Path, String, Object, LinkOption...)
  */
-public final class ReadOnlyAttributeException
-    extends IOException
-{
-    public ReadOnlyAttributeException()
-    {
+public final class ReadOnlyAttributeException extends IOException {
+
+    public ReadOnlyAttributeException() {
     }
 
-    public ReadOnlyAttributeException(String message)
-    {
+    public ReadOnlyAttributeException(String message) {
         super(message);
     }
 
-    public ReadOnlyAttributeException(String message,
-                                      Throwable cause)
-    {
+    public ReadOnlyAttributeException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ReadOnlyAttributeException(Throwable cause)
-    {
+    public ReadOnlyAttributeException(Throwable cause) {
         super(cause);
     }
 }
