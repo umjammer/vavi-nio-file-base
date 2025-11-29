@@ -3,7 +3,7 @@
 
   <groupId>com.github.fge</groupId>
   <artifactId>vavi-nio-file-base</artifactId>
-  <version>0.0.16</version>
+  <version>0.0.17</version>
 
   <name>vavi-nio-file-base</name>
   <url>https://github.com/umjammer/vavi-nio-file-base</url>
