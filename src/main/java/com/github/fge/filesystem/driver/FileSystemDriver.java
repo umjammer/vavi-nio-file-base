@@ -18,14 +18,6 @@
 
 package com.github.fge.filesystem.driver;
 
-import com.github.fge.filesystem.filestore.FileStoreBase;
-import com.github.fge.filesystem.fs.GenericFileSystem;
-import com.github.fge.filesystem.provider.FileSystemProviderBase;
-import com.github.fge.filesystem.provider.FileSystemRepositoryBase;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +42,15 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.filestore.FileStoreBase;
+import com.github.fge.filesystem.fs.GenericFileSystem;
+import com.github.fge.filesystem.provider.FileSystemProviderBase;
+import com.github.fge.filesystem.provider.FileSystemRepositoryBase;
+
 
 /**
  * The core filesystem class
@@ -73,13 +74,12 @@ import java.util.concurrent.ExecutorService;
 @SuppressWarnings("OverloadedVarargsMethod")
 @ParametersAreNonnullByDefault
 public interface FileSystemDriver
-    extends Closeable
-{
+        extends Closeable {
+
     /**
      * Get the {@link FileStore} associated with this filesystem
      *
      * @return a {@link FileStore}
-     *
      * @see FileSystem#getFileStores()
      * @see FileStoreBase
      */
@@ -90,7 +90,6 @@ public interface FileSystemDriver
      * Get a user/group lookup service for this filesystem
      *
      * @return a user/group lookup service
-     *
      * @see FileSystem#getUserPrincipalLookupService()
      */
     @Nonnull
@@ -100,7 +99,6 @@ public interface FileSystemDriver
      * Get a file watch service for this filesystem
      *
      * @return a watch service
-     *
      * @see FileSystem#newWatchService()
      */
     @Nonnull
@@ -109,30 +107,28 @@ public interface FileSystemDriver
     /**
      * Obtain a new {@link InputStream} from a path for this filesystem
      *
-     * @param path the path
+     * @param path    the path
      * @param options the set of open options
      * @return a new input stream
      * @throws IOException filesystem level error, or plain I/O error
-     *
      * @see FileSystemProvider#newInputStream(Path, OpenOption...)
      */
     @Nonnull
     InputStream newInputStream(Path path, Set<? extends OpenOption> options)
-        throws IOException;
+            throws IOException;
 
     /**
      * Obtain a new {@link OutputStream} from a path for this filesystem
      *
-     * @param path the path
+     * @param path    the path
      * @param options the set of open options
      * @return a new output stream
      * @throws IOException filesystem level error, or plain I/O error
-     *
      * @see FileSystemProvider#newOutputStream(Path, OpenOption...)
      */
     @Nonnull
     OutputStream newOutputStream(Path path, Set<? extends OpenOption> options)
-        throws IOException;
+            throws IOException;
 
     /**
      * Obtain a new {@link SeekableByteChannel} from a path for this filesystem
@@ -140,85 +136,79 @@ public interface FileSystemDriver
      * <p>Note that a {@code SeekableByteChannel} supports both reads and
      * writes.</p>
      *
-     * @param path the path
+     * @param path    the path
      * @param options the set of open options
-     * @param attrs the attributes to create the file with (if it does not
-     * exist)
+     * @param attrs   the attributes to create the file with (if it does not
+     *                exist)
      * @return a channel
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#newByteChannel(Path, Set, FileAttribute[])
      */
     @Nonnull
     SeekableByteChannel newByteChannel(Path path,
-        Set<? extends OpenOption> options, FileAttribute<?>... attrs)
-        throws IOException;
+                                       Set<? extends OpenOption> options, FileAttribute<?>... attrs)
+            throws IOException;
 
     /**
      * Create a new directory stream from a path for this filesystem
      *
-     * @param dir the directory
+     * @param dir    the directory
      * @param filter a directory entry filter
      * @return a directory stream
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#newDirectoryStream(Path, DirectoryStream.Filter)
      */
     @Nonnull
     DirectoryStream<Path> newDirectoryStream(Path dir,
-        DirectoryStream.Filter<? super Path> filter)
-        throws IOException;
+                                             DirectoryStream.Filter<? super Path> filter)
+            throws IOException;
 
     /**
      * Create a new directory from a path on this filesystem
      *
-     * @param dir the directory to create
+     * @param dir   the directory to create
      * @param attrs the attributes with which the directory should be created
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#createDirectory(Path, FileAttribute[])
      */
     void createDirectory(Path dir, FileAttribute<?>... attrs)
-        throws IOException;
+            throws IOException;
 
     /**
      * Delete a file, or empty directory, matching a path on this filesystem
      *
      * @param path the victim
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#delete(Path)
      */
     void delete(Path path)
-        throws IOException;
+            throws IOException;
 
     /**
      * Copy a file, or empty directory, from one path to another on this
      * filesystem
      *
-     * @param source the source path
-     * @param target the target path
+     * @param source  the source path
+     * @param target  the target path
      * @param options the copy options
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#copy(Path, Path, CopyOption...)
      */
     void copy(Path source, Path target, Set<CopyOption> options)
-        throws IOException;
+            throws IOException;
 
     /**
      * Move a file, or empty directory, from one path to another on this
      * filesystem
      *
-     * @param source the source path
-     * @param target the target path
+     * @param source  the source path
+     * @param target  the target path
      * @param options the copy options
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#move(Path, Path, CopyOption...)
      */
     void move(Path source, Path target, Set<CopyOption> options)
-        throws IOException;
+            throws IOException;
 
     /**
      * Tell whether two paths actually refer to the same resource on this
@@ -233,15 +223,14 @@ public interface FileSystemDriver
      * <p>Two paths which are {@link Object#equals(Object) equal} are always the
      * same.</p>
      *
-     * @param path the first path
+     * @param path  the first path
      * @param path2 the second path
      * @return true if and only if both path
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#isSameFile(Path, Path)
      */
     boolean isSameFile(Path path, Path path2)
-        throws IOException;
+            throws IOException;
 
     /**
      * Tell whether a path is to be considered hidden by this filesystem
@@ -252,11 +241,10 @@ public interface FileSystemDriver
      * @param path the path to test
      * @return true if this path is considered hidden
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#isHidden(Path)
      */
     boolean isHidden(Path path)
-        throws IOException;
+            throws IOException;
 
     /**
      * Check access modes for a path on this filesystem
@@ -264,97 +252,88 @@ public interface FileSystemDriver
      * <p>If no modes are provided to check for, this simply checks for the
      * existence of the path.</p>
      *
-     * @param path the path to check
+     * @param path  the path to check
      * @param modes the modes to check for, if any
      * @throws IOException filesystem level error, or a plain I/O error
-     *
      * @see FileSystemProvider#checkAccess(Path, AccessMode...)
      */
     void checkAccess(Path path, AccessMode... modes)
-        throws IOException;
+            throws IOException;
 
     /**
      * Read an attribute view for a given path on this filesystem
      *
-     * @param path the path to read attributes from
-     * @param type the class of attribute view to return
+     * @param path    the path to read attributes from
+     * @param type    the class of attribute view to return
      * @param options the link options
-     * @param <V> type parameter of the attribute view class
+     * @param <V>     type parameter of the attribute view class
      * @return the attributes view; {@code null} if this view is not supported
-     *
      * @see FileSystemProvider#getFileAttributeView(Path, Class, LinkOption...)
      */
     // TODO: attribute view should be lazy loaded
     @Nullable
     <V extends FileAttributeView> V getFileAttributeView(Path path,
-        Class<V> type, LinkOption... options);
+                                                         Class<V> type, LinkOption... options);
 
     /**
      * Read attributes from a path on this filesystem
      *
-     * @param path the path to read attributes from
-     * @param type the class of attributes to read
+     * @param path    the path to read attributes from
+     * @param type    the class of attributes to read
      * @param options the link options
-     * @param <A> parameter type for the attributs class
+     * @param <A>     parameter type for the attributs class
      * @return the attributes
-     * @throws IOException filesystem level error, or a plain I/O error
+     * @throws IOException                   filesystem level error, or a plain I/O error
      * @throws UnsupportedOperationException attribute type not supported
-     *
      * @see FileSystemProvider#readAttributes(Path, Class, LinkOption...)
      */
     <A extends BasicFileAttributes> A readAttributes(
-        Path path, Class<A> type, LinkOption... options)
-        throws IOException;
+            Path path, Class<A> type, LinkOption... options)
+            throws IOException;
 
     /**
      * Read a list of attributes from a path on this filesystem
      *
-     * @param path the path to read attributes from
+     * @param path       the path to read attributes from
      * @param attributes the list of attributes to read
-     * @param options the link options
+     * @param options    the link options
      * @return the relevant attributes as a map
-     * @throws IOException filesystem level error, or a plain I/O error
-     * @throws IllegalArgumentException malformed attributes string; or a
-     * specified attribute does not exist
+     * @throws IOException                   filesystem level error, or a plain I/O error
+     * @throws IllegalArgumentException      malformed attributes string; or a
+     *                                       specified attribute does not exist
      * @throws UnsupportedOperationException one or more attribute(s) is/are not
-     * supported
-     *
+     *                                       supported
      * @see Files#readAttributes(Path, String, LinkOption...)
      * @see FileSystemProvider#readAttributes(Path, String, LinkOption...)
      */
-     Map<String, Object> readAttributes(Path path, String attributes,
-        LinkOption... options)
-        throws IOException;
+    Map<String, Object> readAttributes(Path path, String attributes,
+                                       LinkOption... options)
+            throws IOException;
 
     /**
      * Set an attribute for a path on this filesystem
      *
-     * @param path the victim
+     * @param path      the victim
      * @param attribute the name of the attribute to set
-     * @param value the value to set
-     * @param options the link options
-     * @throws IOException filesystem level error, or a plain I/O error
-     * @throws IllegalArgumentException malformed attribute, or the specified
-     * attribute does not exist
+     * @param value     the value to set
+     * @param options   the link options
+     * @throws IOException                   filesystem level error, or a plain I/O error
+     * @throws IllegalArgumentException      malformed attribute, or the specified
+     *                                       attribute does not exist
      * @throws UnsupportedOperationException the attribute to set is not
-     * supported by this filesystem
-     * @throws ClassCastException attribute value is of the wrong class for the
-     * specified attribute
-     *
+     *                                       supported by this filesystem
+     * @throws ClassCastException            attribute value is of the wrong class for the
+     *                                       specified attribute
      * @see Files#setAttribute(Path, String, Object, LinkOption...)
      * @see FileSystemProvider#setAttribute(Path, String, Object, LinkOption...)
      */
-    void setAttribute(Path path, String attribute, Object value,
-        LinkOption... options)
-        throws IOException;
+    void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException;
 
     @Nonnull
-    Object getPathMetadata(Path path)
-        throws IOException;
+    Object getPathMetadata(Path path) throws IOException;
 
     AsynchronousFileChannel newAsynchronousFileChannel(Path path,
-                                                              Set<? extends OpenOption> options,
-                                                              ExecutorService executor,
-                                                              FileAttribute<?>... attrs)
-        throws IOException;
+                                                       Set<? extends OpenOption> options,
+                                                       ExecutorService executor,
+                                                       FileAttribute<?>... attrs) throws IOException;
 }

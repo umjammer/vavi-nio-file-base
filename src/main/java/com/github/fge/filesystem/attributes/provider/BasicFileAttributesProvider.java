@@ -18,12 +18,6 @@
 
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -32,6 +26,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Provider for the {@code "basic"} file attribute view
@@ -50,64 +51,55 @@ import java.util.Objects;
  */
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
-public abstract class BasicFileAttributesProvider
-    extends FileAttributesProvider
-    implements BasicFileAttributeView, BasicFileAttributes
-{
+public abstract class BasicFileAttributesProvider extends FileAttributesProvider
+        implements BasicFileAttributeView, BasicFileAttributes {
+
     protected static final FileTime UNIX_EPOCH = FileTime.fromMillis(0L);
 
-    protected BasicFileAttributesProvider()
-        throws IOException
-    {
+    protected BasicFileAttributesProvider() throws IOException {
         super("basic");
     }
 
-    /*
-     * Attributes
-     */
+    //
+    // Attributes
+    //
+
     @Override
-    public final BasicFileAttributes readAttributes()
-        throws IOException
-    {
+    public final BasicFileAttributes readAttributes() throws IOException {
         return this;
     }
 
-    /*
-     * Read
-     */
+    //
+    // Read
+    //
+
     @Override
-    public FileTime lastModifiedTime()
-    {
+    public FileTime lastModifiedTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public FileTime lastAccessTime()
-    {
+    public FileTime lastAccessTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public FileTime creationTime()
-    {
+    public FileTime creationTime() {
         return UNIX_EPOCH;
     }
 
     @Override
-    public boolean isSymbolicLink()
-    {
+    public boolean isSymbolicLink() {
         return false;
     }
 
     @Override
-    public boolean isOther()
-    {
+    public boolean isOther() {
         return false;
     }
 
     @Override
-    public Object fileKey()
-    {
+    public Object fileKey() {
         return null;
     }
 
@@ -115,11 +107,9 @@ public abstract class BasicFileAttributesProvider
      * Write
      */
     @Override
-    public void setTimes(@Nullable final FileTime lastModifiedTime,
-        @Nullable final FileTime lastAccessTime,
-        @Nullable final FileTime createTime)
-        throws IOException
-    {
+    public void setTimes(@Nullable FileTime lastModifiedTime,
+                         @Nullable FileTime lastAccessTime,
+                         @Nullable FileTime createTime) throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
@@ -127,69 +117,45 @@ public abstract class BasicFileAttributesProvider
      * By name
      */
     @Override
-    public void setAttributeByName(final String name, final Object value)
-        throws IOException
-    {
+    public void setAttributeByName(String name, Object value) throws IOException {
         Objects.requireNonNull(value);
         switch (Objects.requireNonNull(name)) {
-            case "lastModifiedTime":
-                setTimes((FileTime) value, null, null);
-                break;
-            case "lastAccessTime":
-                setTimes(null, (FileTime) value, null);
-                break;
-            case "creationTime":
-                setTimes(null, null, (FileTime) value);
-                break;
-            case "size":
-            case "isRegularFile":
-            case "isDirectory":
-            case "isSymbolicLink":
-            case "isOther":
-            case "fileKey":
-                throw new ReadOnlyAttributeException(name);
-            default:
-                throw new NoSuchAttributeException(name);
+            case "lastModifiedTime" -> setTimes((FileTime) value, null, null);
+            case "lastAccessTime" -> setTimes(null, (FileTime) value, null);
+            case "creationTime" -> setTimes(null, null, (FileTime) value);
+            case "size",
+                 "isRegularFile",
+                 "isDirectory",
+                 "isSymbolicLink",
+                 "isOther",
+                 "fileKey" -> throw new ReadOnlyAttributeException(name);
+            default -> throw new NoSuchAttributeException(name);
         }
     }
 
     @SuppressWarnings("OverlyComplexMethod")
     @Nonnull
     @Override
-    public Object getAttributeByName(final String name)
-        throws IOException
-    {
-        switch (Objects.requireNonNull(name)) {
+    public Object getAttributeByName(String name) throws IOException {
+        return switch (Objects.requireNonNull(name)) {
             /* basic */
-            case "lastModifiedTime":
-                return lastModifiedTime();
-            case "lastAccessTime":
-                return lastAccessTime();
-            case "creationTime":
-                return creationTime();
-            case "size":
-                return size();
-            case "isRegularFile":
-                return isRegularFile();
-            case "isDirectory":
-                return isDirectory();
-            case "isSymbolicLink":
-                return isSymbolicLink();
-            case "isOther":
-                return isOther();
-            case "fileKey":
-                return fileKey();
-            default:
-                throw new NoSuchAttributeException(name);
-        }
+            case "lastModifiedTime" -> lastModifiedTime();
+            case "lastAccessTime" -> lastAccessTime();
+            case "creationTime" -> creationTime();
+            case "size" -> size();
+            case "isRegularFile" -> isRegularFile();
+            case "isDirectory" -> isDirectory();
+            case "isSymbolicLink" -> isSymbolicLink();
+            case "isOther" -> isOther();
+            case "fileKey" -> fileKey();
+            default -> throw new NoSuchAttributeException(name);
+        };
     }
 
     @Nonnull
     @Override
-    public final Map<String, Object> getAllAttributes()
-        throws IOException
-    {
-        final Map<String, Object> map = new HashMap<>();
+    public final Map<String, Object> getAllAttributes() throws IOException {
+        Map<String, Object> map = new HashMap<>();
 
         map.put("lastModifiedTime", lastModifiedTime());
         map.put("lastAccessTime", lastAccessTime());

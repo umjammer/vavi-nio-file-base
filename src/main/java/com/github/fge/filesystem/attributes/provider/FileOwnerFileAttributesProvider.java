@@ -18,18 +18,19 @@
 
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.UserPrincipal;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Provider for the {@code "owner"} file attribute view
@@ -39,12 +40,11 @@ import java.util.Objects;
 @SuppressWarnings("DesignForExtension")
 @ParametersAreNonnullByDefault
 public abstract class FileOwnerFileAttributesProvider
-    extends FileAttributesProvider
-    implements FileOwnerAttributeView
-{
+        extends FileAttributesProvider
+        implements FileOwnerAttributeView {
+
     protected FileOwnerFileAttributesProvider()
-        throws IOException
-    {
+            throws IOException {
         super("owner");
     }
 
@@ -57,9 +57,8 @@ public abstract class FileOwnerFileAttributesProvider
      */
 
     @Override
-    public void setOwner(final UserPrincipal owner)
-        throws IOException
-    {
+    public void setOwner(UserPrincipal owner)
+            throws IOException {
         throw new ReadOnlyAttributeException();
     }
 
@@ -67,9 +66,8 @@ public abstract class FileOwnerFileAttributesProvider
      * by name
      */
     @Override
-    public final void setAttributeByName(final String name, final Object value)
-        throws IOException
-    {
+    public final void setAttributeByName(String name, Object value)
+            throws IOException {
         if (!"owner".equals(Objects.requireNonNull(name)))
             throw new NoSuchAttributeException(name);
 
@@ -78,9 +76,8 @@ public abstract class FileOwnerFileAttributesProvider
 
     @Nullable
     @Override
-    public final Object getAttributeByName(final String name)
-        throws IOException
-    {
+    public final Object getAttributeByName(String name)
+            throws IOException {
         if (!"owner".equals(Objects.requireNonNull(name)))
             throw new NoSuchAttributeException(name);
 
@@ -90,8 +87,7 @@ public abstract class FileOwnerFileAttributesProvider
     @Nonnull
     @Override
     public Map<String, Object> getAllAttributes()
-        throws IOException
-    {
+            throws IOException {
         return Collections.<String, Object>singletonMap("owner", getOwner());
     }
 }

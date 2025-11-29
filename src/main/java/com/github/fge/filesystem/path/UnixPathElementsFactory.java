@@ -18,34 +18,32 @@
 
 package com.github.fge.filesystem.path;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.regex.Pattern;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 
 /**
  * A {@link PathElementsFactory} for Unix-like paths
  */
 @ParametersAreNonnullByDefault
 public final class UnixPathElementsFactory
-    extends PathElementsFactory
-{
+        extends PathElementsFactory {
+
     private static final Pattern ROOT_PATTERN = Pattern.compile("^/+");
     private static final Pattern TAIL_PATTERN = Pattern.compile("/+$");
     private static final Pattern SPLIT_PATTERN = Pattern.compile("/+");
 
-    private static final PathElements ROOT
-        = new PathElements("/", PathElements.NO_NAMES);
+    private static final PathElements ROOT = new PathElements("/", PathElements.NO_NAMES);
 
-    public UnixPathElementsFactory()
-    {
+    public UnixPathElementsFactory() {
         super("", "/", "..");
     }
 
     @Override
-    protected String[] rootAndNames(final String path)
-    {
-        final String[] ret = new String[2];
+    protected String[] rootAndNames(String path) {
+        String[] ret = new String[2];
 
-        final String tmp = ROOT_PATTERN.matcher(path).replaceFirst("");
+        String tmp = ROOT_PATTERN.matcher(path).replaceFirst("");
         ret[0] = tmp.equals(path) ? null : "/";
         ret[1] = TAIL_PATTERN.matcher(tmp).replaceFirst("");
 
@@ -53,18 +51,16 @@ public final class UnixPathElementsFactory
     }
 
     @Override
-    protected String[] splitNames(final String names)
-    {
+    protected String[] splitNames(String names) {
         if (names.isEmpty())
             return NO_NAMES;
         if (names.indexOf('/') == -1)
-            return new String[] { names };
+            return new String[] {names};
         return SPLIT_PATTERN.split(names);
     }
 
     @Override
-    protected boolean isValidName(final String name)
-    {
+    protected boolean isValidName(String name) {
         if (name.isEmpty())
             return false;
         if (name.indexOf('\0') != -1)
@@ -73,26 +69,22 @@ public final class UnixPathElementsFactory
     }
 
     @Override
-    protected boolean isSelf(final String name)
-    {
+    protected boolean isSelf(String name) {
         return ".".equals(name);
     }
 
     @Override
-    protected boolean isParent(final String name)
-    {
+    protected boolean isParent(String name) {
         return parentToken.equals(name);
     }
 
     @Override
-    protected boolean isAbsolute(final PathElements pathElements)
-    {
+    protected boolean isAbsolute(PathElements pathElements) {
         return pathElements.root != null;
     }
 
     @Override
-    public PathElements getRootPathElements()
-    {
+    public PathElements getRootPathElements() {
         return ROOT;
     }
 }

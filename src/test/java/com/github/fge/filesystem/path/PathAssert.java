@@ -18,24 +18,22 @@
 
 package com.github.fge.filesystem.path;
 
+import java.nio.file.Path;
+
 import org.assertj.core.api.ObjectAssert;
 
-import java.nio.file.Path;
 
 /*
  * Necessary... Otherwise, Assertions.assertThat() cannot tell whether you have
  * a Path or Iterable...
  */
-public final class PathAssert
-    extends ObjectAssert<Path>
-{
-    public PathAssert(final Path actual)
-    {
+public final class PathAssert extends ObjectAssert<Path> {
+
+    public PathAssert(Path actual) {
         super(actual);
     }
 
-    public static PathAssert assertPath(final Path actual)
-    {
+    public static PathAssert assertPath(Path actual) {
         return new PathAssert(actual);
     }
 }

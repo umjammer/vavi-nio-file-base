@@ -18,15 +18,13 @@
 
 package com.github.fge.filesystem.attributes.testclasses;
 
-import com.github.fge.filesystem.attributes.provider.AclFileAttributesProvider;
-
 import java.io.IOException;
 
-public abstract class ProtectedAcl
-    extends AclFileAttributesProvider
-{
-    public ProtectedAcl(final ArgType1 arg)
-        throws IOException
-    {
+import com.github.fge.filesystem.attributes.provider.AclFileAttributesProvider;
+
+
+public abstract class ProtectedAcl extends AclFileAttributesProvider {
+
+    public ProtectedAcl(ArgType1 arg) throws IOException {
     }
 }

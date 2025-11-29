@@ -18,23 +18,19 @@
 
 package com.github.fge.filesystem.attributes.testclasses;
 
-import com.github.fge.filesystem.attributes.provider.AclFileAttributesProvider;
-
 import java.io.IOException;
 import java.nio.file.attribute.UserPrincipal;
 
-public final class PublicAclNonPublicConstructor
-    extends AclFileAttributesProvider
-{
-    PublicAclNonPublicConstructor(final ArgType1 arg)
-        throws IOException
-    {
+import com.github.fge.filesystem.attributes.provider.AclFileAttributesProvider;
+
+
+public final class PublicAclNonPublicConstructor extends AclFileAttributesProvider {
+
+    PublicAclNonPublicConstructor(ArgType1 arg) throws IOException {
     }
 
     @Override
-    public UserPrincipal getOwner()
-        throws IOException
-    {
+    public UserPrincipal getOwner() throws IOException {
         return null;
     }
 }

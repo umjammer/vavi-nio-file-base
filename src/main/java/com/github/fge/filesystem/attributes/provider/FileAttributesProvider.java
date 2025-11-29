@@ -1,16 +1,17 @@
 package com.github.fge.filesystem.attributes.provider;
 
-import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
-import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.attribute.FileAttributeView;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.NoSuchAttributeException;
+import com.github.fge.filesystem.exceptions.ReadOnlyAttributeException;
+
 
 /**
  * Basic file attribute view provider class
@@ -26,9 +27,8 @@ import java.util.Objects;
  * @see FileAttributeView
  */
 @ParametersAreNonnullByDefault
-public abstract class FileAttributesProvider
-    implements FileAttributeView
-{
+public abstract class FileAttributesProvider implements FileAttributeView {
+
     private final String name;
 
     /**
@@ -37,44 +37,37 @@ public abstract class FileAttributesProvider
      * @param name the name of the view
      * @throws IOException failure to create the provider
      */
-    // TODO: does not forbid an empty name, but ohwell
-    protected FileAttributesProvider(final String name)
-        throws IOException
-    {
+    protected FileAttributesProvider(String name) throws IOException {
+        // TODO: does not forbid an empty name, but ohwell
         this.name = Objects.requireNonNull(name);
     }
 
     @Override
-    public final String name()
-    {
+    public final String name() {
         return name;
     }
 
     /**
      * Set one attribute by name
      *
-     * @param name the name of the attribute
+     * @param name  the name of the attribute
      * @param value the value of the attribute
-     * @throws IOException I/O error when trying to set the attribute
+     * @throws IOException                I/O error when trying to set the attribute
      * @throws ReadOnlyAttributeException the attribute is read only
-     * @throws NoSuchAttributeException an attribute by this name does not exist
-     * for this view
+     * @throws NoSuchAttributeException   an attribute by this name does not exist for this view
      */
-    public abstract void setAttributeByName(String name, Object value)
-        throws IOException;
+    public abstract void setAttributeByName(String name, Object value) throws IOException;
 
     /**
      * Get an attribute value by name
      *
      * @param name the name of the attribute
      * @return the value of this attribute
-     * @throws IOException I/O error when trying to set the attribute
-     * @throws NoSuchAttributeException an attribute by this name does not exist
-     * for this view
+     * @throws IOException              I/O error when trying to set the attribute
+     * @throws NoSuchAttributeException an attribute by this name does not exist for this view
      */
     @Nullable
-    public abstract Object getAttributeByName(String name)
-        throws IOException;
+    public abstract Object getAttributeByName(String name) throws IOException;
 
     /**
      * Get all attributes for this view
@@ -89,6 +82,5 @@ public abstract class FileAttributesProvider
      * @throws IOException failure to read one or more attributes
      */
     @Nonnull
-    public abstract Map<String, Object> getAllAttributes()
-        throws IOException;
+    public abstract Map<String, Object> getAllAttributes() throws IOException;
 }

@@ -18,14 +18,15 @@
 
 package com.github.fge.filesystem.exceptions;
 
-import com.github.fge.filesystem.driver.FileSystemDriver;
-
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
+
+import com.github.fge.filesystem.driver.FileSystemDriver;
+
 
 /**
  * Exception defined when the source or target of a filesystem I/O operation
@@ -52,17 +53,13 @@ import java.util.Set;
 
 
 @SuppressWarnings("UnusedDeclaration")
-public final class IsDirectoryException
-    extends FileSystemException
-{
-    public IsDirectoryException(final String file)
-    {
+public final class IsDirectoryException extends FileSystemException {
+
+    public IsDirectoryException(String file) {
         super(file);
     }
 
-    public IsDirectoryException(final String file, final String other,
-        final String reason)
-    {
+    public IsDirectoryException(String file, String other, String reason) {
         super(file, other, reason);
     }
 }

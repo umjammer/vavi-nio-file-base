@@ -11,13 +11,13 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.github.fge.filesystem.driver.FileSystemDriver;
 import com.github.fge.filesystem.fs.GenericFileSystem;
 import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
 import com.github.fge.filesystem.provider.FileSystemRepository;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,8 +42,7 @@ public class GlobPathMatcherTest {
     private FileSystemFactoryProvider factoryProvider;
 
     @BeforeEach
-    public void init()
-    {
+    public void init() {
         factoryProvider = new FileSystemFactoryProvider();
         repository = mock(FileSystemRepository.class);
         when(repository.getFactoryProvider()).thenReturn(factoryProvider);

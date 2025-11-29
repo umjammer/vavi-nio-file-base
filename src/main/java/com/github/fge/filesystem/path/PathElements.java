@@ -18,14 +18,15 @@
 
 package com.github.fge.filesystem.path;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 
 /**
  * A generic representation of a {@link Path}'s elements
@@ -45,9 +46,8 @@ import java.util.Objects;
  * @see PathElementsFactory
  */
 @ParametersAreNonnullByDefault
-public final class PathElements
-    implements Iterable<PathElements>
-{
+public final class PathElements implements Iterable<PathElements> {
+
     /**
      * An empty string array for instances with no elements
      */
@@ -68,7 +68,6 @@ public final class PathElements
      */
     final String[] names;
 
-
     /**
      * A {@link PathElements} consisting of a single name, with no root
      *
@@ -76,9 +75,8 @@ public final class PathElements
      * @return a single-name, no root instance
      */
     @Nonnull
-    static PathElements singleton(final String name)
-    {
-        return new PathElements(null, new String[] { name });
+    static PathElements singleton(String name) {
+        return new PathElements(null, new String[] {name});
     }
 
     /**
@@ -87,12 +85,11 @@ public final class PathElements
      * <p>Note that the names array is <em>not</em> copied; it is up to the
      * caller to ensure the safety of using this array.</p>
      *
-     * @param root the root component (may be null)
+     * @param root  the root component (may be null)
      * @param names the name elements
      */
     @SuppressWarnings("MethodCanBeVariableArityMethod")
-    PathElements(@Nullable final String root, final String[] names)
-    {
+    PathElements(@Nullable String root, String[] names) {
         this.root = root;
         //noinspection AssignmentToCollectionOrArrayFieldFromParameter
         this.names = names;
@@ -102,12 +99,10 @@ public final class PathElements
      * Return the root PathElements of this instance (null if root is null)
      *
      * @return see description
-     *
      * @see Path#getRoot()
      */
     @Nullable
-    PathElements rootPathElement()
-    {
+    PathElements rootPathElement() {
         return root == null ? null : new PathElements(root, NO_NAMES);
     }
 
@@ -125,19 +120,16 @@ public final class PathElements
      * <p>The root component is preserved.</p>
      *
      * @return see description
-     *
      * @see Path#getParent()
      */
     @Nullable
-    PathElements parent()
-    {
-        final int length = names.length;
+    PathElements parent() {
+        int length = names.length;
         if (length == 0)
             return null;
         if (length == 1 && root == null)
             return null;
-        final String[] newNames = length  == 1 ? NO_NAMES
-            : Arrays.copyOf(names, length - 1);
+        String[] newNames = length == 1 ? NO_NAMES : Arrays.copyOf(names, length - 1);
         return new PathElements(root, newNames);
     }
 
@@ -147,13 +139,11 @@ public final class PathElements
      * <p>If this PathElements has no names, {@code null} is returned.</p>
      *
      * @return see description
-     *
      * @see Path#getFileName()
      */
     @Nullable
-    PathElements lastName()
-    {
-        final int length = names.length;
+    PathElements lastName() {
+        int length = names.length;
         return length == 0 ? null : singleton(names[length - 1]);
     }
 
@@ -163,55 +153,47 @@ public final class PathElements
      * @return an Iterator.
      */
     @SuppressWarnings({
-        "AnonymousInnerClassWithTooManyMethods",
-        "OverlyComplexAnonymousInnerClass"
+            "AnonymousInnerClassWithTooManyMethods",
+            "OverlyComplexAnonymousInnerClass"
     })
     @Override
-    public Iterator<PathElements> iterator()
-    {
-        return new Iterator<PathElements>()
-        {
+    public Iterator<PathElements> iterator() {
+        return new Iterator<>() {
             int index = 0;
 
             @Override
-            public boolean hasNext()
-            {
+            public boolean hasNext() {
                 return index < names.length;
             }
 
             @Override
-            public PathElements next()
-            {
+            public PathElements next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
                 return singleton(names[index++]);
             }
 
             @Override
-            public void remove()
-            {
+            public void remove() {
                 throw new UnsupportedOperationException();
             }
         };
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return 31 * Objects.hashCode(root) + Arrays.hashCode(names);
     }
 
     @Override
-    public boolean equals(@Nullable final Object obj)
-    {
+    public boolean equals(@Nullable Object obj) {
         if (obj == null)
             return false;
         if (this == obj)
             return true;
         if (getClass() != obj.getClass())
             return false;
-        final PathElements other = (PathElements) obj;
-        return Objects.equals(root, other.root)
-            && Arrays.equals(names, other.names);
+        PathElements other = (PathElements) obj;
+        return Objects.equals(root, other.root) && Arrays.equals(names, other.names);
     }
 }

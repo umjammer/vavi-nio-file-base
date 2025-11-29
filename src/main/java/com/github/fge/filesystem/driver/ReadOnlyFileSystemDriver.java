@@ -18,9 +18,6 @@
 
 package com.github.fge.filesystem.driver;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,12 +37,15 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.UserPrincipalLookupService;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 
 /**
  * A {@link FileSystemDriver} composition implementation over another driver
@@ -54,61 +54,50 @@ import java.util.concurrent.ExecutorService;
  * <p>This class will delegate all read only operations to the underlying driver
  * and will make all write operations throw a {@link
  * ReadOnlyFileSystemException}.</p>
+ *
+ * TODO not plugged in for now
  */
-// TODO: not plugged in for now
 @SuppressWarnings("OverloadedVarargsMethod")
 @ParametersAreNonnullByDefault
-public final class ReadOnlyFileSystemDriver
-    implements FileSystemDriver
-{
+public final class ReadOnlyFileSystemDriver implements FileSystemDriver {
+
     private static final Set<OpenOption> WRITE_OPTIONS;
 
     static {
-        final Set<OpenOption> set = new HashSet<>();
-
-        set.add(StandardOpenOption.CREATE_NEW);
-        set.add(StandardOpenOption.CREATE);
-        set.add(StandardOpenOption.WRITE);
-        set.add(StandardOpenOption.APPEND);
-        set.add(StandardOpenOption.DELETE_ON_CLOSE);
-        set.add(StandardOpenOption.TRUNCATE_EXISTING);
-
-        WRITE_OPTIONS = Collections.unmodifiableSet(set);
+        WRITE_OPTIONS = Set.of(
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.APPEND,
+                StandardOpenOption.DELETE_ON_CLOSE,
+                StandardOpenOption.TRUNCATE_EXISTING
+        );
     }
-
 
     private final FileSystemDriver delegate;
 
     @Nonnull
-    public static FileSystemDriver wrap(@Nonnull final FileSystemDriver driver)
-    {
+    public static FileSystemDriver wrap(@Nonnull FileSystemDriver driver) {
         Objects.requireNonNull(driver);
-        return driver instanceof ReadOnlyFileSystemDriver ? driver
-            : new ReadOnlyFileSystemDriver(driver);
+        return driver instanceof ReadOnlyFileSystemDriver ? driver : new ReadOnlyFileSystemDriver(driver);
     }
 
-    private ReadOnlyFileSystemDriver(final FileSystemDriver delegate)
-    {
+    private ReadOnlyFileSystemDriver(FileSystemDriver delegate) {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
     @Nonnull
     @Override
-    public OutputStream newOutputStream(final Path path,
-        final Set<? extends OpenOption> options)
-        throws IOException
-    {
+    public OutputStream newOutputStream(Path path, Set<? extends OpenOption> options) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
 
     @Nonnull
     @Override
-    public SeekableByteChannel newByteChannel(final Path path,
-        final Set<? extends OpenOption> options,
-        final FileAttribute<?>... attrs)
-        throws IOException
-    {
-        final Set<? extends OpenOption> set = new HashSet<>(WRITE_OPTIONS);
+    public SeekableByteChannel newByteChannel(Path path,
+                                              Set<? extends OpenOption> options,
+                                              FileAttribute<?>... attrs) throws IOException {
+        Set<? extends OpenOption> set = new HashSet<>(WRITE_OPTIONS);
         set.retainAll(options);
         if (!set.isEmpty())
             throw new ReadOnlyFileSystemException();
@@ -116,139 +105,101 @@ public final class ReadOnlyFileSystemDriver
     }
 
     @Override
-    public void createDirectory(final Path dir, final FileAttribute<?>... attrs)
-        throws IOException
-    {
+    public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
 
     @Override
-    public void delete(final Path path)
-        throws IOException
-    {
+    public void delete(Path path) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
 
     @Override
-    public void copy(final Path source, final Path target,
-        final Set<CopyOption> options)
-        throws IOException
-    {
+    public void copy(Path source, Path target, Set<CopyOption> options) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
 
     @Override
-    public void move(final Path source, final Path target,
-        final Set<CopyOption> options)
-        throws IOException
-    {
+    public void move(Path source, Path target, Set<CopyOption> options) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
 
     @Override
-    public void setAttribute(final Path path, final String attribute,
-        final Object value, final LinkOption... options)
-        throws IOException
-    {
+    public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
 
     @Override
     @Nonnull
-    public FileStore getFileStore()
-    {
+    public FileStore getFileStore() {
         return delegate.getFileStore();
     }
 
     @Override
     @Nonnull
-    public UserPrincipalLookupService getUserPrincipalLookupService()
-    {
+    public UserPrincipalLookupService getUserPrincipalLookupService() {
         return delegate.getUserPrincipalLookupService();
     }
 
     @Override
     @Nonnull
-    public WatchService newWatchService()
-    {
+    public WatchService newWatchService() {
         return delegate.newWatchService();
     }
 
     @Override
     @Nonnull
-    public InputStream newInputStream(final Path path,
-        final Set<? extends OpenOption> options)
-        throws IOException
-    {
+    public InputStream newInputStream(Path path, Set<? extends OpenOption> options) throws IOException {
         return delegate.newInputStream(path, options);
     }
 
     @Override
     @Nonnull
-    public DirectoryStream<Path> newDirectoryStream(final Path dir,
-        final DirectoryStream.Filter<? super Path> filter)
-        throws IOException
-    {
+    public DirectoryStream<Path> newDirectoryStream(Path dir, DirectoryStream.Filter<? super Path> filter)
+            throws IOException {
         return delegate.newDirectoryStream(dir, filter);
     }
 
     @Override
-    public boolean isSameFile(final Path path, final Path path2)
-        throws IOException
-    {
+    public boolean isSameFile(Path path, Path path2) throws IOException {
         return delegate.isSameFile(path, path2);
     }
 
     @Override
-    public boolean isHidden(final Path path)
-        throws IOException
-    {
+    public boolean isHidden(Path path) throws IOException {
         return delegate.isHidden(path);
     }
 
     @Override
-    public void checkAccess(final Path path, final AccessMode... modes)
-        throws IOException
-    {
+    public void checkAccess(Path path, AccessMode... modes) throws IOException {
         delegate.checkAccess(path, modes);
     }
 
     @Override
     @Nullable
-    public <V extends FileAttributeView> V getFileAttributeView(final Path path,
-        final Class<V> type, final LinkOption... options)
-    {
+    public <V extends FileAttributeView> V getFileAttributeView(Path path, Class<V> type, LinkOption... options) {
         return delegate.getFileAttributeView(path, type, options);
     }
 
     @Override
-    public <A extends BasicFileAttributes> A readAttributes(final Path path,
-        final Class<A> type, final LinkOption... options)
-        throws IOException
-    {
+    public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options)
+            throws IOException {
         return delegate.readAttributes(path, type, options);
     }
 
     @Override
-    public Map<String, Object> readAttributes(final Path path,
-        final String attributes, final LinkOption... options)
-        throws IOException
-    {
+    public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) throws IOException {
         return delegate.readAttributes(path, attributes, options);
     }
 
     @Nonnull
     @Override
-    public Object getPathMetadata(final Path path)
-        throws IOException
-    {
+    public Object getPathMetadata(Path path) throws IOException {
         return delegate.getPathMetadata(path);
     }
 
     @Override
-    public void close()
-        throws IOException
-    {
+    public void close() throws IOException {
         delegate.close();
     }
 
@@ -256,9 +207,7 @@ public final class ReadOnlyFileSystemDriver
     public AsynchronousFileChannel newAsynchronousFileChannel(Path path,
                                                               Set<? extends OpenOption> options,
                                                               ExecutorService executor,
-                                                              FileAttribute<?>... attrs)
-        throws IOException
-    {
+                                                              FileAttribute<?>... attrs) throws IOException {
         return delegate.newAsynchronousFileChannel(path, options, executor, attrs);
     }
 }

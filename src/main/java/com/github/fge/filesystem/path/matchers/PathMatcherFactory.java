@@ -18,8 +18,6 @@
 
 package com.github.fge.filesystem.path.matchers;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -27,30 +25,27 @@ import java.nio.file.PathMatcher;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 
 @ParametersAreNonnullByDefault
-public class PathMatcherFactory
-{
-    private static final MethodHandles.Lookup LOOKUP
-        = MethodHandles.publicLookup();
-    private static final MethodType CONSTRUCTOR_TYPE
-        = MethodType.methodType(void.class, String.class);
+public class PathMatcherFactory {
 
-    private final Map<String, MethodHandle> handleMap
-        = new HashMap<>();
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
+    private static final MethodType CONSTRUCTOR_TYPE = MethodType.methodType(void.class, String.class);
 
-    public PathMatcherFactory()
-    {
+    private final Map<String, MethodHandle> handleMap = new HashMap<>();
+
+    public PathMatcherFactory() {
         registerPathMatcher("glob", GlobPathMatcher.class);
         registerPathMatcher("regex", RegexPathMatcher.class);
     }
 
-    public final PathMatcher getPathMatcher(final String name, final String arg)
-    {
+    public final PathMatcher getPathMatcher(String name, String arg) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(arg);
 
-        final MethodHandle handle = handleMap.get(name);
+        MethodHandle handle = handleMap.get(name);
         if (handle == null)
             throw new UnsupportedOperationException();
 
@@ -63,14 +58,12 @@ public class PathMatcherFactory
         }
     }
 
-    protected final void registerPathMatcher(@Nonnull final String name,
-        @Nonnull final Class<? extends PathMatcher> matcherClass)
-    {
+    protected final void registerPathMatcher(String name, Class<? extends PathMatcher> matcherClass) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(matcherClass);
 
-        final MethodHandle handle;
-        final MethodType type;
+        MethodHandle handle;
+        MethodType type;
 
         try {
             handle = LOOKUP.findConstructor(matcherClass, CONSTRUCTOR_TYPE);

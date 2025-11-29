@@ -18,32 +18,27 @@
 
 package com.github.fge.filesystem.path.matchers;
 
-import javax.annotation.Nonnull;
 import java.nio.file.PathMatcher;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
+
 
 /**
  * A {@link PathMatcher} implementation using regexes
  */
-public final class RegexPathMatcher
-    extends PathMatcherBase
-{
+public final class RegexPathMatcher extends PathMatcherBase {
+
     private final Pattern pattern;
 
-    public RegexPathMatcher(@Nonnull final String regex)
-    {
-        /*
-         * We need Pattern.DOTALL, since it is legal in many filesystems for
-         * \n or \r to appear in path names
-         */
-        pattern = Pattern.compile(Objects.requireNonNull(regex),
-            Pattern.DOTALL);
+    public RegexPathMatcher(@Nonnull String regex) {
+        // We need Pattern.DOTALL, since it is legal in many filesystems for
+        // \n or \r to appear in path names
+        pattern = Pattern.compile(Objects.requireNonNull(regex), Pattern.DOTALL);
     }
 
     @Override
-    protected boolean match(final String input)
-    {
+    protected boolean match(String input) {
         return pattern.matcher(input).find();
     }
 }

@@ -1,28 +1,23 @@
 /*
-* Copyright (c) 2014, Francis Galiegue (fgaliegue@gmail.com)
-*
-* This software is dual-licensed under:
-*
-* - the Lesser General Public License (LGPL) version 3.0 or, at your option, any
-* later version;
-* - the Apache Software License (ASL) version 2.0.
-*
-* The text of both licenses is available under the src/resources/ directory of
-* this project (under the names LGPL-3.0.txt and ASL-2.0.txt respectively).
-*
-* Direct link to the sources:
-*
-* - LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
-* - ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
-*/
+ * Copyright (c) 2014, Francis Galiegue (fgaliegue@gmail.com)
+ *
+ * This software is dual-licensed under:
+ *
+ * - the Lesser General Public License (LGPL) version 3.0 or, at your option, any
+ * later version;
+ * - the Apache Software License (ASL) version 2.0.
+ *
+ * The text of both licenses is available under the src/resources/ directory of
+ * this project (under the names LGPL-3.0.txt and ASL-2.0.txt respectively).
+ *
+ * Direct link to the sources:
+ *
+ * - LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
+ * - ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
+ */
 
 package com.github.fge.filesystem.options;
 
-import com.github.fge.filesystem.exceptions.IllegalOptionSetException;
-import com.github.fge.filesystem.exceptions.UnsupportedOptionException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.file.CopyOption;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
@@ -36,6 +31,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.github.fge.filesystem.exceptions.IllegalOptionSetException;
+import com.github.fge.filesystem.exceptions.UnsupportedOptionException;
+
 
 /**
  * Repository of options supported by a filesystem
@@ -71,20 +72,16 @@ import java.util.Set;
  */
 // TODO: see newByteChannel() and its Set<? extends OpenOption>
 @ParametersAreNonnullByDefault
-public class FileSystemOptionsFactory
-{
+public class FileSystemOptionsFactory {
+
     private final Set<OpenOption> readOpenOptions = new HashSet<>();
     private final Set<OpenOption> writeOpenOptions = new HashSet<>();
     private final Set<CopyOption> copyOptions = new HashSet<>();
-    private final Set<LinkOption> linkOptions
-        = EnumSet.noneOf(LinkOption.class);
-    private final Map<CopyOption, Set<OpenOption>> readTranslations
-        = new HashMap<>();
-    private final Map<CopyOption, Set<OpenOption>> writeTranslations
-        = new HashMap<>();
+    private final Set<LinkOption> linkOptions = EnumSet.noneOf(LinkOption.class);
+    private final Map<CopyOption, Set<OpenOption>> readTranslations = new HashMap<>();
+    private final Map<CopyOption, Set<OpenOption>> writeTranslations = new HashMap<>();
 
-    public FileSystemOptionsFactory()
-    {
+    public FileSystemOptionsFactory() {
         addCopyOption(StandardCopyOption.REPLACE_EXISTING);
 
         // Note: Javadoc says option should be ignored if not supported, so...
@@ -97,12 +94,9 @@ public class FileSystemOptionsFactory
         addWriteOpenOption(StandardOpenOption.TRUNCATE_EXISTING);
         addWriteOpenOption(StandardOpenOption.WRITE);
 
-        addWriteTranslation(StandardCopyOption.REPLACE_EXISTING,
-            StandardOpenOption.CREATE);
-        addWriteTranslation(StandardCopyOption.REPLACE_EXISTING,
-            StandardOpenOption.TRUNCATE_EXISTING);
-        addWriteTranslation(StandardCopyOption.REPLACE_EXISTING,
-            StandardOpenOption.WRITE);
+        addWriteTranslation(StandardCopyOption.REPLACE_EXISTING, StandardOpenOption.CREATE);
+        addWriteTranslation(StandardCopyOption.REPLACE_EXISTING, StandardOpenOption.TRUNCATE_EXISTING);
+        addWriteTranslation(StandardCopyOption.REPLACE_EXISTING, StandardOpenOption.WRITE);
 
         // TODO: for now, cannot add translations for unsupported options
     }
@@ -116,20 +110,19 @@ public class FileSystemOptionsFactory
      * @param opts the options array
      * @return an unmodifiable set of read options
      * @throws UnsupportedOptionException one or more options are not supported
-     * @throws IllegalOptionSetException some options are unsuited for read
+     * @throws IllegalOptionSetException  some options are unsuited for read
      */
     @Nonnull
-    public final Set<OpenOption> compileReadOptions(final OpenOption... opts)
-    {
-        final Set<OpenOption> set = new HashSet<>();
+    public final Set<OpenOption> compileReadOptions(OpenOption... opts) {
+        Set<OpenOption> set = new HashSet<>();
 
-        for (final OpenOption opt: opts)
+        for (OpenOption opt : opts)
             set.add(Objects.requireNonNull(opt));
 
         if (set.removeAll(writeOpenOptions))
             throw new IllegalOptionSetException(Arrays.toString(opts));
 
-        for (final OpenOption opt: set)
+        for (OpenOption opt : set)
             if (!readOpenOptions.contains(opt))
                 throw new UnsupportedOptionException(opt.toString());
 
@@ -148,20 +141,19 @@ public class FileSystemOptionsFactory
      * @param opts the options array
      * @return an unmodifiable set of write options
      * @throws UnsupportedOptionException one or more options are not supported
-     * @throws IllegalOptionSetException some options are unsuited for write
+     * @throws IllegalOptionSetException  some options are unsuited for write
      */
     @Nonnull
-    public final Set<OpenOption> compileWriteOptions(final OpenOption... opts)
-    {
-        final Set<OpenOption> set = new HashSet<>();
+    public final Set<OpenOption> compileWriteOptions(OpenOption... opts) {
+        Set<OpenOption> set = new HashSet<>();
 
-        for (final OpenOption opt: opts)
+        for (OpenOption opt : opts)
             set.add(Objects.requireNonNull(opt));
 
         if (set.removeAll(readOpenOptions))
             throw new IllegalOptionSetException(Arrays.toString(opts));
 
-        for (final OpenOption opt: opts) {
+        for (OpenOption opt : opts) {
             if (!writeOpenOptions.contains(Objects.requireNonNull(opt)))
                 throw new UnsupportedOptionException(opt.toString());
             set.add(opt);
@@ -177,10 +169,8 @@ public class FileSystemOptionsFactory
 
         set.add(StandardOpenOption.WRITE);
 
-        if (set.contains(StandardOpenOption.APPEND)
-            && set.contains(StandardOpenOption.TRUNCATE_EXISTING))
-            throw new IllegalOptionSetException("cannot append and truncate "
-                + "at the same time");
+        if (set.contains(StandardOpenOption.APPEND) && set.contains(StandardOpenOption.TRUNCATE_EXISTING))
+            throw new IllegalOptionSetException("cannot append and truncate at the same time");
 
         return Collections.unmodifiableSet(set);
     }
@@ -192,10 +182,9 @@ public class FileSystemOptionsFactory
      * @return an unmodifiable set of options
      */
     @Nonnull
-    public final Set<CopyOption> compileCopyOptions(final CopyOption... opts)
-    {
-        final Set<CopyOption> set = new HashSet<>();
-        for (final CopyOption opt: opts) {
+    public final Set<CopyOption> compileCopyOptions(CopyOption... opts) {
+        Set<CopyOption> set = new HashSet<>();
+        for (CopyOption opt : opts) {
             if (!copyOptions.contains(Objects.requireNonNull(opt)))
                 throw new UnsupportedOptionException(opt.toString());
             set.add(opt);
@@ -204,19 +193,17 @@ public class FileSystemOptionsFactory
         return Collections.unmodifiableSet(set);
     }
 
-    public final void checkLinkOptions(final LinkOption... opts)
-    {
-        for (final LinkOption opt: opts)
+    public final void checkLinkOptions(LinkOption... opts) {
+        for (LinkOption opt : opts)
             if (!linkOptions.contains(Objects.requireNonNull(opt)))
                 throw new UnsupportedOptionException(opt.toString());
     }
 
     @Nonnull
-    public final Set<OpenOption> toReadOptions(final Set<CopyOption> options)
-    {
-        final Set<OpenOption> set = new HashSet<>();
+    public final Set<OpenOption> toReadOptions(Set<CopyOption> options) {
+        Set<OpenOption> set = new HashSet<>();
 
-        for (final CopyOption option: options) {
+        for (CopyOption option : options) {
             if (!copyOptions.contains(Objects.requireNonNull(option)))
                 throw new UnsupportedOptionException(option.toString());
             if (readTranslations.containsKey(option))
@@ -229,8 +216,7 @@ public class FileSystemOptionsFactory
     }
 
     @Nonnull
-    public final Set<OpenOption> toWriteOptions(final Set<CopyOption> options)
-    {
+    public final Set<OpenOption> toWriteOptions(Set<CopyOption> options) {
         return copyTranslations(options, writeTranslations);
     }
 
@@ -239,8 +225,7 @@ public class FileSystemOptionsFactory
      *
      * @param option the option
      */
-    protected final void addReadOpenOption(final OpenOption option)
-    {
+    protected final void addReadOpenOption(OpenOption option) {
         readOpenOptions.add(Objects.requireNonNull(option));
     }
 
@@ -249,8 +234,7 @@ public class FileSystemOptionsFactory
      *
      * @param option the option
      */
-    protected final void addWriteOpenOption(final OpenOption option)
-    {
+    protected final void addWriteOpenOption(OpenOption option) {
         writeOpenOptions.add(Objects.requireNonNull(option));
     }
 
@@ -259,8 +243,7 @@ public class FileSystemOptionsFactory
      *
      * @param option the option
      */
-    protected final void addOpenOption(final OpenOption option)
-    {
+    protected final void addOpenOption(OpenOption option) {
         addReadOpenOption(option);
         addWriteOpenOption(option);
     }
@@ -270,8 +253,7 @@ public class FileSystemOptionsFactory
      *
      * @param option the option
      */
-    protected final void addCopyOption(final CopyOption option)
-    {
+    protected final void addCopyOption(CopyOption option) {
         copyOptions.add(Objects.requireNonNull(option));
     }
 
@@ -280,59 +262,47 @@ public class FileSystemOptionsFactory
      *
      * @param option the option
      */
-    protected final void addLinkOption(final LinkOption option)
-    {
+    protected final void addLinkOption(LinkOption option) {
         linkOptions.add(Objects.requireNonNull(option));
         addOpenOption(option);
         copyOptions.add(option);
     }
 
-    protected final void addReadTranslation(final CopyOption option,
-        final OpenOption translated)
-    {
+    protected final void addReadTranslation(CopyOption option, OpenOption translated) {
         if (!copyOptions.contains(Objects.requireNonNull(option)))
-            throw new IllegalArgumentException("option " + option + " is not "
-                + "a supported copy option (did you forget to .addCopyOption"
-                + "()?)");
+            throw new IllegalArgumentException("option " + option +
+                    " is not a supported copy option (did you forget to .addCopyOption()?)");
         if (!readOpenOptions.contains(Objects.requireNonNull(translated)))
-            throw new IllegalArgumentException("option " + translated + "is "
-                + "not a supported read option (did you forget to "
-                + ".addReadOpenOption()?)");
+            throw new IllegalArgumentException("option " + translated +
+                    "is not a supported read option (did you forget to .addReadOpenOption()?)");
         if (!readTranslations.containsKey(option))
-            readTranslations.put(option, new HashSet<OpenOption>());
+            readTranslations.put(option, new HashSet<>());
         readTranslations.get(option).add(translated);
     }
 
-    protected final void addWriteTranslation(final CopyOption option,
-        final OpenOption translated)
-    {
+    protected final void addWriteTranslation(CopyOption option, OpenOption translated) {
         if (!copyOptions.contains(Objects.requireNonNull(option)))
-            throw new IllegalArgumentException("option " + option + " is not "
-                + "a supported copy option (did you forget to .addCopyOption"
-                + "()?)");
+            throw new IllegalArgumentException("option " + option +
+                    " is not a supported copy option (did you forget to .addCopyOption()?)");
         if (!writeOpenOptions.contains(Objects.requireNonNull(translated)))
-            throw new IllegalArgumentException("option " + translated + "is "
-                + "not a supported read option (did you forget to "
-                + ".addWriteOpenOption()?)");
+            throw new IllegalArgumentException("option " + translated +
+                    "is not a supported read option (did you forget to .addWriteOpenOption()?)");
         if (!writeTranslations.containsKey(option))
-            writeTranslations.put(option, new HashSet<OpenOption>());
+            writeTranslations.put(option, new HashSet<>());
         writeTranslations.get(option).add(translated);
     }
 
     @Nonnull
-    private Set<OpenOption> copyTranslations(final Set<CopyOption> options,
-        final Map<CopyOption, Set<OpenOption>> map)
-    {
-        final Set<OpenOption> set = new HashSet<>();
+    private Set<OpenOption> copyTranslations(Set<CopyOption> options, Map<CopyOption, Set<OpenOption>> map) {
+        Set<OpenOption> set = new HashSet<>();
 
-        for (final CopyOption option: options) {
+        for (CopyOption option : options) {
             if (!copyOptions.contains(Objects.requireNonNull(option)))
                 throw new UnsupportedOptionException(option.toString());
             if (map.containsKey(option))
                 set.addAll(map.get(option));
         }
 
-        return set.isEmpty() ? Collections.<OpenOption>emptySet()
-            : Collections.unmodifiableSet(set);
+        return set.isEmpty() ? Collections.<OpenOption>emptySet() : Collections.unmodifiableSet(set);
     }
 }

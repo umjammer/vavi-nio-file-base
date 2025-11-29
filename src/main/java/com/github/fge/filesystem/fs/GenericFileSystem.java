@@ -18,16 +18,6 @@
 
 package com.github.fge.filesystem.fs;
 
-import com.github.fge.filesystem.attributes.FileAttributesFactory;
-import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
-import com.github.fge.filesystem.driver.FileSystemDriver;
-import com.github.fge.filesystem.path.GenericPath;
-import com.github.fge.filesystem.path.PathElements;
-import com.github.fge.filesystem.path.PathElementsFactory;
-import com.github.fge.filesystem.path.matchers.PathMatcherFactory;
-import com.github.fge.filesystem.provider.FileSystemRepository;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileStore;
@@ -42,6 +32,17 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nonnull;
+
+import com.github.fge.filesystem.attributes.FileAttributesFactory;
+import com.github.fge.filesystem.driver.FileSystemDriver;
+import com.github.fge.filesystem.path.GenericPath;
+import com.github.fge.filesystem.path.PathElements;
+import com.github.fge.filesystem.path.PathElementsFactory;
+import com.github.fge.filesystem.path.matchers.PathMatcherFactory;
+import com.github.fge.filesystem.provider.FileSystemFactoryProvider;
+import com.github.fge.filesystem.provider.FileSystemRepository;
+
 
 /**
  * Generic {@link FileSystem} implementation
@@ -56,9 +57,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     one {@link FileSystem#getFileStores() file store}.</li>
  * </ul>
  */
-public final class GenericFileSystem
-    extends FileSystem
-{
+public final class GenericFileSystem extends FileSystem {
+
     private final AtomicBoolean open = new AtomicBoolean(true);
 
     private final URI uri;
@@ -71,26 +71,22 @@ public final class GenericFileSystem
     private final PathMatcherFactory pathMatcherFactory;
     private final FileAttributesFactory attributesFactory;
 
-
     /**
      * Constructor
      *
-     * @param uri the filesystem URI
+     * @param uri        the filesystem URI
      * @param repository the filesystem repository
-     * @param driver the filesystem driver
-     * @param provider the filesystem provider
+     * @param driver     the filesystem driver
+     * @param provider   the filesystem provider
      */
-    public GenericFileSystem(final URI uri,
-        final FileSystemRepository repository,
-        final FileSystemDriver driver, final FileSystemProvider provider)
-    {
+    public GenericFileSystem(URI uri, FileSystemRepository repository,
+                             FileSystemDriver driver, FileSystemProvider provider) {
         this.uri = Objects.requireNonNull(uri);
         this.repository = Objects.requireNonNull(repository);
         this.driver = Objects.requireNonNull(driver);
         this.provider = Objects.requireNonNull(provider);
 
-        final FileSystemFactoryProvider factoryProvider
-            = repository.getFactoryProvider();
+        FileSystemFactoryProvider factoryProvider = repository.getFactoryProvider();
         pathElementsFactory = factoryProvider.getPathElementsFactory();
         separator = pathElementsFactory.getSeparator();
         pathMatcherFactory = factoryProvider.getPathMatcherFactory();
@@ -98,27 +94,22 @@ public final class GenericFileSystem
     }
 
     @Nonnull
-    public URI getUri()
-    {
+    public URI getUri() {
         return uri;
     }
 
     @Nonnull
-    public FileSystemDriver getDriver()
-    {
+    public FileSystemDriver getDriver() {
         return driver;
     }
 
     @Override
-    public FileSystemProvider provider()
-    {
+    public FileSystemProvider provider() {
         return provider;
     }
 
     @Override
-    public void close()
-        throws IOException
-    {
+    public void close() throws IOException {
         if (!open.getAndSet(false))
             return;
 
@@ -137,45 +128,38 @@ public final class GenericFileSystem
     }
 
     @Override
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return open.get();
     }
 
     @Override
-    public boolean isReadOnly()
-    {
+    public boolean isReadOnly() {
         return driver.getFileStore().isReadOnly();
     }
 
     @Override
-    public String getSeparator()
-    {
+    public String getSeparator() {
         return separator;
     }
 
     @Override
-    public Iterable<Path> getRootDirectories()
-    {
+    public Iterable<Path> getRootDirectories() {
         // TODO: that's ugly
         return Collections.<Path>singletonList(
-            new GenericPath(this, pathElementsFactory,
-                pathElementsFactory.getRootPathElements())
+                new GenericPath(this, pathElementsFactory, pathElementsFactory.getRootPathElements())
         );
     }
 
     @Override
-    public Iterable<FileStore> getFileStores()
-    {
+    public Iterable<FileStore> getFileStores() {
         return Collections.singletonList(driver.getFileStore());
     }
 
     @Override
-    public Set<String> supportedFileAttributeViews()
-    {
-        final Set<String> set = new HashSet<>();
+    public Set<String> supportedFileAttributeViews() {
+        Set<String> set = new HashSet<>();
 
-        for (final String name: attributesFactory.getDescriptors().keySet())
+        for (String name : attributesFactory.getDescriptors().keySet())
             if (attributesFactory.supportsFileAttributeView(name))
                 set.add(name);
 
@@ -184,29 +168,25 @@ public final class GenericFileSystem
 
     @SuppressWarnings("OverloadedVarargsMethod")
     @Override
-    public Path getPath(final String first, final String... more)
-    {
+    public Path getPath(String first, String... more) {
         if (more.length == 0)
-            return new GenericPath(this, pathElementsFactory,
-                pathElementsFactory.toPathElements(first));
+            return new GenericPath(this, pathElementsFactory, pathElementsFactory.toPathElements(first));
 
-        final StringBuilder sb = new StringBuilder(first);
+        StringBuilder sb = new StringBuilder(first);
 
-        for (final String s: more)
+        for (String s : more)
             if (!s.isEmpty())
                 sb.append(separator).append(s);
 
-        final PathElements elements
-            = pathElementsFactory.toPathElements(sb.toString());
+        PathElements elements = pathElementsFactory.toPathElements(sb.toString());
         return new GenericPath(this, pathElementsFactory, elements);
     }
 
     @Override
-    public PathMatcher getPathMatcher(final String syntaxAndPattern)
-    {
-        final int index = Objects.requireNonNull(syntaxAndPattern).indexOf(':');
+    public PathMatcher getPathMatcher(String syntaxAndPattern) {
+        int index = Objects.requireNonNull(syntaxAndPattern).indexOf(':');
 
-        final String type, arg;
+        String type, arg;
 
         if (index == -1) {
             type = "glob";
@@ -220,15 +200,12 @@ public final class GenericFileSystem
     }
 
     @Override
-    public UserPrincipalLookupService getUserPrincipalLookupService()
-    {
+    public UserPrincipalLookupService getUserPrincipalLookupService() {
         return driver.getUserPrincipalLookupService();
     }
 
     @Override
-    public WatchService newWatchService()
-        throws IOException
-    {
+    public WatchService newWatchService() throws IOException {
         return driver.newWatchService();
     }
 }

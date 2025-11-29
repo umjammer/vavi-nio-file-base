@@ -15,9 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
 import vavix.util.Checksum;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,15 +29,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-07-20 nsano initial version <br>
  */
-public class UtilTest {
+class UtilTest {
 
-    class Uploader {
+    static class Uploader {
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Path p;
+
         Uploader(Path p) {
             this.p = p;
         }
-        public void upload() throws IOException {
+
+        public void upload() throws IOException { // TODO why not used ???
             Files.copy(p, baos);
         }
     }
@@ -58,7 +62,7 @@ public class UtilTest {
                 try {
                     assertEquals(Checksum.getChecksum(path),
                             Checksum.getChecksum(new ByteArrayInputStream(baos.toByteArray())));
-Debug.println("\n" + baos);
+                    Debug.println("\n" + baos);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }

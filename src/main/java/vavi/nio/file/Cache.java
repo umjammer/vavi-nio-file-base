@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * @version 0.00 2017/03/16 umjammer initial version <br>
  */
 public abstract class Cache<T> {
+
     /** <{@link Path}, {@link T}> */
     protected Map<Path, T> entryCache = new ConcurrentHashMap<>(); // TODO refresh
 
@@ -122,6 +123,7 @@ public abstract class Cache<T> {
 
     /**
      * query for cache
+     *
      * @throws NoSuchFileException must be thrown when the path is not found.
      */
     public abstract T getEntry(Path path) throws IOException;
@@ -141,6 +143,7 @@ public abstract class Cache<T> {
     /**
      * query for opposite direction
      * uses {@link Object#equals(Object)} for comparison
+     *
      * @throws NoSuchElementException when not found
      */
     public Path getEntry(T target) {
@@ -154,6 +157,7 @@ public abstract class Cache<T> {
 
     /**
      * query for opposite direction
+     *
      * @param query is used for comparison
      * @throws NoSuchElementException when not found
      */

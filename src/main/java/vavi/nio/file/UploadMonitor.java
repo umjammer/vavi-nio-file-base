@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * UploadMonitor.
- *
+ * <p>
  * TODO {@link java.util.concurrent.locks.ReentrantReadWriteLock}???
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UploadMonitor<T> {
 
     /** */
-    private Map<Path, T> uploadFlags = new ConcurrentHashMap<>();
+    private final Map<Path, T> uploadFlags = new ConcurrentHashMap<>();
 
     /** */
     public void start(Path path, T entry) {

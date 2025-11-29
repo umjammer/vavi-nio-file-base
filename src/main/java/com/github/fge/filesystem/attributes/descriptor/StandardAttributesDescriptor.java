@@ -18,8 +18,6 @@
 
 package com.github.fge.filesystem.attributes.descriptor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -30,30 +28,30 @@ import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 
 /**
  * File attribute descriptors for all {@link FileAttributeView}s defined by
  * the JDK
  */
-public enum StandardAttributesDescriptor
-    implements AttributesDescriptor
-{
+public enum StandardAttributesDescriptor implements AttributesDescriptor {
+
     ACL("acl", AclFileAttributeView.class, null),
     BASIC("basic", BasicFileAttributeView.class, BasicFileAttributes.class),
     DOS("dos", DosFileAttributeView.class, DosFileAttributes.class),
     FILE_OWNER("owner", FileOwnerAttributeView.class, null),
     POSIX("posix", PosixFileAttributeView.class, PosixFileAttributes.class),
-    USER("user", UserDefinedFileAttributeView.class, null)
-    ;
+    USER("user", UserDefinedFileAttributeView.class, null);
 
     private final String name;
     private final Class<? extends FileAttributeView> viewClass;
     private final Class<? extends BasicFileAttributes> attributeClass;
 
-    StandardAttributesDescriptor(final String name,
-        final Class<? extends FileAttributeView> viewClass,
-        final Class<? extends BasicFileAttributes> attributeClass)
-    {
+    StandardAttributesDescriptor(String name,
+                                 Class<? extends FileAttributeView> viewClass,
+                                 Class<? extends BasicFileAttributes> attributeClass) {
         this.name = name;
         this.viewClass = viewClass;
         this.attributeClass = attributeClass;
@@ -61,22 +59,19 @@ public enum StandardAttributesDescriptor
 
     @Nonnull
     @Override
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     @Nonnull
     @Override
-    public Class<? extends FileAttributeView> getViewClass()
-    {
+    public Class<? extends FileAttributeView> getViewClass() {
         return viewClass;
     }
 
     @Nullable
     @Override
-    public Class<? extends BasicFileAttributes> getAttributeClass()
-    {
+    public Class<? extends BasicFileAttributes> getAttributeClass() {
         return attributeClass;
     }
 }

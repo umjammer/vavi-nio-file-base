@@ -18,6 +18,6 @@
 
 package com.github.fge.filesystem.attributes.testclasses;
 
-public interface ArgType1
-{
+public interface ArgType1 {
+
 }

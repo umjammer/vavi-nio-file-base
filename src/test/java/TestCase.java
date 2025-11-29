@@ -24,13 +24,15 @@ import java.util.stream.IntStream;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import vavi.io.Seekable;
 import vavi.nio.file.Base;
 import vavi.nio.file.Util;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,12 +42,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
- * Test01.
+ * TestCase.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2019/07/11 umjammer initial version <br>
  */
-class Test01 {
+class TestCase {
 
     static Path tmp = Paths.get("tmp");
 
@@ -54,6 +56,14 @@ class Test01 {
         if (!Files.exists(tmp)) {
             Files.createDirectory(tmp);
         }
+    }
+
+    @Test
+    @Disabled("just for NFD filename creation")
+    void test0() throws Exception {
+        Path path = Path.of("src/test/resources/パンダ.txt");
+        String normalized = Normalizer.normalize(path.getFileName().toString(), Form.NFD);
+        Files.copy(path, Path.of("tmp", normalized));
     }
 
     @Test
@@ -152,6 +162,7 @@ class Test01 {
     }
 
     static class SeekableByteArrayInputStream extends InputStream implements Seekable {
+
         byte[] buf;
         int pos;
 
@@ -189,6 +200,7 @@ class Test01 {
     }
 
     static class SeekableByteArrayOutputStream extends OutputStream implements Seekable {
+
         List<Byte> buf;
         int capacity;
         int pos;
@@ -241,7 +253,8 @@ class Test01 {
         }
         InputStream is = new SeekableByteArrayInputStream(b);
         SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(is) {
-            @Override protected long getSize() {
+            @Override
+            protected long getSize() {
                 return b.length;
             }
         };
@@ -257,11 +270,12 @@ class Test01 {
         for (int i = 0; i < 256; i++) {
             b[i] = (byte) i;
         }
-        Path tmp = Test01.tmp.resolve("test07_1.dat");
+        Path tmp = TestCase.tmp.resolve("test07_1.dat");
         Files.write(tmp, b, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
         FileInputStream fis = new FileInputStream(tmp.toFile());
         SeekableByteChannel sbc = new Util.SeekableByteChannelForReading(fis) {
-            @Override protected long getSize() {
+            @Override
+            protected long getSize() {
                 return b.length;
             }
         };
@@ -284,14 +298,14 @@ class Test01 {
         };
 
         sbc.position(99);
-        byte[] rb = new byte[] { 100 };
+        byte[] rb = new byte[] {100};
         sbc.write(ByteBuffer.wrap(rb));
 
         assertEquals(100, sbaos.toByteArray().length);
         assertEquals(100, sbaos.toByteArray()[99]);
 
         sbc.position(49);
-        rb = new byte[] { 50 };
+        rb = new byte[] {50};
         sbc.write(ByteBuffer.wrap(rb));
 
         assertEquals(100, sbaos.toByteArray().length);
@@ -300,7 +314,7 @@ class Test01 {
 
     @Test
     void test08_1() throws Exception {
-        Path tmp = Test01.tmp.resolve("test08_1.dat");
+        Path tmp = TestCase.tmp.resolve("test08_1.dat");
         FileOutputStream fos = new FileOutputStream(tmp.toFile());
         SeekableByteChannel sbc = new Util.SeekableByteChannelForWriting(fos) {
             @Override
@@ -310,11 +324,11 @@ class Test01 {
         };
 
         sbc.position(99);
-        byte[] rb = new byte[] { 100 };
+        byte[] rb = new byte[] {100};
         sbc.write(ByteBuffer.wrap(rb));
 
         sbc.position(49);
-        rb = new byte[] { 50 };
+        rb = new byte[] {50};
         sbc.write(ByteBuffer.wrap(rb));
 
         byte[] b = Files.readAllBytes(tmp);
