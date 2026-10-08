@@ -18,6 +18,7 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileStore;
+import java.nio.file.FileSystemException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.OpenOption;
@@ -233,23 +234,59 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
         removeEntry(entry, path);
     }
 
+    /**
+     * <ul>
+     *  <li>if the source and the target are the same file, do nothing</li>
+     *  <li>if the source is a directory, an empty directory is created at the target</li>
+     * </ul>
+     *
+     * @throws NoSuchFileException        the source does not exist
+     * @throws FileAlreadyExistsException the target exists and {@link StandardCopyOption#REPLACE_EXISTING} is not set
+     * @throws DirectoryNotEmptyException {@link StandardCopyOption#REPLACE_EXISTING} is set but the target is a non-empty directory
+     */
     @Override
     public final void copy(Path source, Path target, Set<CopyOption> options) throws IOException {
-        try {
-            T targetEntry = getEntry(target);
-            if (exists(targetEntry)) {
-                if (options != null && options.stream().anyMatch(o -> o.equals(StandardCopyOption.REPLACE_EXISTING))) {
-                    removeEntry(target);
-                } else {
-                    throw new FileAlreadyExistsException("path: " + target);
-                }
-            }
-            logger.log(Level.DEBUG, "copy: cause target not exists");
-        } catch (NoSuchFileException e) {
-            logger.log(Level.DEBUG, "copy: cause target not found, " + e.getMessage());
+        T sourceEntry = getEntry(source);
+        if (!exists(sourceEntry)) {
+            throw new NoSuchFileException(source.toString());
         }
 
+        if (isSameFile(source, target)) {
+            return;
+        }
+
+        removeTargetIfReplaceable(target, options);
+
         copyEntry(source, target, options);
+    }
+
+    /**
+     * checks the target existence before copy or move, and removes the target if replacing is allowed.
+     *
+     * @throws FileAlreadyExistsException the target exists and {@link StandardCopyOption#REPLACE_EXISTING} is not set
+     * @throws DirectoryNotEmptyException {@link StandardCopyOption#REPLACE_EXISTING} is set but the target is a non-empty directory
+     */
+    private void removeTargetIfReplaceable(Path target, Set<CopyOption> options) throws IOException {
+        T targetEntry;
+        try {
+            targetEntry = getEntry(target);
+        } catch (NoSuchFileException e) {
+            logger.log(Level.DEBUG, "cause target not found, " + e.getMessage());
+            return;
+        }
+        if (!exists(targetEntry)) {
+            logger.log(Level.DEBUG, "cause target not exists");
+            return;
+        }
+
+        if (options == null || !options.contains(StandardCopyOption.REPLACE_EXISTING)) {
+            throw new FileAlreadyExistsException(target.toString());
+        }
+        if (isFolder(targetEntry) && hasChildren(targetEntry, target)) {
+            throw new DirectoryNotEmptyException(target.toString());
+        }
+
+        removeEntry(target);
     }
 
     /**
@@ -271,44 +308,40 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
         if (!isFolder(sourceEntry)) {
             copyEntry(sourceEntry, targetParentEntry, source, target, options);
         } else {
-            // TODO java spec. allows empty folder
-            throw new UnsupportedOperationException("source can not be a folder: " + source);
+            // java spec. copies a folder as an empty folder
+            createDirectoryEntry(target);
         }
     }
 
+    /**
+     * <ul>
+     *  <li>if the source and the target are the same file, do nothing</li>
+     *  <li>if the target is an existing directory, the source is NOT moved into the directory</li>
+     *  <li>if the source and the target have the same parent, {@link #renameEntry(Path, Path)} is used,
+     *      otherwise {@link #moveEntry(Path, Path, boolean)}</li>
+     * </ul>
+     *
+     * @throws NoSuchFileException        the source does not exist
+     * @throws FileAlreadyExistsException the target exists and {@link StandardCopyOption#REPLACE_EXISTING} is not set
+     * @throws DirectoryNotEmptyException {@link StandardCopyOption#REPLACE_EXISTING} is set but the target is a non-empty directory
+     * @throws FileSystemException        the source is a directory and the target is in the source
+     */
     @Override
     public final void move(Path source, Path target, Set<CopyOption> options) throws IOException {
-        try {
-            T targetEntry = getEntry(target);
-            if (exists(targetEntry)) {
-                if (isFolder(targetEntry)) {
-                    if (options != null && options.stream().anyMatch(o -> o.equals(StandardCopyOption.REPLACE_EXISTING))) {
-                        // replace the target
-                        if (hasChildren(targetEntry, target)) {
-                            throw new DirectoryNotEmptyException("dir: " + target);
-                        } else {
-                            removeEntry(target);
-                            moveEntry(source, target, false);
-                        }
-                    } else {
-                        // move into the target
-                        // TODO SPEC is FileAlreadyExistsException ?
-                        moveEntry(source, target, true);
-                    }
-                } else {
-                    if (options != null && options.stream().anyMatch(o -> o.equals(StandardCopyOption.REPLACE_EXISTING))) {
-                        removeEntry(target);
-                        moveEntry(source, target, false);
-                    } else {
-                        throw new FileAlreadyExistsException("path: " + target);
-                    }
-                }
-                return;
-            }
-            logger.log(Level.DEBUG, "move: cause target not exists");
-        } catch (NoSuchFileException e) {
-            logger.log(Level.DEBUG, "move: cause target not found, " + e.getMessage());
+        T sourceEntry = getEntry(source);
+        if (!exists(sourceEntry)) {
+            throw new NoSuchFileException(source.toString());
         }
+
+        if (isSameFile(source, target)) {
+            return;
+        }
+
+        if (isFolder(sourceEntry) && target.toAbsolutePath().startsWith(source.toAbsolutePath())) {
+            throw new FileSystemException(source.toString(), target.toString(), "cannot move a directory into itself");
+        }
+
+        removeTargetIfReplaceable(target, options);
 
         if (source.toAbsolutePath().getParent().equals(target.toAbsolutePath().getParent())) {
             // rename
@@ -321,6 +354,8 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
     /**
      * implement driver depends code
      *
+     * @param targetIsParent always false, {@link #move(Path, Path, Set)} doesn't move into an existing directory (JSR-203).
+     *                       still exists for compatibility.
      * @see #move(Path, Path, Set)
      */
     protected abstract T moveEntry(T sourceEntry, T targetParentEntry, Path source, Path target, boolean targetIsParent) throws IOException;
@@ -328,6 +363,7 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
     /**
      * implement driver depends code
      *
+     * @param targetIsParent always false, see {@link #moveEntry(Object, Object, Path, Path, boolean)}
      * @see #move(Path, Path, Set)
      */
     protected abstract T moveFolderEntry(T sourceEntry, T targetParentEntry, Path source, Path target, boolean targetIsParent) throws IOException;
@@ -362,7 +398,7 @@ public abstract class ExtendedFileSystemDriver<T> extends ExtendedFileSystemDriv
      */
     protected void renameEntry(Path source, Path target) throws IOException {
         T sourceEntry = getEntry(source);
-        T targetParentEntry = getEntry(target.getParent());
+        T targetParentEntry = getEntry(target.toAbsolutePath().getParent());
         renameEntry(sourceEntry, targetParentEntry, source, target);
     }
 

@@ -26,6 +26,7 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.AccessMode;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.CopyOption;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.DirectoryStream;
@@ -42,6 +43,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -63,8 +65,8 @@ import com.github.fge.filesystem.options.FileSystemOptionsFactory;
  *
  * <ul>
  *     <li>The {@link #copy(Path, Path, CopyOption...) copy} operation will not
- *     perform recursive copies; if the source is a non empty directory, the
- *     operation fails with {@link DirectoryNotEmptyException}. This class
+ *     perform recursive copies; if the source is a directory, an empty
+ *     directory is created at the target (entries are not copied). This class
  *     enforces this behaviour if the source and target paths are not on the
  *     same {@link Path#getFileSystem() filesystem}; if they are, this is then
  *     delegated to {@link FileSystemDriver#copy(Path, Path, Set) your own copy
@@ -314,6 +316,7 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
      *
      * <ul>
      *     <li>check that the source path exists;</li>
+     *     <li>if the source and the target are the same file, do nothing;</li>
      *     <li>if {@link StandardCopyOption#REPLACE_EXISTING} is not set, check
      *     that the destination path <em>does not</em> exist.</li>
      * </ul>
@@ -323,30 +326,37 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
      * itself.</p>
      *
      * <p>Note that recursive copies are NOT performed by this method.
-     * Similarly, the driver SHOULD NOT perform recursive copies.</p>
+     * Similarly, the driver SHOULD NOT perform recursive copies.
+     * If the source is a directory, an empty directory is created at the target.</p>
      *
      * @param source  the source path
      * @param target  the target path
      * @param options the copy options
-     * @throws NoSuchFileException        source path does not exist
-     * @throws FileAlreadyExistsException destination path exists and {@link StandardCopyOption#REPLACE_EXISTING} was not set
-     * @throws IOException                other I/O error
+     * @throws NoSuchFileException           source path does not exist
+     * @throws FileAlreadyExistsException    destination path exists and {@link StandardCopyOption#REPLACE_EXISTING} was not set
+     * @throws DirectoryNotEmptyException    {@link StandardCopyOption#REPLACE_EXISTING} was set but the target is a non-empty directory
+     * @throws UnsupportedOperationException {@link StandardCopyOption#ATOMIC_MOVE} was set
+     * @throws IOException                   other I/O error
      * @see FileSystemDriver#copy(Path, Path, Set)
      */
     @Override
     public final void copy(Path source, Path target, CopyOption... options) throws IOException {
         Set<CopyOption> optionSet = optionsFactory.compileCopyOptions(options);
+        if (optionSet.contains(StandardCopyOption.ATOMIC_MOVE))
+            throw new UnsupportedOptionException(StandardCopyOption.ATOMIC_MOVE + " is not a copy option");
 
         FileSystemDriver src = repository.getDriver(source);
         FileSystemDriver dst = repository.getDriver(target);
 
         src.checkAccess(source);
-        try {
-            dst.checkAccess(target);
-            if (!optionSet.contains(StandardCopyOption.REPLACE_EXISTING))
-                throw new FileAlreadyExistsException(target.toString());
-        } catch (NoSuchFileException ignored) {
-        }
+
+        //noinspection ObjectEquality
+        if (src == dst && src.isSameFile(source, target))
+            return;
+
+        boolean targetExists = exists(dst, target);
+        if (targetExists && !optionSet.contains(StandardCopyOption.REPLACE_EXISTING))
+            throw new FileAlreadyExistsException(target.toString());
 
         // If the same filesystem, call the (hopefully optimize) copy method
         // from the driver.
@@ -356,24 +366,7 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
             return;
         }
 
-        // Otherwise, translate the copy options and do a regular stream copy.
-        Set<OpenOption> readOptions = optionsFactory.toReadOptions(optionSet);
-        Set<OpenOption> writeOptions = optionsFactory.toWriteOptions(optionSet);
-
-        try (
-                // It is delegated to the drivers to see whether the source or
-                // target are directories
-                InputStream in = src.newInputStream(source, readOptions);
-                OutputStream out = dst.newOutputStream(source, writeOptions)
-        ) {
-            byte[] buf = new byte[BUFSIZE];
-            int bytesRead;
-
-            while ((bytesRead = in.read(buf)) != -1)
-                out.write(buf, 0, bytesRead);
-
-            out.flush();
-        }
+        copyAcrossFileSystems(src, source, dst, target, optionSet, targetExists);
     }
 
     /**
@@ -382,8 +375,11 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
      * <p>This method will perform the following checks</p>
      *
      * <ul>
+     *     <li>if {@link StandardCopyOption#ATOMIC_MOVE} is set but not supported,
+     *     throws {@link AtomicMoveNotSupportedException};</li>
      *     <li>if the source does not exist, throws {@link
      *     NoSuchFileException};</li>
+     *     <li>if the source and the target are the same file, does nothing;</li>
      *     <li>if the target exists and {@link
      *     StandardCopyOption#REPLACE_EXISTING} is not set, throws {@link
      *     FileAlreadyExistsException}.</li>
@@ -391,22 +387,40 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
      *
      * <p>From this point on, it will delegate to the driver <em>if and only
      * if</em> both the source and target are on the same filesystem. If this
-     * is not the case, TODO: implement metadata driver, for now it sucks</p>
+     * is not the case, the source is copied to the target then deleted,
+     * a non-empty directory cannot be moved in this case.
+     * TODO: implement metadata driver, for now it sucks</p>
      *
      * @param source  the path to move
      * @param target  the destination path
      * @param options the set of copy options
-     * @throws NoSuchFileException        the source does not exist
-     * @throws FileAlreadyExistsException the target exists and {@link StandardCopyOption#REPLACE_EXISTING} was not set
-     * @throws IOException                other I/O exception
+     * @throws NoSuchFileException              the source does not exist
+     * @throws FileAlreadyExistsException       the target exists and {@link StandardCopyOption#REPLACE_EXISTING} was not set
+     * @throws DirectoryNotEmptyException       {@link StandardCopyOption#REPLACE_EXISTING} was set but the target is a non-empty directory
+     * @throws AtomicMoveNotSupportedException  {@link StandardCopyOption#ATOMIC_MOVE} was set but not supported
+     * @throws IOException                      other I/O exception
      * @see FileSystemDriver#move(Path, Path, Set)
      */
     @Override
     public final void move(Path source, Path target, CopyOption... options) throws IOException {
+        if (Arrays.asList(options).contains(StandardCopyOption.ATOMIC_MOVE) &&
+                !optionsFactory.isCopyOptionSupported(StandardCopyOption.ATOMIC_MOVE))
+            throw new AtomicMoveNotSupportedException(source.toString(), target.toString(), "atomic move is not supported");
+
         Set<CopyOption> optionSet = optionsFactory.compileCopyOptions(options);
 
         FileSystemDriver src = repository.getDriver(source);
         FileSystemDriver dst = repository.getDriver(target);
+
+        src.checkAccess(source);
+
+        //noinspection ObjectEquality
+        if (src == dst && src.isSameFile(source, target))
+            return;
+
+        boolean targetExists = exists(dst, target);
+        if (targetExists && !optionSet.contains(StandardCopyOption.REPLACE_EXISTING))
+            throw new FileAlreadyExistsException(target.toString());
 
         // If the same filesystem, call the (hopefully optimize) move method
         // from the driver.
@@ -416,13 +430,54 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
             return;
         }
 
-        // Otherwise, translate the copy options and do a regular stream copy.
-        // TODO!!
+        // Otherwise, copy and delete
+        if (src.readAttributes(source, BasicFileAttributes.class).isDirectory()) {
+            try (DirectoryStream<Path> ds = src.newDirectoryStream(source, p -> true)) {
+                if (ds.iterator().hasNext())
+                    throw new DirectoryNotEmptyException(source.toString());
+            }
+        }
+
+        copyAcrossFileSystems(src, source, dst, target, optionSet, targetExists);
+
+        src.delete(source);
+    }
+
+    /** the existence check through the driver */
+    private static boolean exists(FileSystemDriver driver, Path path) throws IOException {
+        try {
+            driver.checkAccess(path);
+            return true;
+        } catch (NoSuchFileException e) {
+            return false;
+        }
+    }
+
+    /**
+     * copy between different filesystems, a directory is not copied recursively.
+     *
+     * @param targetExists the target is checked already, and if this is true, the target will be replaced.
+     */
+    private void copyAcrossFileSystems(FileSystemDriver src, Path source, FileSystemDriver dst, Path target,
+                                       Set<CopyOption> optionSet, boolean targetExists) throws IOException {
+        // DirectoryNotEmptyException is thrown by the driver if the target is a non-empty directory
+        if (targetExists)
+            dst.delete(target);
+
+        if (src.readAttributes(source, BasicFileAttributes.class).isDirectory()) {
+            dst.createDirectory(target);
+            return;
+        }
+
+        // translate the copy options and do a regular stream copy.
         Set<OpenOption> readOptions = optionsFactory.toReadOptions(optionSet);
         Set<OpenOption> writeOptions = optionsFactory.toWriteOptions(optionSet);
+
         try (
+                // It is delegated to the drivers to see whether the source or
+                // target are directories
                 InputStream in = src.newInputStream(source, readOptions);
-                OutputStream out = dst.newOutputStream(source, writeOptions)
+                OutputStream out = dst.newOutputStream(target, writeOptions)
         ) {
             byte[] buf = new byte[BUFSIZE];
             int bytesRead;
@@ -432,8 +487,6 @@ public abstract class FileSystemProviderBase extends FileSystemProvider {
 
             out.flush();
         }
-
-        src.delete(source);
     }
 
     /**

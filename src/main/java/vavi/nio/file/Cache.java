@@ -94,6 +94,7 @@ public abstract class Cache<T> {
     /** parent folder cache will be modified */
     public void removeEntry(Path path) {
         entryCache.remove(path.toAbsolutePath());
+        folderCache.remove(path.toAbsolutePath());
         // parent
         Path parentPath = path.toAbsolutePath().getParent();
         List<Path> bros = folderCache.get(parentPath.toAbsolutePath());
@@ -105,15 +106,20 @@ public abstract class Cache<T> {
     /** for folder */
     public void moveEntry(Path source, Path target, T entry) {
         List<Path> children = getFolder(source);
-        if (children != null) {
-            folderCache.remove(source.toAbsolutePath());
-        }
+        removeDescendants(source);
         removeEntry(source);
         addEntry(target, entry);
         if (children != null) {
             putFolder(target, changeParent(children, target));
 //getFolder(target).forEach(System.err::println);
         }
+    }
+
+    /** descendants are evicted, they will be retrieved again under the new path */
+    private void removeDescendants(Path dir) {
+        Path d = dir.toAbsolutePath();
+        entryCache.keySet().removeIf(p -> !p.equals(d) && p.startsWith(d));
+        folderCache.keySet().removeIf(p -> !p.equals(d) && p.startsWith(d));
     }
 
     /** move folder */
