@@ -183,8 +183,8 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
                 cache.addEntry(target, newEntry);
             }
         } else {
-            // TODO java spec. allows empty folder
-            throw new UnsupportedOperationException("source can not be a folder");
+            // java spec. copies a folder as an empty folder
+            createDirectoryEntry(target);
         }
     }
 
@@ -209,9 +209,14 @@ public abstract class CachedFileSystemDriver<T> extends ExtendedFileSystemDriver
     @Override
     protected void renameEntry(Path source, Path target) throws IOException {
         T sourceEntry = cache.getEntry(source);
-        T targetParentEntry = cache.getEntry(target.getParent());
+        T targetParentEntry = cache.getEntry(target.toAbsolutePath().getParent());
+        boolean isFolder = isFolder(sourceEntry);
         T newEntry = renameEntry(sourceEntry, targetParentEntry, source, target);
-        cache.removeEntry(source);
-        cache.addEntry(target, newEntry);
+        if (isFolder) {
+            cache.moveEntry(source, target, newEntry);
+        } else {
+            cache.removeEntry(source);
+            cache.addEntry(target, newEntry);
+        }
     }
 }

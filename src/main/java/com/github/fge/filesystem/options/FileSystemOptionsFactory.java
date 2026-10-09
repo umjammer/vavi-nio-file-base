@@ -193,6 +193,16 @@ public class FileSystemOptionsFactory {
         return Collections.unmodifiableSet(set);
     }
 
+    /**
+     * Tell whether a copy option is supported
+     *
+     * @param opt the option
+     * @return true if the option is supported
+     */
+    public final boolean isCopyOptionSupported(CopyOption opt) {
+        return copyOptions.contains(Objects.requireNonNull(opt));
+    }
+
     public final void checkLinkOptions(LinkOption... opts) {
         for (LinkOption opt : opts)
             if (!linkOptions.contains(Objects.requireNonNull(opt)))
